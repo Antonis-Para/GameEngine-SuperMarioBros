@@ -7,6 +7,6 @@
 
 ## TODO
 
-- [] Read lectures
-- [] Write code from lectures
-- [] Map Bitmap API (lecture 6, slide 20) to Allegro functions
+- [ ] Read lectures
+- [ ] Write code from lectures
+- [ ] Map Bitmap API (lecture 6, slide 20) to Allegro functions
