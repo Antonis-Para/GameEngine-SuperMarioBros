@@ -3,7 +3,7 @@
 ## About Allegro
 
 [Allegro Oficial repository](https://github.com/liballeg/allegro5)  
-[Allegro Oficial wiki](https://github.com/liballeg/allegro_wiki)
+[Allegro Oficial wiki](https://github.com/liballeg/allegro_wiki/wiki)
 
 ## TODO
 
