@@ -5,6 +5,7 @@
 ### Content
 - [TODO](#todo)
 - [About Allegro](#about-allegro)
+- [Tiled maps](#tiled-maps)
 
 ---
 
@@ -22,3 +23,8 @@
 
 [Allegro Oficial repository](https://github.com/liballeg/allegro5)  
 [Allegro Oficial wiki](https://github.com/liballeg/allegro_wiki/wiki)
+
+---
+
+## Tiled maps
+[GitHub link](https://github.com/jamesbowman/tiled-maps)
