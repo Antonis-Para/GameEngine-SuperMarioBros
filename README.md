@@ -11,9 +11,7 @@
 ## TODO
 
 - [x] Write code from lectures
-- [ ] Map Bitmap API (lecture 6, slide 20) to Allegro functions
-- [ ] Map PixelMemory API (lecture 6, slide 25) to Allegro functions
-- [ ] Map Color Key and Masking API (lecture 7, slide 5) to Allegro functions
+- [ ] Map APIs from lecture to Allegro
 
 ---
 
