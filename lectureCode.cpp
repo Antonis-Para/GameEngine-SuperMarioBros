@@ -1,3 +1,12 @@
+#include<stdio.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <functional>
+#include <assert.h>  
+
+using namespace std;
+
 // lecture 5, slide 27
 class Game { // app::Game namespace, the mother application
 public:
@@ -320,8 +329,30 @@ void WriteTextMap(const TileMap*, FILE* fp) {
 	/* custom write in text format */
 }
 
-bool ReadTextMap(TileMap* m, FILE* fp) {
-	/* parsing... */
+bool ReadTextMap(TileMap* m, string filename) {
+	string line, token, delimiter = ",";
+	size_t pos = 0;
+	ifstream csvFile(filename);
+	int x = 0, y = 0;
+
+	if (csvFile.is_open()) {
+		while (getline(csvFile, line)) {
+			while ((pos = line.find(delimiter)) != string::npos) {
+				token = line.substr(0, pos);
+				SetTile(m, x, y, stoi(token));
+				x++;
+				line.erase(0, pos + delimiter.length());
+			}
+			y++;
+		}
+		csvFile.close();
+		return true;
+	}
+	else {
+		cout << "Unable to open file " << filename << endl;
+	}
+
+	return false;
 }
 
 // lecture 8, slide 24
