@@ -91,7 +91,7 @@ void BitmapBlit(Bitmap src,  const Rect& from, Bitmap dest, const Point& to);
 
 // lecture 6, slide 24
 using BitmapAccessFunctor = std::function<void(PixelMemory*)>;
-template<typenameTfunc>
+template<typename Tfunc>
 void BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
 	assert(result);
