@@ -24,7 +24,21 @@ void app::Game::CollisionChecking(void) { Invoke(collisions); }
 void app::Game::CommitDestructions(void) { Invoke(destruct); }
 void app::Game::UserCode(void) { Invoke(user); }
 bool app::Game::IsFinished(void) const { return !done(); }
+void app::Game::MainLoop(void) {
+	while (!IsFinished())
+		MainLoopIteration();
+}
 
+void app::Game::MainLoopIteration(void) {
+	Render();
+	Input();
+	ProgressAnimations();
+	AI();
+	Physics();
+	CollisionChecking();
+	CommitDestructions();
+	UserCode(); // hook for custom code at end
+}
 
 //-------------Class APP----------------
 
