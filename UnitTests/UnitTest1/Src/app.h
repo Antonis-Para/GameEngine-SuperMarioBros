@@ -43,7 +43,7 @@ namespace app {
 		Action render, anim, input, ai, physics, destruct, collisions, user;
 		Pred done;
 
-		void Invoke(const Action& f) { if (f) f(); }
+		void Invoke(const Action& f);
 	public:
 		template <typename Tfunc> void SetRender(const Tfunc& f);
 		// rest of setters are similary defined
