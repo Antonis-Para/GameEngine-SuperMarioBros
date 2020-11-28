@@ -5,10 +5,6 @@
 #include "Bitmap.h"
 #include "app.h"
 
-
-using namespace app;
-
-
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -32,11 +28,11 @@ void app::App::RunIteration(void) {
 	game.MainLoopIteration();
 }
 
-Game& app::App::GetGame(void) {
+app::Game& app::App::GetGame(void) {
 	return game;
 }
 
-const Game& app::App::GetGame(void) const { return game; }
+const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::App::Main(void) {
 	Initialise();
@@ -54,7 +50,7 @@ void app::SetTile(TileMap* m, Dim col, Dim row, Index index) {
 	(*m)[row][col] = index;
 }
 
-Index app::GetTile(const TileMap* m, Dim col, Dim row) {
+app::Index app::GetTile(const TileMap* m, Dim col, Dim row) {
 	return (*m)[row][col];
 }
 
@@ -88,11 +84,11 @@ bool app::ReadTextMap(TileMap* m, std::string filename) {
 	return false;
 }
 
-Dim app::TileX3(Index index) {
+app::Dim app::TileX3(Index index) {
 	return index >> TILEX_SHIFT;
 }
 
-Dim app::TileY3(Index index) {
+app::Dim app::TileY3(Index index) {
 	return index & TILEY_MASK;
 }
 
