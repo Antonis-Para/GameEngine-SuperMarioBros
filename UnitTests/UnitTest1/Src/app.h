@@ -1,7 +1,7 @@
 #include <functional>
 #include <fstream>
-#include <string>
 #include <iostream>
+#include "Bitmap.h"
 
 using namespace std;
 
@@ -26,21 +26,13 @@ namespace app {
 	typedef unsigned short Dim;
 	typedef unsigned short Index;
 	typedef Index TileMap[MAX_WIDTH][MAX_HEIGHT];
-	typedef void* Bitmap;
-
-	//--------------------STRUCTS---------------------------
-	struct Rect{ 
-		int x, y, w, h; 
-	};
-	struct Point{ 
-		int x, y; 
-	};
 
 	//--------------------GLOBAL VARS-----------------------
 	static TileMap map; 
 	Bitmap dpyBuffer = nullptr;
 	bool dpyChanged = true;
 	Dim dpyX = 0, dpyY= 0;
+	Bitmap tiles;
 
 	//--------------------CLASSES---------------------------
 	class Game { 
@@ -92,6 +84,10 @@ namespace app {
 	};
 
 	//--------------------FUNCTIONS-------------------------
+	void init(void){
+		
+	}
+
 	void SetTile(TileMap* m, Dim col, Dim row, Index index) {
 		(*m)[row][col] = index;
 	}
@@ -133,8 +129,6 @@ namespace app {
 	Dim TileY3(Index index) {
 		return index & TILEY_MASK;
 	}
-
-	void BitmapBlit(Bitmap src,  const Rect& from, Bitmap dest, const Point& to);
 
 	void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
 		BitmapBlit(tiles, Rect{ TileX3(tile), TileY3(tile), TILE_WIDTH, TILE_HEIGHT}, dest, Point{x, y});

@@ -3,8 +3,7 @@
 
 #include <string>
 #include <allegro5/allegro.h>
-#include "Rect.h"
-#include "Point.h"
+#include "Structs.h"
 
 typedef ALLEGRO_BITMAP* Bitmap;
 Bitmap BitmapLoad(const std::string& path);
