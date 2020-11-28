@@ -9,11 +9,11 @@ typedef ALLEGRO_BITMAP* Bitmap;
 Bitmap BitmapLoad(const std::string& path);
 Bitmap BitmapCreate(unsigned short w, unsigned short h);
 Bitmap BitmapCopy(Bitmap bmp);
-Bitmap BitmapClear(Bitmap bmp, Color c);
+//Bitmap BitmapClear(Bitmap bmp, Color c);
 void BitmapDestroy(Bitmap bmp);
 Bitmap BitmapGetScreen(void);
-Dim BitmapGetWidth(Bitmap bmp);
-Dim BitmapGetHeight(Bitmap bmp);
+unsigned short BitmapGetWidth(Bitmap bmp);
+unsigned short BitmapGetHeight(Bitmap bmp);
 void BitmapBlit(Bitmap src,  const Rect& from, Bitmap dest, const Point& to);
 
 #endif
