@@ -45,148 +45,71 @@ namespace app {
 
 		void Invoke(const Action& f) { if (f) f(); }
 	public:
-		template <typename Tfunc>
-		void SetRender(const Tfunc& f) { render = f; }
+		template <typename Tfunc> void SetRender(const Tfunc& f);
 		// rest of setters are similary defined
-		void Render(void) { Invoke(render); }
-		void ProgressAnimations(void) { Invoke(anim); }
-		void Input(void) { Invoke(input); }
-		void AI(void) { Invoke(ai); }
-		void Physics(void) { Invoke(physics); }
-		void CollisionChecking(void) { Invoke(collisions); }
-		void CommitDestructions(void) { Invoke(destruct); }
-		void UserCode(void) { Invoke(user); }
-		bool IsFinished(void) const { return !done(); }
+		void Render(void);
+		void ProgressAnimations(void);
+		void Input(void);
+		void AI(void);
+		void Physics(void);
+		void CollisionChecking(void);
+		void CommitDestructions(void);
+		void UserCode(void);
+		bool IsFinished(void) const;
 		void MainLoop(void);
 		void MainLoopIteration(void);
 	};
 
 
 	class App {
-	protected:
-		Game game;
+		protected:
+			Game game;
 
-	public:
-		virtual void	Initialise (void) = 0;
-		virtual void	Load (void) = 0;
-		virtual void	Run (void) { game.MainLoop(); }
-		virtual void	RunIteration (void)
- 						{ game.MainLoopIteration(); }
-		Game&			GetGame (void) { return game; }
-		const Game&		GetGame (void) const { return game; }
-		virtual void	Clear (void) = 0;
-		void Main (void) {
-			Initialise();
-			Load();
-			Run();
-			Clear();
-		}
+		public:
+			virtual void	Initialise (void) = 0;
+			virtual void	Load (void) = 0;
+			virtual void	Run(void);
+			virtual void	RunIteration(void);
+			Game&			GetGame(void);
+			const Game&		GetGame(void) const;
+			virtual void	Clear (void) = 0;
+			void Main(void);
 	};
 
 	//--------------------FUNCTIONS-------------------------
-	void init(void){
-		
-	}
+	void init(void);
 
-	void SetTile(TileMap* m, Dim col, Dim row, Index index) {
-		(*m)[row][col] = index;
-	}
+	void SetTile(TileMap* m, Dim col, Dim row, Index index);
 
-	Index GetTile(const TileMap* m, Dim col, Dim row) {
-		return (*m)[row][col];
-	}
+	Index GetTile(const TileMap* m, Dim col, Dim row);
 
-	bool ReadTextMap(TileMap* m, string filename) {
-		string line, token, delimiter = ",";
-		size_t pos = 0;
-		ifstream csvFile(filename);
-		int x = 0, y = 0;
+	bool ReadTextMap(TileMap* m, string filename);
 
-		if (csvFile.is_open()) {
-			while (getline(csvFile, line)) {
-				while ((pos = line.find(delimiter)) != string::npos) {
-					token = line.substr(0, pos);
-					SetTile(m, x, y, stoi(token));
-					x++;
-					line.erase(0, pos + delimiter.length());
-				}
-				y++;
-			}
-			csvFile.close();
-			return true;
-		}
-		else {
-			cout << "Unable to open file " << filename << endl;
-		}
+	Dim TileX3(Index index);
 
-		return false;
-	}
+	Dim TileY3(Index index);
 
-	Dim TileX3(Index index) {
-		return index >> TILEX_SHIFT;
-	}
+	void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile);
 
-	Dim TileY3(Index index) {
-		return index & TILEY_MASK;
-	}
-
-	void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
-		BitmapBlit(tiles, Rect{ TileX3(tile), TileY3(tile), TILE_WIDTH, TILE_HEIGHT}, dest, Point{x, y});
-	}
-
-	void TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, const Rect& displayArea) {
-		if(dpyChanged) {
-			auto startCol = DIV_TILE_WIDTH(viewWin.x);
-			auto startRow = DIV_TILE_HEIGHT(viewWin.y);
-			auto endCol = DIV_TILE_WIDTH(viewWin.x + viewWin.w - 1);
-			auto endRow = DIV_TILE_HEIGHT(viewWin.y + viewWin.y - 1);
-			dpyX = MOD_TILE_WIDTH(viewWin.x);
-			dpyY = MOD_TILE_WIDTH(viewWin.y);
-			dpyChanged = false;
-			for(Dim row = startRow; row <= endRow; ++row)
-				for(Dim col = startCol; col <= endCol; ++col)
-					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tiles, GetTile(map, row, col));
-		}
-		
-		BitmapBlit(dpyBuffer, {dpyX, dpyY, viewWin.w, viewWin.h}, dest, {displayArea.x, displayArea.y});
-	}
+	void TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, const Rect& displayArea);
 
 	int GetMapPixelWidth(void);
 	int GetMapPixelHeight(void);
 
-	void Scroll(Rect* viewWin, int dx, int dy) {
-		viewWin->x += dx;
-		viewWin->y += dy;
-	}
+	void Scroll(Rect* viewWin, int dx, int dy);
 
-	bool CanScrollHoriz(const Rect& viewWin, int dx) {
-		return viewWin.x >= -dx && (viewWin.x + viewWin.w + dx) <= GetMapPixelWidth();
-	}
+	bool CanScrollHoriz(const Rect& viewWin, int dx);
 
-	bool CanScrollVert(const Rect& viewWin, int dy) {
-		return viewWin.y >= -dy && (viewWin.y + viewWin.h + dy) <= GetMapPixelHeight();
-	}
+	bool CanScrollVert(const Rect& viewWin, int dy);
 
 	static void FilterScrollDistance(
 		int viewStartCoord,// x  or y
 		int viewSize,// w  or h
 		int *d,// dx or dy
 		int maxMapSize// w or h
-		) {
-			auto val= *d + viewStartCoord;
-			if(val< 0)
-				*d = viewStartCoord;
-			else if((val+ viewSize) >= maxMapSize)
-				*d = maxMapSize - (viewStartCoord + viewSize);
-	}
+	);
 
-	void FilterScroll(const Rect& viewWin, int *dx, int *dy) {
-		FilterScrollDistance(viewWin.x, viewWin.w, dx,  GetMapPixelWidth());
-		FilterScrollDistance(viewWin.y, viewWin.h, dy,  GetMapPixelHeight());
-	}
+	void FilterScroll(const Rect& viewWin, int *dx, int *dy);
 
-	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
-		FilterScroll(*viewWin, &dx, &dy);
-		Scroll(viewWin, dx, dy);
-	}
+	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy);
 }
