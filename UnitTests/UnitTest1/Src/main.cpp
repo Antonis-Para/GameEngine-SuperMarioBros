@@ -10,5 +10,21 @@ int main() {
 		std::cout << std::endl;
 	}
 
+	ALLEGRO_DISPLAY* display = NULL;
+	// Initialize allegro
+	if (!al_init()) {
+		fprintf(stderr, "Failed to initialize allegro.\n");
+		return 1;
+	}
+
+	// Create the display
+	display = al_create_display(640, 480);
+	if (!display) {
+		fprintf(stderr, "Failed to create display.\n");
+		return 1;
+	}
+
+	al_destroy_display(display);
+
 	return EXIT_SUCCESS;
 }
