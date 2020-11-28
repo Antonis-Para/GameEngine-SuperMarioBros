@@ -51,6 +51,7 @@ bool app::ReadTextMap(TileMap* m, string filename) {
 
 	if (csvFile.is_open()) {
 		while (getline(csvFile, line)) {
+			x = 0;
 			while ((pos = line.find(delimiter)) != string::npos) {
 				token = line.substr(0, pos);
 				stringstream ss(token);
@@ -60,12 +61,12 @@ bool app::ReadTextMap(TileMap* m, string filename) {
 				x++;
 				line.erase(0, pos + delimiter.length());
 			}
-			x = 0;
+			stringstream ss(line);
+			int val;
+			ss >> val;
+			SetTile(m, x, y, val);
 			y++;
 		}
-		for (int i = 0; i < x; ++i)
-			for (int j = 0; j < y; ++i)
-				std::cout << m[i][j] << " ";
 		csvFile.close();
 		return true;
 	}
