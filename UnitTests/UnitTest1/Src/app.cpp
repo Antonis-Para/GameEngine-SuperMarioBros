@@ -1,9 +1,14 @@
-#include <functional>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include "Bitmap.h"
 #include "app.h"
+
+using namespace std;
+
+//--------------------GLOBAL VARS-----------------------
+static app::TileMap map;
+app::Bitmap dpyBuffer = nullptr;
+bool dpyChanged = true;
+app::Dim dpyX = 0, dpyY = 0;
+app::Bitmap tiles;
+
 
 /*--------------------CLASSES---------------------------*/
 
@@ -20,19 +25,6 @@ bool app::Game::IsFinished(void) const { return !done(); }
 
 
 //-------------Class APP----------------
-void app::App::Run(void) {
-	game.MainLoop();
-}
-
-void app::App::RunIteration(void) {
-	game.MainLoopIteration();
-}
-
-app::Game& app::App::GetGame(void) {
-	return game;
-}
-
-const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::App::Main(void) {
 	Initialise();
@@ -42,9 +34,6 @@ void app::App::Main(void) {
 }
 
 /*--------------------FUNCTIONS-------------------------*/
-void app::init(void) {
-
-}
 
 void app::SetTile(TileMap* m, Dim col, Dim row, Index index) {
 	(*m)[row][col] = index;
@@ -54,17 +43,17 @@ app::Index app::GetTile(const TileMap* m, Dim col, Dim row) {
 	return (*m)[row][col];
 }
 
-bool app::ReadTextMap(TileMap* m, std::string filename) {
-	std::string line, token, delimiter = ",";
-	std::size_t pos = 0;
-	std::ifstream csvFile(filename);
+bool app::ReadTextMap(TileMap* m, string filename) {
+	string line, token, delimiter = ",";
+	size_t pos = 0;
+	ifstream csvFile(filename);
 	int x = 0, y = 0;
 
 	if (csvFile.is_open()) {
-		while (std::getline(csvFile, line)) {
-			while ((pos = line.find(delimiter)) != std::string::npos) {
+		while (getline(csvFile, line)) {
+			while ((pos = line.find(delimiter)) != string::npos) {
 				token = line.substr(0, pos);
-				std::stringstream ss(token);
+				stringstream ss(token);
 				int val;
 				ss >> val;
 				SetTile(m, x, y, val);
@@ -74,11 +63,15 @@ bool app::ReadTextMap(TileMap* m, std::string filename) {
 			x = 0;
 			y++;
 		}
+		for (int i = 0; i < x; ++i)
+			for (int j = 0; j < y; ++i)
+				std::cout << m[i][j] << " ";
 		csvFile.close();
 		return true;
 	}
 	else {
-		std::cout << "Unable to open file " << filename << std::endl;
+		cout << "Unable to open file " << filename << endl;
+		exit(EXIT_FAILURE);
 	}
 
 	return false;
@@ -93,7 +86,7 @@ app::Dim app::TileY3(Index index) {
 }
 
 void app::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
-	BitmapBlit(tiles, Rect{ TileX3(tile), TileY3(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
+	BitmapBlit(tiles, app::Rect{ TileX3(tile), TileY3(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
 }
 
 void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, const Rect& displayArea) {
@@ -148,4 +141,14 @@ void app::FilterScroll(const Rect& viewWin, int *dx, int *dy) {
 void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 	FilterScroll(*viewWin, &dx, &dy);
 	Scroll(viewWin, dx, dy);
+}
+
+int app::GetMapPixelWidth(void) {
+	//TODO
+	return 0;
+}
+
+int app::GetMapPixelHeight(void) {
+	//TODO
+	return 0;
 }

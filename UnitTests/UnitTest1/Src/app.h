@@ -1,7 +1,13 @@
+#pragma once
+
+#ifndef APP_H
+#define APP_H
+
 #include <functional>
 #include <fstream>
+#include <sstream>
 #include <iostream>
-#include "Bitmap.h"
+#include <allegro5/allegro.h>
 
 using namespace std;
 
@@ -26,13 +32,27 @@ namespace app {
 	typedef unsigned short Dim;
 	typedef unsigned short Index;
 	typedef Index TileMap[MAX_WIDTH][MAX_HEIGHT];
+	typedef ALLEGRO_BITMAP* Bitmap;
+	typedef ALLEGRO_COLOR Color;
+	typedef unsigned char RGBValue;
+	typedef unsigned char Alpha;
 
-	//--------------------GLOBAL VARS-----------------------
-	static TileMap map; 
-	Bitmap dpyBuffer = nullptr;
-	bool dpyChanged = true;
-	Dim dpyX = 0, dpyY= 0;
-	Bitmap tiles;
+	//--------------------STRUCTS---------------------------
+	struct Rect {
+		int x, y, w, h;
+	};
+	struct Point {
+		int x, y;
+	};
+	struct RGB { 
+		RGBValue r, g, b; 
+	};
+	struct RGBA : public RGB { 
+		RGBValue a; 
+	};
+
+	//--------------------TYPEDEFS 2------------------------
+	typedef RGB Palette[256];
 
 	//--------------------CLASSES---------------------------
 	class Game { 
@@ -68,15 +88,42 @@ namespace app {
 		public:
 			virtual void	Initialise (void) = 0;
 			virtual void	Load (void) = 0;
-			virtual void	Run(void);
-			virtual void	RunIteration(void);
-			Game&			GetGame(void);
-			const Game&		GetGame(void) const;
+			virtual void	Run(void) { 
+				game.MainLoop(); 
+			}
+			virtual void	RunIteration(void) {
+				game.MainLoopIteration();
+			}
+			Game&			GetGame(void) {
+				return game;
+			}
+			const Game&		GetGame(void) const{
+				return game;
+			}
 			virtual void	Clear (void) = 0;
 			void Main(void);
 	};
 
 	//--------------------FUNCTIONS-------------------------
+
+	//---------BitMap----------
+	Bitmap BitmapLoad(const std::string& path);
+	Bitmap BitmapCreate(unsigned short w, unsigned short h);
+	Bitmap BitmapCopy(Bitmap bmp);
+	Bitmap BitmapClear(Bitmap bmp, Color c);
+	void BitmapDestroy(Bitmap bmp);
+	Bitmap BitmapGetScreen(void);
+	unsigned short BitmapGetWidth(Bitmap bmp);
+	unsigned short BitmapGetHeight(Bitmap bmp);
+	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
+
+	//---------Color------------
+	extern void SetPalette(RGB* palette);
+	extern Color Make8(RGBValue r, RGBValue g, RGBValue b);
+	extern Color Make16(RGBValue r, RGBValue g, RGBValue b);
+	extern Color Make24(RGBValue r, RGBValue g, RGBValue b);
+	extern Color Make32(RGBValue r, RGBValue g, RGBValue b, Alpha alpha);
+
 	void init(void);
 
 	void SetTile(TileMap* m, Dim col, Dim row, Index index);
@@ -113,3 +160,5 @@ namespace app {
 
 	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy);
 }
+
+#endif // !APP_H
