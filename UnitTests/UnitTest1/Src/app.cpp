@@ -15,7 +15,9 @@ app::Bitmap tiles;
 //-------------Class Game----------------
 void app::Game::Invoke(const Action& f) { if (f) f(); }
 template <typename Tfunc> void app::Game::SetRender(const Tfunc& f) { render = f; }
+void app::Game::Render(void) { Invoke(render); }
 void app::Game::ProgressAnimations(void) { Invoke(anim); }
+void app::Game::Input(void) { Invoke(input); }
 void app::Game::AI(void) { Invoke(ai); }
 void app::Game::Physics(void) { Invoke(physics); }
 void app::Game::CollisionChecking(void) { Invoke(collisions); }
@@ -25,6 +27,20 @@ bool app::Game::IsFinished(void) const { return !done(); }
 
 
 //-------------Class APP----------------
+
+void app::App::Run(void) {
+	game.MainLoop();
+}
+
+void app::App::RunIteration(void) {
+	game.MainLoopIteration();
+}
+
+app::Game& app::App::GetGame(void) {
+	return game;
+}
+
+const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::App::Main(void) {
 	Initialise();
