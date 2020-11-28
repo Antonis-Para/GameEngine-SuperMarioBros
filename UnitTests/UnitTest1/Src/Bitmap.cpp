@@ -12,11 +12,11 @@ Bitmap BitmapCopy(Bitmap bmp) {
 	return al_clone_bitmap(bmp);
 }
 
-/*Bitmap BitmapClear(Bitmap bmp, Color c) {
+Bitmap BitmapClear(Bitmap bmp, Color c) {
 	al_set_target_bitmap(bmp);
-	al_clear_to_color(Color);
+	al_clear_to_color(Make24(0, 0, 0));
 	return bmp;
-}*/
+}
 
 void BitmapDestroy(Bitmap bmp) {
 	al_destroy_bitmap(bmp);

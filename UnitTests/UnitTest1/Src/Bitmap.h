@@ -4,12 +4,13 @@
 #include <string>
 #include <allegro5/allegro.h>
 #include "Structs.h"
+#include "Color.h"
 
 typedef ALLEGRO_BITMAP* Bitmap;
 Bitmap BitmapLoad(const std::string& path);
 Bitmap BitmapCreate(unsigned short w, unsigned short h);
 Bitmap BitmapCopy(Bitmap bmp);
-//Bitmap BitmapClear(Bitmap bmp, Color c);
+Bitmap BitmapClear(Bitmap bmp, Color c);
 void BitmapDestroy(Bitmap bmp);
 Bitmap BitmapGetScreen(void);
 unsigned short BitmapGetWidth(Bitmap bmp);
