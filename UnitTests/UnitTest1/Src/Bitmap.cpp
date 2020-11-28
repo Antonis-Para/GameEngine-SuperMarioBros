@@ -1,7 +1,7 @@
 #include "Bitmap.h"
 
 Bitmap BitmapLoad(const std::string& path) {
-	return al_load_bitmap(path);
+	return al_load_bitmap(path.c_str());
 }
 
 Bitmap BitmapCreate(unsigned short w, unsigned short h){
@@ -12,18 +12,18 @@ Bitmap BitmapCopy(Bitmap bmp) {
 	return al_clone_bitmap(bmp);
 }
 
-Bitmap BitmapClear(Bitmap bmp, Color c) {
+/*Bitmap BitmapClear(Bitmap bmp, Color c) {
 	al_set_target_bitmap(bmp);
-	al_clear_to_color(/*Color*/);
+	al_clear_to_color(Color);
 	return bmp;
-}
+}*/
 
 void BitmapDestroy(Bitmap bmp) {
 	al_destroy_bitmap(bmp);
 }
 
 Bitmap BitmapGetScreen(void) {
-
+	return NULL;
 }
 
 unsigned short BitmapGetWidth(Bitmap bmp) {

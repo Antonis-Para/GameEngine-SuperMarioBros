@@ -1,6 +1,7 @@
 #include <functional>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include "Bitmap.h"
 #include "app.h"
 
@@ -57,27 +58,31 @@ Index app::GetTile(const TileMap* m, Dim col, Dim row) {
 	return (*m)[row][col];
 }
 
-bool app::ReadTextMap(TileMap* m, string filename) {
-	string line, token, delimiter = ",";
-	std::size_t pos = 0;
-	ifstream csvFile(filename);
+bool app::ReadTextMap(TileMap* m, std::string filename) {
+	std::string line, token, delimiter = ",";
+	size_t pos = 0;
+	std::ifstream csvFile(filename);
 	int x = 0, y = 0;
 
 	if (csvFile.is_open()) {
-		while (getline(csvFile, line)) {
-			while ((pos = line.find(delimiter)) != string::npos) {
+		while (std::getline(csvFile, line)) {
+			while ((pos = line.find(delimiter)) != std::string::npos) {
 				token = line.substr(0, pos);
-				SetTile(m, x, y, stoi(token));
+				std::stringstream ss(token);
+				int val;
+				ss >> val;
+				SetTile(m, x, y, val);
 				x++;
 				line.erase(0, pos + delimiter.length());
 			}
+			x = 0;
 			y++;
 		}
 		csvFile.close();
 		return true;
 	}
 	else {
-		cout << "Unable to open file " << filename << endl;
+		std::cout << "Unable to open file " << filename << std::endl;
 	}
 
 	return false;
