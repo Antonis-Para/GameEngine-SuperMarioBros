@@ -60,7 +60,7 @@ Index app::GetTile(const TileMap* m, Dim col, Dim row) {
 
 bool app::ReadTextMap(TileMap* m, std::string filename) {
 	std::string line, token, delimiter = ",";
-	size_t pos = 0;
+	std::size_t pos = 0;
 	std::ifstream csvFile(filename);
 	int x = 0, y = 0;
 

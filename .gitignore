@@ -1,1 +1,8 @@
-UnitTests/UnitTest1/Src/main.cpp
+packages/
+.vs/
+*.sln
+*.vcxproj
+MARIO.vcxproj.filters
+MARIO.vcxproj.user
+packages.config
+.gitignore
