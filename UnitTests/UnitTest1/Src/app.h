@@ -12,6 +12,8 @@
 using namespace std;
 
 namespace app {
+	//extern Bitmap tiles;
+
 
 	//--------------------DEFINES---------------------------
 	#define TILE_WIDTH 16

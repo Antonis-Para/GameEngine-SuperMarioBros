@@ -3,7 +3,6 @@
 using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
-static app::TileMap map;
 app::Bitmap dpyBuffer = nullptr;
 bool dpyChanged = true;
 app::Dim dpyX = 0, dpyY = 0;
@@ -69,7 +68,7 @@ void app::SetTile(TileMap* m, Dim col, Dim row, Index index) {
 	(*m)[row][col] = index;
 }
 
-app::Index app::GetTile(const TileMap* m, Dim col, Dim row) {
+app::Index app::GetTile(const TileMap* m, Dim row, Dim col) {
 	return (*m)[row][col];
 }
 
@@ -108,12 +107,28 @@ bool app::ReadTextMap(TileMap* m, string filename) {
 	return false;
 }
 
+app::Index GetCol(app::Index index)
+{
+	return index >> 4;
+}
+app::Index GetRow(app::Index index)
+{
+	return index & 0xF0;
+}
+
+
 app::Dim app::TileX3(Index index) {
-	return index >> TILEX_SHIFT;
+	//return MUL_TILE_WIDTH(GetCol(index));
+	//return GetCol(index) * TILE_WIDTH;
+	//return index >> TILEX_SHIFT;
+	return (index % 12)*16;
 }
 
 app::Dim app::TileY3(Index index) {
-	return index & TILEY_MASK;
+	//return MUL_TILE_HEIGHT(GetRow(index));
+	//return GetRow(index) * TILE_HEIGHT;
+	//return index & TILEY_MASK;
+	return (index / 12)*16;
 }
 
 void app::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
@@ -125,16 +140,20 @@ void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, con
 		auto startCol = DIV_TILE_WIDTH(viewWin.x);
 		auto startRow = DIV_TILE_HEIGHT(viewWin.y);
 		auto endCol = DIV_TILE_WIDTH(viewWin.x + viewWin.w - 1);
-		auto endRow = DIV_TILE_HEIGHT(viewWin.y + viewWin.y - 1);
+		auto endRow = DIV_TILE_HEIGHT(viewWin.y + viewWin.h - 1);
 		dpyX = MOD_TILE_WIDTH(viewWin.x);
-		dpyY = MOD_TILE_WIDTH(viewWin.y);
+		dpyY = MOD_TILE_HEIGHT(viewWin.y);
 		dpyChanged = false;
-		for (Dim row = startRow; row <= endRow; ++row)
-			for (Dim col = startCol; col <= endCol; ++col)
+		for (Dim row = startRow; row <= endRow; ++row) {
+			for (Dim col = startCol; col <= endCol; ++col) {
+				//std::cout << GetTile(map, row, col) << " ";
 				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tiles, GetTile(map, row, col));
+			}
+			//std::cout << std::endl;
+		}
 	}
 
-	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y });
+	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y }); /*THIS IS WRONG, dpyBuffer == dest*/
 }
 
 
