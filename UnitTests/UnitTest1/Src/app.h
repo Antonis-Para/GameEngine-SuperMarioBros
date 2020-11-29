@@ -55,7 +55,7 @@ namespace app {
 	typedef RGB Palette[256];
 
 	//--------------------CLASSES---------------------------
-	class Game { 
+	class Game {
 	public:
 		using Action = std::function<void(void)>;
 		using Pred = std::function<bool(void)>;
