@@ -35,4 +35,4 @@ int main() {
     al_uninstall_keyboard();
     al_destroy_bitmap(bitmap);
     return 0;
-} 
+}
