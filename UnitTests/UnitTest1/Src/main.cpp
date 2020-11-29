@@ -12,7 +12,7 @@ int main() {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_init_image_addon();
-    bitmap = al_load_bitmap("D:\\mraptakis\\Documents\\CSD\\ÅîÜìçíï 7ï\\ÇÕ - 454\\Super_Mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+    bitmap = al_load_bitmap(".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
     assert(bitmap != NULL);
     bool running = true;
     float x = 0;
