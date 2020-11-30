@@ -21,10 +21,6 @@ namespace app {
 	#define TILE_WIDTH 16
 	#define TILE_HEIGHT 16
 
-	/*Size of tile set in tiles*/
-	#define TILE_SET_WIDTH 12
-	#define TILE_SET_HEIGHT 21
-
 	#define VIEW_WIN_X 640
 	#define VIEW_WIN_Y 480
 	#define DISP_AREA_X 640

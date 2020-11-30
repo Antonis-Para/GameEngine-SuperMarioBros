@@ -13,8 +13,8 @@ app::Rect displayArea;
 bool closeWindowClicked = false;
 
 /*Pre caching*/
-unsigned short divIndex[TILE_SET_WIDTH * TILE_SET_HEIGHT];
-unsigned short modIndex[TILE_SET_WIDTH * TILE_SET_HEIGHT];
+unsigned short *divIndex;
+unsigned short *modIndex;
 
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
@@ -87,11 +87,6 @@ void app::App::Initialise(void) {
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
 	dpyBuffer = app::BitmapCreate(displayArea.w, displayArea.h);
-
-	for (int i = 0; i < TILE_SET_WIDTH * TILE_SET_HEIGHT; ++i) {
-		divIndex[i] = (i / TILE_SET_WIDTH) * TILE_HEIGHT;	//y
-		modIndex[i] = (i % TILE_SET_WIDTH) * TILE_WIDTH;    //x
-	}
 }
 
 bool done() {
@@ -147,6 +142,14 @@ void loadMap2() {
 
 void app::App::Load(void) {
 	loadMap2();
+
+	divIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
+	modIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
+
+	for (int i = 0; i < DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); ++i) {
+		divIndex[i] = MUL_TILE_HEIGHT(i / DIV_TILE_WIDTH(BitmapGetWidth(tiles)));	//y
+		modIndex[i] = MUL_TILE_WIDTH(i % DIV_TILE_WIDTH(BitmapGetWidth(tiles)));    //x
+	}
 
 	game.SetDone(done);
 	game.SetRender(render);
