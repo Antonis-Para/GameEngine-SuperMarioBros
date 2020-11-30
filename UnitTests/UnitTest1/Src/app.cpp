@@ -11,11 +11,20 @@ int widthInTiles = 0, heightInTiles = 0;
 app::Rect viewWin;
 app::Rect displayArea;
 
+app::TileMap map;
+ALLEGRO_DISPLAY* display;
+ALLEGRO_EVENT_QUEUE* queue;
+bool scrollEnabled = false;
+int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
+ALLEGRO_MOUSE_STATE mouse_state;
+ALLEGRO_EVENT event;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
 void app::Game::Invoke(const Action& f) { if (f) f(); }
+template <typename Tfunc> void app::Game::SetDone(const Tfunc& f) { done = f; }
 template <typename Tfunc> void app::Game::SetRender(const Tfunc& f) { render = f; }
+template <typename Tfunc> void app::Game::SetInput(const Tfunc& f) { input = f; }
 void app::Game::Render(void) { Invoke(render); }
 void app::Game::ProgressAnimations(void) { Invoke(anim); }
 void app::Game::Input(void) { Invoke(input); }
@@ -56,6 +65,73 @@ app::Game& app::App::GetGame(void) {
 }
 
 const app::Game& app::App::GetGame(void) const { return game; }
+
+void app::App::Initialise(void) {
+	viewWin = app::Rect{ 0, 0, 640, 480 };
+	displayArea = app::Rect{ 0, 0, 640, 480 };
+	if (!al_init()) {
+		std::cout << "ERROR: Could not init allegro\n";
+		assert(false);
+	}
+	display = al_create_display(displayArea.w, displayArea.h);
+	queue = al_create_event_queue();
+	al_install_keyboard();
+	al_install_mouse();
+	al_register_event_source(queue, al_get_mouse_event_source());
+	al_register_event_source(queue, al_get_keyboard_event_source());
+	al_register_event_source(queue, al_get_display_event_source(display));
+	al_init_image_addon();
+	dpyBuffer = app::BitmapCreate(displayArea.w, displayArea.h);
+}
+
+bool done() {
+	//TODO
+	return false;
+}
+
+void render() {
+	app::TileTerrainDisplay(&map, al_get_backbuffer(display), viewWin, displayArea);
+
+	al_flip_display();
+}
+
+void input() {
+	if (!al_is_event_queue_empty(queue)) {
+		al_wait_for_event(queue, &event);
+		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
+			al_get_mouse_state(&mouse_state);
+			if (mouse_state.buttons & 1) {
+				app::ScrollWithBoundsCheck(&viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y);
+			}
+			prev_mouse_x = mouse_x;
+			prev_mouse_y = mouse_y;
+		}
+		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_HOME) {
+			app::setToStartOfMap(&viewWin);
+		}
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_END) {
+			app::ScrollWithBoundsCheck(&viewWin, app::GetMapPixelWidth(), app::GetMapPixelHeight());
+		}
+	}
+}
+
+void app::App::Load(void) {
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	assert(tiles != NULL);
+
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+
+	game.SetDone(done);
+	game.SetRender(render);
+	game.SetInput(input);
+}
+void app::App::Clear(void) {
+	al_destroy_display(display);
+	al_uninstall_keyboard();
+	al_uninstall_mouse();
+	al_destroy_bitmap(dpyBuffer);
+}
 
 void app::App::Main(void) {
 	Initialise();
@@ -101,7 +177,6 @@ bool app::ReadTextMap(TileMap* m, string filename) {
 		}
 		widthInTiles = x;
 		heightInTiles = y;
-		cout << widthInTiles << " " << heightInTiles << endl;
 		csvFile.close();
 		return true;
 	}
@@ -127,14 +202,14 @@ app::Dim app::TileX3(Index index) {
 	//return MUL_TILE_WIDTH(GetCol(index));
 	//return GetCol(index) * TILE_WIDTH;
 	//return index >> TILEX_SHIFT;
-	return (index % 12)*16;
+	return (index * TILE_WIDTH) % app::BitmapGetWidth(tiles);
 }
 
 app::Dim app::TileY3(Index index) {
 	//return MUL_TILE_HEIGHT(GetRow(index));
 	//return GetRow(index) * TILE_HEIGHT;
 	//return index & TILEY_MASK;
-	return (index / 12)*16;
+	return ((index * TILE_HEIGHT) / app::BitmapGetWidth(tiles)) * TILE_HEIGHT;
 }
 
 void app::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
@@ -152,10 +227,8 @@ void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, con
 		dpyChanged = false;
 		for (Dim row = startRow; row <= endRow; ++row) {
 			for (Dim col = startCol; col <= endCol; ++col) {
-				//std::cout << GetTile(map, row, col) << " ";
 				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tiles, GetTile(map, row, col));
 			}
-			//std::cout << std::endl;
 		}
 	}
 
@@ -206,4 +279,10 @@ int app::GetMapPixelWidth(void) {
 
 int app::GetMapPixelHeight(void) {
 	return heightInTiles * TILE_HEIGHT > displayArea.h ? heightInTiles * TILE_HEIGHT : displayArea.h;
+}
+
+void app::setToStartOfMap(Rect* viewWin) {
+	viewWin->x = 0;
+	viewWin->y = 0;
+	dpyChanged = true;
 }

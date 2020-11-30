@@ -40,4 +40,5 @@ void app::BitmapBlit(Bitmap src,  const Rect& from, Bitmap dest, const Point& to
 	Bitmap tile = al_create_sub_bitmap(src, from.x, from.y, from.w, from.h);
 	al_set_target_bitmap(dest);
 	al_draw_bitmap(tile, to.x, to.y, 0);
+	al_destroy_bitmap(tile);
 }

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
 
 using namespace std;
 
@@ -67,7 +68,9 @@ namespace app {
 
 		void Invoke(const Action& f);
 	public:
+		template <typename Tfunc> void SetDone(const Tfunc& f);
 		template <typename Tfunc> void SetRender(const Tfunc& f);
+		template <typename Tfunc> void SetInput(const Tfunc& f);
 		// rest of setters are similary defined
 		void Render(void);
 		void ProgressAnimations(void);
@@ -88,13 +91,13 @@ namespace app {
 			Game game;
 
 		public:
-			virtual void		Initialise (void) = 0;
-			virtual void		Load (void) = 0;
+			virtual void		Initialise (void);
+			virtual void		Load (void);
 			virtual void		Run(void);
 			virtual void		RunIteration(void);
 			Game&				GetGame(void);
 			const Game&			GetGame(void) const;
-			virtual void		Clear (void) = 0;
+			virtual void		Clear (void);
 			void Main(void);
 	};
 
@@ -153,6 +156,8 @@ namespace app {
 	void FilterScroll(const Rect& viewWin, int *dx, int *dy);
 
 	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy);
+
+	void setToStartOfMap(Rect* viewWin);
 }
 
 #endif // !APP_H
