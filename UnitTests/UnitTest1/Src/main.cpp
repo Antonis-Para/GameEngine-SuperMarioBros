@@ -44,7 +44,9 @@ int main() {
             if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
                 al_get_mouse_cursor_position(&mouse_x, &mouse_y);
                 if (scrollEnabled) {
+                    cout << "hi world " << prev_mouse_x - mouse_x << ' ' << prev_mouse_y - mouse_y << endl;
                     app::ScrollWithBoundsCheck(&viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y); //Not ready yet but I got it :)
+                    cout << viewWin.x << ' ' << viewWin.y << endl;
                 }
                 prev_mouse_x = mouse_x;
                 prev_mouse_y = mouse_y;

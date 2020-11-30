@@ -7,7 +7,7 @@ app::Bitmap dpyBuffer = nullptr;
 bool dpyChanged = true;
 app::Dim dpyX = 0, dpyY = 0;
 app::Bitmap tiles;
-
+int widthInTiles = 0, heightInTiles = 0;
 
 /*--------------------CLASSES---------------------------*/
 
@@ -94,8 +94,12 @@ bool app::ReadTextMap(TileMap* m, string filename) {
 			int val;
 			ss >> val;
 			SetTile(m, x, y, val);
+			x++;
 			y++;
 		}
+		widthInTiles = x;
+		heightInTiles = y;
+		cout << widthInTiles << " " << heightInTiles << endl;
 		csvFile.close();
 		return true;
 	}
@@ -194,11 +198,9 @@ void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 }
 
 int app::GetMapPixelWidth(void) {
-	//TODO
-	return 0;
+	return widthInTiles * TILE_WIDTH;
 }
 
 int app::GetMapPixelHeight(void) {
-	//TODO
-	return 0;
+	return heightInTiles * TILE_HEIGHT;
 }
