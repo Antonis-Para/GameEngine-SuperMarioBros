@@ -17,8 +17,19 @@ namespace app {
 
 
 	//--------------------DEFINES---------------------------
+	/*size of each tile in pixels*/
 	#define TILE_WIDTH 16
 	#define TILE_HEIGHT 16
+
+	/*Size of tile set in tiles*/
+	#define TILE_SET_WIDTH 12
+	#define TILE_SET_HEIGHT 21
+
+	#define VIEW_WIN_X 640
+	#define VIEW_WIN_Y 480
+	#define DISP_AREA_X 640
+	#define DISP_AREA_Y 480
+
 	#define MUL_TILE_WIDTH(i) ((i) << 4)
 	#define MUL_TILE_HEIGHT(i) ((i) << 4)
 	#define DIV_TILE_WIDTH(i) ((i) >> 4)
@@ -128,10 +139,6 @@ namespace app {
 	Index GetTile(const TileMap* m, Dim col, Dim row);
 
 	bool ReadTextMap(TileMap* m, string filename);
-
-	Dim TileX3(Index index);
-
-	Dim TileY3(Index index);
 
 	void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile);
 

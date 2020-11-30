@@ -11,6 +11,10 @@ int widthInTiles = 0, heightInTiles = 0;
 app::Rect viewWin;
 app::Rect displayArea;
 
+/*Pre caching*/
+unsigned short divIndex[TILE_SET_WIDTH * TILE_SET_HEIGHT];
+unsigned short modIndex[TILE_SET_WIDTH * TILE_SET_HEIGHT];
+
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
@@ -67,8 +71,8 @@ app::Game& app::App::GetGame(void) {
 const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::App::Initialise(void) {
-	viewWin = app::Rect{ 0, 0, 640, 480 };
-	displayArea = app::Rect{ 0, 0, 640, 480 };
+	viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+	displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";
 		assert(false);
@@ -82,6 +86,11 @@ void app::App::Initialise(void) {
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
 	dpyBuffer = app::BitmapCreate(displayArea.w, displayArea.h);
+
+	for (int i = 0; i < TILE_SET_WIDTH * TILE_SET_HEIGHT; ++i) {
+		divIndex[i] = (i / TILE_SET_WIDTH) * TILE_HEIGHT;	//y
+		modIndex[i] = (i % TILE_SET_WIDTH) * TILE_WIDTH;    //x
+	}
 }
 
 bool done() {
@@ -116,10 +125,10 @@ void input() {
 }
 
 void app::App::Load(void) {
-	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 
 	game.SetDone(done);
 	game.SetRender(render);
@@ -197,22 +206,30 @@ app::Index GetRow(app::Index index)
 }
 
 
-app::Dim app::TileX3(Index index) {
+app::Dim TileX3(app::Index index) {
 	//return MUL_TILE_WIDTH(GetCol(index));
 	//return GetCol(index) * TILE_WIDTH;
 	//return index >> TILEX_SHIFT;
 	return (index * TILE_WIDTH) % app::BitmapGetWidth(tiles);
 }
 
-app::Dim app::TileY3(Index index) {
+app::Dim TileY3(app::Index index) {
 	//return MUL_TILE_HEIGHT(GetRow(index));
 	//return GetRow(index) * TILE_HEIGHT;
 	//return index & TILEY_MASK;
 	return ((index * TILE_HEIGHT) / app::BitmapGetWidth(tiles)) * TILE_HEIGHT;
 }
 
+app::Dim TileXc(app::Index index) {
+	return modIndex[index];
+}
+
+app::Dim TileYc(app::Index index) {
+	return divIndex[index];
+}
+
 void app::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
-	BitmapBlit(tiles, app::Rect{ TileX3(tile), TileY3(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
+	BitmapBlit(tiles, app::Rect{ TileXc(tile), TileYc(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
 }
 
 void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, const Rect& displayArea) {
