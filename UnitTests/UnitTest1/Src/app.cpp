@@ -85,7 +85,6 @@ void app::App::Initialise(void) {
 }
 
 bool done() {
-	//TODO
 	return false;
 }
 
