@@ -10,6 +10,7 @@ app::Bitmap tiles;
 int widthInTiles = 0, heightInTiles = 0;
 app::Rect viewWin;
 app::Rect displayArea;
+bool closeWindowClicked = false;
 
 /*Pre caching*/
 unsigned short divIndex[TILE_SET_WIDTH * TILE_SET_HEIGHT];
@@ -94,7 +95,7 @@ void app::App::Initialise(void) {
 }
 
 bool done() {
-	return false;
+	return !closeWindowClicked;
 }
 
 void render() {
@@ -121,14 +122,31 @@ void input() {
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_END) {
 			app::ScrollWithBoundsCheck(&viewWin, app::GetMapPixelWidth(), app::GetMapPixelHeight());
 		}
+		else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			closeWindowClicked = true;
+		}
 	}
 }
 
-void app::App::Load(void) {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+//demi-functions for maps
+//--------------------------------------
+void loadMap1() {
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+}
+
+void loadMap2() {
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+	assert(tiles != NULL);
+
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\MagicLand\\MagicLand.csv");
+}
+//--------------------------------------
+
+void app::App::Load(void) {
+	loadMap2();
 
 	game.SetDone(done);
 	game.SetRender(render);
@@ -210,14 +228,14 @@ app::Dim TileX3(app::Index index) {
 	//return MUL_TILE_WIDTH(GetCol(index));
 	//return GetCol(index) * TILE_WIDTH;
 	//return index >> TILEX_SHIFT;
-	return (index * TILE_WIDTH) % app::BitmapGetWidth(tiles);
+	return MUL_TILE_WIDTH(index) % app::BitmapGetWidth(tiles);
 }
 
 app::Dim TileY3(app::Index index) {
 	//return MUL_TILE_HEIGHT(GetRow(index));
 	//return GetRow(index) * TILE_HEIGHT;
 	//return index & TILEY_MASK;
-	return ((index * TILE_HEIGHT) / app::BitmapGetWidth(tiles)) * TILE_HEIGHT;
+	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / app::BitmapGetWidth(tiles));
 }
 
 app::Dim TileXc(app::Index index) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="left-down" width="460" height="75" tilewidth="16" tileheight="16" nextobjectid="378">
  <tileset firstgid="1" name="magiclanddizzy_tiles" tilewidth="16" tileheight="16" spacing="2" tilecount="1056" columns="44">
-  <image source="magiclanddizzy_tiles.gif" width="790" height="430"/>
+  <image source="magiclanddizzy_tiles.png" width="790" height="430"/>
  </tileset>
  <layer name="background" width="460" height="75">
   <data encoding="base64" compression="gzip">
