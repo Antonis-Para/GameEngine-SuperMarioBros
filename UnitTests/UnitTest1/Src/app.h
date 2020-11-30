@@ -16,8 +16,14 @@ namespace app {
 
 
 	//--------------------DEFINES---------------------------
+	/*size of each tile in pixels*/
 	#define TILE_WIDTH 16
 	#define TILE_HEIGHT 16
+
+	/*Size of tile set in tiles*/
+	#define TILE_SET_WIDTH 12
+	#define TILE_SET_HEIGHT 21
+
 	#define MUL_TILE_WIDTH(i) ((i) << 4)
 	#define MUL_TILE_HEIGHT(i) ((i) << 4)
 	#define DIV_TILE_WIDTH(i) ((i) >> 4)
