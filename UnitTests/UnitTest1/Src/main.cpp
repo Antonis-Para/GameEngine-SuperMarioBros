@@ -10,7 +10,7 @@ int main() {
 
     app::App app;
 
-    app.Run();
+    //app.Main();
 
 
     /*ALLEGRO_DISPLAY* display;
@@ -36,12 +36,12 @@ int main() {
     al_register_event_source(queue, al_get_display_event_source(display));
     al_init_image_addon();
     
-    tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+    tiles = app::BitmapLoad(".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
     assert(tiles != NULL);
 
     dpyBuffer = app::BitmapCreate(displayArea.w, displayArea.h);
 
-    app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+    app::ReadTextMap(&map, ".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
     float x = 0;
     while (true) {
         if (!al_is_event_queue_empty(queue)) {
@@ -65,7 +65,7 @@ int main() {
         app::TileTerrainDisplay(&map, al_get_backbuffer(display), viewWin, displayArea);
 
         al_flip_display();
-    }
-    */
+    }*/
+    
     return 0;
 }
