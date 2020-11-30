@@ -6,6 +6,8 @@
 static app::TileMap map;
 extern app::Bitmap tiles;
 extern app::Bitmap dpyBuffer;
+extern app::Rect viewWin;
+extern app::Rect displayArea;
 
 int main() {
     ALLEGRO_DISPLAY* display;
@@ -14,8 +16,8 @@ int main() {
     //app::TileMap m;
     bool scrollEnabled = false;
     int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
-    app::Rect viewWin = app::Rect{ 0, 0, 640, 480 };
-    app::Rect displayArea = app::Rect{ 0, 0, 640, 480 };
+    viewWin = app::Rect{ 0, 0, 640, 480 };
+    displayArea = app::Rect{ 0, 0, 640, 480 };
     ALLEGRO_EVENT event;
 
     if (!al_init()) {
@@ -44,9 +46,7 @@ int main() {
             if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
                 al_get_mouse_cursor_position(&mouse_x, &mouse_y);
                 if (scrollEnabled) {
-                    cout << "hi world " << prev_mouse_x - mouse_x << ' ' << prev_mouse_y - mouse_y << endl;
                     app::ScrollWithBoundsCheck(&viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y); //Not ready yet but I got it :)
-                    cout << viewWin.x << ' ' << viewWin.y << endl;
                 }
                 prev_mouse_x = mouse_x;
                 prev_mouse_y = mouse_y;

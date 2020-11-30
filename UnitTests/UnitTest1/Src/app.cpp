@@ -8,6 +8,8 @@ bool dpyChanged = true;
 app::Dim dpyX = 0, dpyY = 0;
 app::Bitmap tiles;
 int widthInTiles = 0, heightInTiles = 0;
+app::Rect viewWin;
+app::Rect displayArea;
 
 /*--------------------CLASSES---------------------------*/
 
@@ -164,6 +166,7 @@ void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, con
 void app::Scroll(Rect* viewWin, int dx, int dy) {
 	viewWin->x += dx;
 	viewWin->y += dy;
+	dpyChanged = true;
 }
 
 bool app::CanScrollHoriz(const Rect& viewWin, int dx) {
@@ -181,7 +184,7 @@ static void app::FilterScrollDistance(
 	int maxMapSize// w or h
 ) {
 	auto val = *d + viewStartCoord;
-	if (val< 0)
+	if (val < 0)
 		*d = viewStartCoord;
 	else if ((val + viewSize) >= maxMapSize)
 		*d = maxMapSize - (viewStartCoord + viewSize);
@@ -198,9 +201,9 @@ void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 }
 
 int app::GetMapPixelWidth(void) {
-	return widthInTiles * TILE_WIDTH;
+	return widthInTiles * TILE_WIDTH > displayArea.w ? widthInTiles * TILE_WIDTH : displayArea.w;
 }
 
 int app::GetMapPixelHeight(void) {
-	return heightInTiles * TILE_HEIGHT;
+	return heightInTiles * TILE_HEIGHT > displayArea.h ? heightInTiles * TILE_HEIGHT : displayArea.h;
 }
