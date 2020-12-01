@@ -148,10 +148,11 @@ void loadMap3() {
 //--------------------------------------
 
 void app::App::Load(void) {
-	loadMap3();
+	loadMap2();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
+	// for map2 -> 24x44 but tilesw = 49 & tilesh = 26 (???????)
 
 	divIndex = new Index[tilesw * tilesh];
 	modIndex = new Index[tilesw * tilesh];
