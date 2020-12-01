@@ -13,8 +13,8 @@ app::Rect displayArea;
 bool closeWindowClicked = false;
 
 /*Pre caching*/
-unsigned short *divIndex;
-unsigned short *modIndex;
+app::Index* divIndex;
+app::Index* modIndex;
 
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
@@ -141,10 +141,10 @@ void loadMap2() {
 //--------------------------------------
 
 void app::App::Load(void) {
-	loadMap2();
+	loadMap1();
 
-	divIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
-	modIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
+	divIndex = new Index[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
+	modIndex = new Index[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
 
 	for (int i = 0; i < DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); ++i) {
 		divIndex[i] = MUL_TILE_HEIGHT(i / DIV_TILE_WIDTH(BitmapGetWidth(tiles)));	//y

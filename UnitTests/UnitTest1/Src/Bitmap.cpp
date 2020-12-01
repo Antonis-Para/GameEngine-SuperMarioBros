@@ -28,11 +28,11 @@ Bitmap app::BitmapGetScreen(void) {
 	return NULL;
 }
 
-unsigned short app::BitmapGetWidth(Bitmap bmp) {
+int app::BitmapGetWidth(Bitmap bmp) {
 	return al_get_bitmap_width(bmp);
 }
 
-unsigned short app::BitmapGetHeight(Bitmap bmp) {
+int app::BitmapGetHeight(Bitmap bmp) {
 	return al_get_bitmap_height(bmp);
 }
 

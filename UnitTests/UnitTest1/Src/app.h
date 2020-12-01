@@ -117,8 +117,8 @@ namespace app {
 	Bitmap BitmapClear(Bitmap bmp, Color c);
 	void BitmapDestroy(Bitmap bmp);
 	Bitmap BitmapGetScreen(void);
-	unsigned short BitmapGetWidth(Bitmap bmp);
-	unsigned short BitmapGetHeight(Bitmap bmp);
+	int BitmapGetWidth(Bitmap bmp);
+	int BitmapGetHeight(Bitmap bmp);
 	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
 
 	//---------Color------------
