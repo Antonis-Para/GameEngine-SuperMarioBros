@@ -13,8 +13,8 @@ app::Rect displayArea;
 bool closeWindowClicked = false;
 
 /*Pre caching*/
-unsigned short *divIndex;
-unsigned short *modIndex;
+app::Index *divIndex;
+app::Index *modIndex;
 
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
@@ -126,29 +126,32 @@ void input() {
 //demi-functions for maps
 //--------------------------------------
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
-	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+	tiles = app::BitmapLoad(".\\Media\\MagicLand\\magiclanddizzy_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\MagicLand\\MagicLand.csv");
+	app::ReadTextMap(&map, ".\\Media\\MagicLand\\MagicLand.csv");
 }
 //--------------------------------------
 
 void app::App::Load(void) {
 	loadMap2();
 
-	divIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
-	modIndex = new unsigned short[DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles))];
+	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
+	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
 
-	for (int i = 0; i < DIV_TILE_WIDTH(BitmapGetWidth(tiles)) * DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); ++i) {
-		divIndex[i] = MUL_TILE_HEIGHT(i / DIV_TILE_WIDTH(BitmapGetWidth(tiles)));	//y
-		modIndex[i] = MUL_TILE_WIDTH(i % DIV_TILE_WIDTH(BitmapGetWidth(tiles)));    //x
+	divIndex = new Index[tilesw * tilesh];
+	modIndex = new Index[tilesw * tilesh];
+
+	for (int i = 0; i < tilesw * tilesh; ++i) {
+		divIndex[i] = MUL_TILE_HEIGHT(i / tilesw); //y
+		modIndex[i] = MUL_TILE_WIDTH(i % tilesw); //x
 	}
 
 	game.SetDone(done);
