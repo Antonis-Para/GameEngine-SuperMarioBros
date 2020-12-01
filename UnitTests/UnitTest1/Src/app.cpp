@@ -138,10 +138,17 @@ void loadMap2() {
 
 	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\MagicLand\\MagicLand.csv");
 }
+
+void loadMap3() {
+	tiles = app::BitmapLoad(".\\Media\\Outside\\buch-outdoor.png");
+	assert(tiles != NULL);
+
+	app::ReadTextMap(&map, ".\\Media\\Outside\\orthogonal-outside_Ground.csv");
+}
 //--------------------------------------
 
 void app::App::Load(void) {
-	loadMap1();
+	loadMap3();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
