@@ -72,12 +72,15 @@ app::Game& app::App::GetGame(void) {
 const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::App::Initialise(void) {
+
+	
 	viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 	displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";
 		assert(false);
 	}
+	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(displayArea.w, displayArea.h);
 	queue = al_create_event_queue();
 	al_install_keyboard();
@@ -125,18 +128,28 @@ void input() {
 
 //demi-functions for maps
 //--------------------------------------
+
+/*			MAP1:
+* tile size: 16x16 pixels
+* 
+* tileset: 12x21 tiles
+* tileset: 192x336 pixels
+* 
+* map: 21x42 tiles
+* map: 336x672 pixels
+*/
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest1\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
-	tiles = app::BitmapLoad(".\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest1\\Media\\MagicLand\\magiclanddizzy_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\Media\\MagicLand\\MagicLand.csv");
+	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest1\\Media\\MagicLand\\MagicLand.csv");
 }
 
 void loadMap3() {
@@ -148,7 +161,7 @@ void loadMap3() {
 //--------------------------------------
 
 void app::App::Load(void) {
-	loadMap2();
+	loadMap1();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
@@ -280,7 +293,7 @@ void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, con
 		}
 	}
 
-	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y }); /*THIS IS WRONG, dpyBuffer == dest*/
+	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y });
 }
 
 
