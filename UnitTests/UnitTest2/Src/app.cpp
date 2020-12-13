@@ -18,6 +18,8 @@ bool closeWindowClicked = false;
 app::Index* divIndex;
 app::Index* modIndex;
 
+static app::GridMap grid;
+
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
@@ -366,4 +368,89 @@ void app::setToStartOfMap(Rect* viewWin) {
 	viewWin->x = 0;
 	viewWin->y = 0;
 	view.dpyChanged = true;
+}
+
+void app::SetGridTile(GridMap* m, Dim col, Dim row, GridIndex index) {
+	(*m)[row][col] = index;
+}
+
+app::GridIndex app::GetGridTile(const GridMap* m, Dim col, Dim row) {
+	return(*m)[row][col];
+}
+
+void app::SetSolidGridTile(GridMap* m, Dim col, Dim row) {
+	SetGridTile(m, col, row, GRID_SOLID_TILE);
+}
+
+void app::SetEmptyGridTile(GridMap* m, Dim col, Dim row) {
+	SetGridTile(m, col, row, GRID_EMPTY_TILE);
+}
+
+void app::SetGridTileFlags(GridMap* m, Dim col, Dim row, GridIndex flags) {
+	SetGridTile(m, col, row, flags);
+}
+
+void app::SetGridTileTopSolidOnly(GridMap* m, Dim col, Dim row) {
+	SetGridTileFlags(m, row, col, GRID_TOP_SOLID_MASK);
+}
+
+bool app::CanPassGridTile(GridMap* m, Dim col, Dim row, GridIndex flags) {
+	return GetGridTile(m, row, col) & flags != 0;
+}
+
+void app::FilterGridMotion(GridMap* m, const Rect& r, int* dx, int* dy) {
+	assert(abs(*dx) <= GRID_ELEMENT_WIDTH && abs(*dy) <= GRID_ELEMENT_HEIGHT);
+
+	// try horizontal move
+	if (*dx < 0)
+		FilterGridMotionLeft(m, r, dx);
+	else if (*dx > 0)
+		FilterGridMotionRight(m, r, dx);
+
+	// try vertical move
+	if (*dy < 0)
+		FilterGridMotionUp(m, r, dy);
+	else if (*dy > 0)
+		FilterGridMotionDown(m, r, dy);
+}
+
+void app::FilterGridMotionLeft(GridMap* m, const Rect& r, int* dx) {
+	auto x1_next = r.x + *dx;
+	if (x1_next < 0)
+		*dx = -r.x;
+	else {
+		auto newCol = DIV_GRID_ELEMENT_WIDTH(x1_next);
+		auto currCol = DIV_GRID_ELEMENT_WIDTH(r.x);
+		if (newCol != currCol) {
+			assert(newCol + 1 == currCol); // we really move left
+			auto startRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
+			auto endRow = DIV_GRID_ELEMENT_HEIGHT(r.y + r.h - 1);
+			for (auto row = startRow; row <= endRow; ++row)
+				if (!CanPassGridTile(m, newCol, row, GRID_RIGHT_SOLID_MASK)) {
+					*dx = MUL_GRID_ELEMENT_WIDTH(currCol) - r.x;
+					break;
+				}
+		}
+	}
+}
+
+void app::FilterGridMotionRight(GridMap* m, const Rect& r, int* dx) {
+	auto x2 = r.x + r.w - 1;
+	auto x2_next = x2 + *dx;
+	if (x2_next >= MAX_PIXEL_WIDTH)
+		*dx = MAX_PIXEL_WIDTH - x2;
+	else {
+		auto newCol = DIV_GRID_ELEMENT_WIDTH(x2_next);
+		auto currCol = DIV_GRID_ELEMENT_WIDTH(x2);
+		if (newCol != currCol) {
+			assert(newCol - 1 == currCol); // we really move right
+			auto startRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
+			auto endRow = DIV_GRID_ELEMENT_HEIGHT(r.y+ r.h-1);
+			for(auto row = startRow; row <= endRow; ++row)
+				if(!CanPassGridTile(m, newCol, row, GRID_LEFT_SOLID_MASK)) {
+					*dx = MUL_GRID_ELEMENT_WIDTH(newCol) -(x2 + 1);
+					break;
+				}
+		}
+	}
 }
