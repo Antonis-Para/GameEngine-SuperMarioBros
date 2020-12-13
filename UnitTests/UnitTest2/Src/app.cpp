@@ -79,9 +79,6 @@ const app::Game& app::App::GetGame(void) const { return game; }
 
 void app::MainApp::Initialise(void) {
 
-	
-	view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
-	view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";
 		assert(false);
@@ -96,6 +93,8 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
 	view.dpyBuffer = app::BitmapCreate(view.displayArea.w, view.displayArea.h);
+	//view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+	//view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 }
 
 bool done() {
@@ -410,7 +409,7 @@ void app::SetGridTileTopSolidOnly(GridMap* m, Dim col, Dim row) {
 }
 
 bool app::CanPassGridTile(GridMap* m, Dim col, Dim row, GridIndex flags) {
-	return GetGridTile(m, row, col) & flags != 0;
+	return (GetGridTile(m, row, col) & flags) != 0;
 }
 
 void app::FilterGridMotion(GridMap* m, const Rect& r, int* dx, int* dy) {
