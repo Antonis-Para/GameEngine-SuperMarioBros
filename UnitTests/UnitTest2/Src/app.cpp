@@ -92,7 +92,9 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
-	view.dpyBuffer = app::BitmapCreate(view.displayArea.w, view.displayArea.h);
+	view.dpyBuffer = app::BitmapCreate(view.displayArea.w + TILE_WIDTH, view.displayArea.h + TILE_HEIGHT);//it may start on half of the first tile (row) and end on half of the last tile row
+																										  //thus meaning we should create one extra tile, even though we will print only half of it
+																										  //Same goes for columns
 	//view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 	//view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 }
@@ -315,24 +317,6 @@ void app::TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, con
 	BitmapBlit(view.dpyBuffer, { view.dpyX, view.dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y });
 }
 
-void app::TileTerrainDisplay(TileMap* map, Bitmap dest, ViewData& view) {
-	if (view.dpyChanged) {
-		auto startCol = DIV_TILE_WIDTH(view.viewWin.x);
-		auto startRow = DIV_TILE_HEIGHT(view.viewWin.y);
-		auto endCol = DIV_TILE_WIDTH(view.viewWin.x + view.viewWin.w - 1);
-		auto endRow = DIV_TILE_HEIGHT(view.viewWin.y + view.viewWin.h - 1);
-		view.dpyX = MOD_TILE_WIDTH(view.viewWin.x);
-		view.dpyY = MOD_TILE_HEIGHT(view.viewWin.y);
-		view.dpyChanged = false;
-		for (Dim row = startRow; row <= endRow; ++row) {
-			for (Dim col = startCol; col <= endCol; ++col) {
-				PutTile(view.dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tiles, GetTile(map, row, col));
-			}
-		}
-	}
-
-	BitmapBlit(view.dpyBuffer, { view.dpyX, view.dpyY, view.viewWin.w, view.viewWin.h }, dest, { view.displayArea.x, view.displayArea.y });
-}
 
 void app::Scroll(Rect* viewWin, int dx, int dy) {
 	viewWin->x += dx;
