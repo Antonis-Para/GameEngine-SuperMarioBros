@@ -36,18 +36,6 @@
 using GridIndex = unsigned char;
 typedef GridIndex GridMap[GRID_MAX_WIDTH][GRID_MAX_HEIGHT];
 
-
-class TileColorsHolder final {
-private:
-	std::set<Index> indices;
-	std::set<Color> colors;
-public:
-	void Insert(Bitmap bmp, Index index);
-	bool In(Color c) const;
-};
-
-
-
 void SetGridTile(GridMap* m, app::Dim col, app::Dim row, GridIndex index);
 
 GridIndex GetGridTile(const GridMap* m, app::Dim col, app::Dim row);
