@@ -4,6 +4,7 @@
 #define APP_H
 
 #include <functional>
+#include <set>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -80,6 +81,8 @@ namespace app {
 	typedef ALLEGRO_COLOR Color;
 	typedef unsigned char RGBValue;
 	typedef unsigned char Alpha;
+
+	using BitmapAccessFunctor = std::function<void(unsigned char**)>;
 
 	using GridIndex = unsigned char;
 	typedef GridIndex GridMap[GRID_MAX_WIDTH][GRID_MAX_HEIGHT];
@@ -160,6 +163,15 @@ namespace app {
 			void	Clear(void);
 	};
 
+	class TileColorsHolder final {
+		private:
+			std::set<Index> indices;
+			std::set<Color> colors;
+		public:
+			void Insert(Bitmap bmp, Index index);
+			bool In(Color c) const;
+	};
+
 	//--------------------FUNCTIONS-------------------------
 
 	//---------BitMap----------
@@ -172,6 +184,8 @@ namespace app {
 	int BitmapGetWidth(Bitmap bmp);
 	int BitmapGetHeight(Bitmap bmp);
 	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
+	template<typename Tfunc>
+	void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
 
 	//---------Color------------
 	extern void SetPalette(RGB* palette);
@@ -179,6 +193,7 @@ namespace app {
 	extern Color Make16(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make24(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make32(RGBValue r, RGBValue g, RGBValue b, Alpha alpha);
+	Color GetPixel32(unsigned char* mem);
 
 	void init(void);
 
@@ -238,6 +253,17 @@ namespace app {
 	void FilterGridMotionUp(GridMap* m, const Rect& r, int* dx);
 
 	void FilterGridMotionDown(GridMap* m, const Rect& r, int* dx);
+
+	extern bool IsTileIndexAssumedEmpty(Index index);
+	void ComputeTileGridBlocks1(const TileMap* map, GridIndex* grid);
+
+	bool IsTileColorEmpty(Color c);
+
+	void ComputeTileGridBlocks2(const TileMap* map, GridIndex* grid, Bitmap tileSet, Color transColor, unsigned char solidThreshold);
+
+	void ComputeGridBlock(GridIndex*& grid, Index index, Bitmap tileElem, Bitmap gridElem, Bitmap tileSet, Color transColor, unsigned char solidThreshold);
+	
+	bool ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned char solidThreshold);
 }
 
 #endif // !APP_H
