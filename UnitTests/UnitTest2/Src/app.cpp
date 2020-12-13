@@ -91,8 +91,8 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
 	view.dpyBuffer = app::BitmapCreate(view.displayArea.w, view.displayArea.h);
-	view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
-	view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
+	//view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+	//view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 }
 
 bool done() {
