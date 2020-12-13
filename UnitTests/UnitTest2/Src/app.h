@@ -102,8 +102,8 @@ namespace app {
 		Bitmap dpyBuffer = nullptr;
 		bool dpyChanged = true;
 		Dim dpyX = 0, dpyY = 0;
-		Rect viewWin;
-		Rect displayArea;
+		Rect viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+		Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 	};
 
 	//--------------------TYPEDEFS 2------------------------
