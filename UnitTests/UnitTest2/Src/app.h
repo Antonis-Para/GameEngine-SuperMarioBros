@@ -234,6 +234,10 @@ namespace app {
 	void FilterGridMotionLeft(GridMap* m, const Rect& r, int* dx);
 
 	void FilterGridMotionRight(GridMap* m, const Rect& r, int* dx);
+
+	void FilterGridMotionUp(GridMap* m, const Rect& r, int* dx);
+
+	void FilterGridMotionDown(GridMap* m, const Rect& r, int* dx);
 }
 
 #endif // !APP_H

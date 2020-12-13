@@ -454,3 +454,44 @@ void app::FilterGridMotionRight(GridMap* m, const Rect& r, int* dx) {
 		}
 	}
 }
+
+void app::FilterGridMotionUp(GridMap* m, const Rect& r, int* dy) {
+	auto y2 = r.y + r.h - 1;
+	auto y2_next = y2 + *dy;
+	if (y2_next >= MAX_PIXEL_HEIGHT)
+		*dy = MAX_PIXEL_HEIGHT - y2;
+	else {
+		auto newRow = DIV_GRID_ELEMENT_HEIGHT(y2_next);
+		auto currRow = DIV_GRID_ELEMENT_HEIGHT(y2);
+		if (newRow != currRow) {
+			assert(newRow - 1 == currRow); // we really move down
+			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
+			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
+			for (auto col = startCol; col <= endCol; ++col)
+				if (!CanPassGridTile(m, newRow, col, GRID_BOTTOM_SOLID_MASK)) {
+					*dy = MUL_GRID_ELEMENT_HEIGHT(newRow) - (y2 + 1);
+					break;
+				}
+		}
+	}
+}
+
+void app::FilterGridMotionDown(GridMap* m, const Rect& r, int* dy) {
+	auto y1_next = r.y + *dy;
+	if (y1_next < 0)
+		*dy = -r.y;
+	else {
+		auto newRow = DIV_GRID_ELEMENT_HEIGHT(y1_next);
+		auto currRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
+		if (newRow != currRow) {
+			assert(newRow + 1 == currRow); // we really move left
+			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
+			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
+			for (auto col = startCol; col <= endCol; ++col)
+				if (!CanPassGridTile(m, newRow, col, GRID_TOP_SOLID_MASK)) {
+					*dy = MUL_GRID_ELEMENT_WIDTH(currRow) - r.y;
+					break;
+				}
+		}
+	}
+}
