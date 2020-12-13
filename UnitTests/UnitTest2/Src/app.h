@@ -184,6 +184,10 @@ namespace app {
 	int BitmapGetWidth(Bitmap bmp);
 	int BitmapGetHeight(Bitmap bmp);
 	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
+	ALLEGRO_LOCKED_REGION* BitmapLock(Bitmap bmp);
+	void BitmapUnlock(Bitmap bmp);
+	void* BitmapGetMemory(Bitmap bmp);
+	int BitmapGetLineOffset(Bitmap bmp);
 	template<typename Tfunc>
 	void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
 
@@ -193,7 +197,8 @@ namespace app {
 	extern Color Make16(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make24(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make32(RGBValue r, RGBValue g, RGBValue b, Alpha alpha);
-	Color GetPixel32(unsigned char* mem);
+	void ReadPixelColor32(void* mem, RGBA *c, Alpha *a);
+	Color GetPixel32(void* mem);
 
 	void init(void);
 

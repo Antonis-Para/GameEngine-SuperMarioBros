@@ -43,19 +43,24 @@ void app::BitmapBlit(Bitmap src,  const Rect& from, Bitmap dest, const Point& to
 	al_destroy_bitmap(tile);
 }
 
-ALLEGRO_LOCKED_REGION* BitmapLock(Bitmap bmp) {
+ALLEGRO_LOCKED_REGION* app::BitmapLock(Bitmap bmp) {
 	return al_lock_bitmap(bmp, al_get_bitmap_format(bmp), ALLEGRO_LOCK_READWRITE);
 }
 
-void BitmapUnlock(Bitmap bmp) {
+void app::BitmapUnlock(Bitmap bmp) {
 	al_unlock_bitmap(bmp);
 }
 
-void* BitmapGetMemory(Bitmap bmp) {
+void* app::BitmapGetMemory(Bitmap bmp) {
+	return bmp;
+}
+
+int app::BitmapGetLineOffset(Bitmap bmp) {
+	return 1;
 }
 
 template<typename Tfunc>
-void BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
+void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
 	assert(result);
 	auto mem = BitmapGetMemory(bmp);

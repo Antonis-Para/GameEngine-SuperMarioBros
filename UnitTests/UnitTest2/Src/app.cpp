@@ -546,7 +546,7 @@ void app::ComputeGridBlock(GridIndex*& grid, Index index, Bitmap tileElem, Bitma
 		auto x = i % GRID_BLOCK_ROWS;
 		auto y = i / GRID_BLOCK_ROWS;
 		BitmapBlit(tileElem, { x * GRID_ELEMENT_WIDTH, y * GRID_ELEMENT_HEIGHT, GRID_ELEMENT_WIDTH, GRID_ELEMENT_HEIGHT }, gridElem, { 0, 0 });
-		auto isEmpty = ComputeIsGridIndexEmpty(tmp2, transColor, solidThreshold);
+		auto isEmpty = ComputeIsGridIndexEmpty(tileSet, transColor, solidThreshold);
 		*grid++ = isEmpty ? GRID_EMPTY_TILE : GRID_SOLID_TILE;
 	}
 }
@@ -555,7 +555,7 @@ bool app::ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned
 	auto n = 0;
 	BitmapAccessPixels(gridElement, [transColor, &n](unsigned char* mem) {
 		auto c = GetPixel32(mem);
-		if (c != transColor && !IsTileColorEmpty(c))
+		if (c.r != transColor.r && c.g != transColor.g && c.b != transColor.b && !IsTileColorEmpty(c))
 			++n;
 		});
 	return n <= solidThreshold;
