@@ -2,7 +2,7 @@
 
 int main() {
 
-    app::App app;
+    app::MainApp app;
 
     app.Main();
     

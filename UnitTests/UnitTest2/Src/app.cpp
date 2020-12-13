@@ -73,7 +73,7 @@ app::Game& app::App::GetGame(void) {
 
 const app::Game& app::App::GetGame(void) const { return game; }
 
-void app::App::Initialise(void) {
+void app::MainApp::Initialise(void) {
 
 	
 	view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
@@ -162,8 +162,8 @@ void loadMap3() {
 }
 //--------------------------------------
 
-void app::App::Load(void) {
-	loadMap3();
+void app::MainApp::Load(void) {
+	loadMap1();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
@@ -181,7 +181,7 @@ void app::App::Load(void) {
 	game.SetRender(render);
 	game.SetInput(input);
 }
-void app::App::Clear(void) {
+void app::MainApp::Clear(void) {
 	al_destroy_display(display);
 	al_uninstall_keyboard();
 	al_uninstall_mouse();

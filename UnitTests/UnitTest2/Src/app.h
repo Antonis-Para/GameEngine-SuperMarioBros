@@ -108,14 +108,21 @@ namespace app {
 			Game game;
 
 		public:
-			virtual void		Initialise (void);
-			virtual void		Load (void);
+			virtual void		Initialise (void) = 0;
+			virtual void		Load (void) = 0;
 			virtual void		Run(void);
 			virtual void		RunIteration(void);
 			Game&				GetGame(void);
 			const Game&			GetGame(void) const;
-			virtual void		Clear (void);
+			virtual void		Clear (void) = 0;
 			void Main(void);
+	};
+
+	class MainApp : public App {
+		public:
+			void	Initialise(void);
+			void	Load(void);
+			void	Clear(void);
 	};
 
 	//--------------------FUNCTIONS-------------------------
