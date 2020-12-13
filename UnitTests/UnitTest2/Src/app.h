@@ -38,6 +38,8 @@ namespace app {
 	#define TILEX_SHIFT 8
 	#define TILEY_MASK 0x00FF
 
+	#define MAX_VIEWS 4
+
 	//--------------------TYPEDEFS--------------------------
 	typedef unsigned short Dim;
 	typedef unsigned short Index;
@@ -59,6 +61,14 @@ namespace app {
 	};
 	struct RGBA : public RGB { 
 		RGBValue a; 
+	};
+
+	struct ViewData {
+		Bitmap dpyBuffer = nullptr;
+		bool dpyChanged = true;
+		Dim dpyX = 0, dpyY = 0;
+		Rect viewWin;
+		Rect displayArea;
 	};
 
 	//--------------------TYPEDEFS 2------------------------
@@ -139,6 +149,7 @@ namespace app {
 	void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile);
 
 	void TileTerrainDisplay(TileMap* map, Bitmap dest, const Rect& viewWin, const Rect& displayArea);
+	void TileTerrainDisplay(TileMap* map, Bitmap dest, ViewData& view);
 
 	int GetMapPixelWidth(void);
 	int GetMapPixelHeight(void);
