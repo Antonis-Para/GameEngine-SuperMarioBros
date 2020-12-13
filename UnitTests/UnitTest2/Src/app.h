@@ -122,6 +122,8 @@ namespace app {
 			virtual void		Clear (void) = 0;
 			void Main(void);
 	};
+	
+	//bool ALLEGRO_COLOR::operator<(const Color& c1, const Color& c2) { return true; }
 
 	class MainApp : public App {
 		public:
@@ -133,7 +135,7 @@ namespace app {
 	class TileColorsHolder final {
 	private:
 		std::set<Index> indices;
-		std::set<Color> colors;
+		//std::set<Color> colors;
 	public:
 		void Insert(Bitmap bmp, Index index);
 		bool In(Color c) const;
@@ -155,8 +157,8 @@ namespace app {
 	void BitmapUnlock(Bitmap bmp);
 	void* BitmapGetMemory(Bitmap bmp);
 	int BitmapGetLineOffset(Bitmap bmp);
-	template<typename Tfunc>
-	void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
+	//template<typename Tfunc>
+	//void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
 
 	//---------Color------------
 	extern void SetPalette(RGB* palette);

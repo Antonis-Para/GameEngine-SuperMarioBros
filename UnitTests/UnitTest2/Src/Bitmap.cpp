@@ -58,7 +58,7 @@ void* app::BitmapGetMemory(Bitmap bmp) {
 int app::BitmapGetLineOffset(Bitmap bmp) {
 	return 1;
 }
-
+/*
 template<typename Tfunc>
 void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
@@ -75,4 +75,4 @@ void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	}
 	
 	BitmapUnlock(bmp);
-}
+}*/

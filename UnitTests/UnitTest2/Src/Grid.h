@@ -62,7 +62,8 @@ void FilterGridMotionDown(GridMap* m, const app::Rect& r, int* dx);
 
 
 
-extern bool IsTileIndexAssumedEmpty(app::Index index);
+bool IsTileIndexAssumedEmpty(app::Index index);
+
 void ComputeTileGridBlocks1(const app::TileMap* map, GridIndex* grid);
 
 bool IsTileColorEmpty(app::Color c);

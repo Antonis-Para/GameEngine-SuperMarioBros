@@ -131,6 +131,10 @@ void FilterGridMotionDown(GridMap* m, const Rect& r, int* dy) {
 	}
 }
 
+bool IsTileIndexAssumedEmpty(app::Index index) {
+	return true;
+}
+
 void ComputeTileGridBlocks1(const TileMap* map, GridIndex* grid) {
 	for (auto row = 0; row < MAX_HEIGHT; ++row)
 		for (auto col = 0; col < MAX_WIDTH; ++col) {
@@ -138,7 +142,7 @@ void ComputeTileGridBlocks1(const TileMap* map, GridIndex* grid) {
 			grid += GRID_ELEMENTS_PER_TILE;
 		}
 }
-
+/*
 bool IsTileColorEmpty(Color c) {
 	return emptyTileColors.In(c);
 }
@@ -180,4 +184,4 @@ bool ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned char
 			++n;
 		});
 	return n <= solidThreshold;
-}
+}*/

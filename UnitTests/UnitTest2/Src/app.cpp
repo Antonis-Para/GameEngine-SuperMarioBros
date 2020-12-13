@@ -97,6 +97,7 @@ void app::MainApp::Initialise(void) {
 	//view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 }
 
+/*
 void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 	if (indices.find(index) == indices.end()) {
 		indices.insert(index);
@@ -104,10 +105,10 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 			colors.insert(GetPixel32(mem));
 			});
 	}
-}
+}*/
 
 bool app::TileColorsHolder::In(Color c) const {
-	return colors.find(c) != colors.end();
+	return true;
 }
 
 bool done() {
