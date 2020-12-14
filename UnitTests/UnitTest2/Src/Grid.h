@@ -29,8 +29,6 @@ void FilterGridMotionUp(GridMap* m, const app::Rect& r, int* dx);
 
 void FilterGridMotionDown(GridMap* m, const app::Rect& r, int* dx);
 
-
-
 bool IsTileIndexAssumedEmpty(app::Index index);
 
 void ComputeTileGridBlocks1(const app::TileMap* map, GridIndex* grid);

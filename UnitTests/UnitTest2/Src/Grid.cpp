@@ -2,7 +2,7 @@
 
 using namespace app;
 
-static GridMap grid;
+GridMap grid;
 static TileColorsHolder emptyTileColors;
 
 void SetGridTile(GridMap* m, Dim col, Dim row, GridIndex index) {
@@ -30,7 +30,8 @@ void SetGridTileTopSolidOnly(GridMap* m, Dim col, Dim row) {
 }
 
 bool CanPassGridTile(GridMap* m, Dim col, Dim row, GridIndex flags) {
-	return (GetGridTile(m, row, col) & flags) != 0;
+	cout << (int)GetGridTile(m, row, col) << endl;
+	return (GetGridTile(m, row, col) & flags) == 0;
 }
 
 void FilterGridMotion(GridMap* m, const Rect& r, int* dx, int* dy) {
@@ -60,11 +61,12 @@ void FilterGridMotionLeft(GridMap* m, const Rect& r, int* dx) {
 			assert(newCol + 1 == currCol); // we really move left
 			auto startRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
 			auto endRow = DIV_GRID_ELEMENT_HEIGHT(r.y + r.h - 1);
-			for (auto row = startRow; row <= endRow; ++row)
+			for (auto row = startRow; row <= endRow; ++row) {
 				if (!CanPassGridTile(m, newCol, row, GRID_RIGHT_SOLID_MASK)) {
 					*dx = MUL_GRID_ELEMENT_WIDTH(currCol) - r.x;
 					break;
 				}
+			}
 		}
 	}
 }

@@ -4,12 +4,6 @@
 using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
-/*app::ViewData views[MAX_VIEWS];
-app::Bitmap dpyBuffer = nullptr;
-bool dpyChanged = true;
-app::Dim dpyX = 0, dpyY = 0;
-app::Rect viewWin;
-app::Rect displayArea;*/
 app::ViewData view;
 app::Bitmap tiles;
 int widthInTiles = 0, heightInTiles = 0;
@@ -22,10 +16,6 @@ ALLEGRO_TIMER* timer;
 app::Index* divIndex;
 app::Index* modIndex;
 
-//static app::GridMap grid;
-
-//static app::TileColorsHolder emptyTileColors;
-
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
@@ -33,6 +23,9 @@ bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
+
+extern GridMap grid;
+
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -103,18 +96,9 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	character1.potition = {100, 150, 16, 16};
+	character1.potition = {100, 200, 16, 16};
 }
 
-/*
-void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
-	if (indices.find(index) == indices.end()) {
-		indices.insert(index);
-		BitmapAccessPixels(bmp, [this](unsigned char* mem) {
-			colors.insert(GetPixel32(mem));
-			});
-	}
-}*/
 
 bool app::TileColorsHolder::In(Color c) const {
 	return true;
@@ -238,7 +222,7 @@ void app::MainApp::Load(void) {
 	game.SetRender(render);
 	game.SetInput(input);
 
-	
+	ComputeTileGridBlocks1(&map, &grid[0][0]);
 }
 void app::MainApp::Clear(void) {
 	al_destroy_display(display);
@@ -313,16 +297,10 @@ app::Index GetRow(app::Index index)
 
 
 app::Dim TileX3(app::Index index) {
-	//return MUL_TILE_WIDTH(GetCol(index));
-	//return GetCol(index) * TILE_WIDTH;
-	//return index >> TILEX_SHIFT;
 	return MUL_TILE_WIDTH(index) % app::BitmapGetWidth(tiles);
 }
 
 app::Dim TileY3(app::Index index) {
-	//return MUL_TILE_HEIGHT(GetRow(index));
-	//return GetRow(index) * TILE_HEIGHT;
-	//return index & TILEY_MASK;
 	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / app::BitmapGetWidth(tiles));
 }
 
@@ -415,6 +393,9 @@ void app::setToStartOfMap(Rect* viewWin) {
 }
 
 void app::moveCharacter(Character *character, int dx, int dy) {
+	//cout << dx << "  ";
+	FilterGridMotion(&grid, character->potition, &dx, &dy);
+	//cout << dx << endl;
 	character->potition.x += dx;
 	character->potition.y += dy;
 }
