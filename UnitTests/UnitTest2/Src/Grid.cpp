@@ -132,6 +132,20 @@ void FilterGridMotionDown(GridMap* m, const Rect& r, int* dy) {
 }
 
 bool IsTileIndexAssumedEmpty(app::Index index) {
+	switch (index) {
+		case 48:
+		case 49:
+		case 50:
+		case 60:
+		case 62:
+		case 72:
+		case 73:
+		case 74:
+		case 85:
+		case 84:
+			return false;
+			break;
+	}
 	return true;
 }
 
