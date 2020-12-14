@@ -1,4 +1,5 @@
 #include "app.h"
+#include "Grid.h"
 
 using namespace std;
 
@@ -126,7 +127,7 @@ bool done() {
 void render() {
 	app::TileTerrainDisplay(&map, al_get_backbuffer(display), view.viewWin, view.displayArea);
 
-	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 1.0f);
+	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
 
 	al_flip_display();
 }
@@ -158,20 +159,20 @@ void input() {
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				if(character1.potition.y > 0)
-					character1.potition.y -= CHARACTER_MOVE_SPEED;
+				if (character1.potition.y > 0)
+					app::moveCharacter(&character1, 0, -CHARACTER_MOVE_SPEED);
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
 				if (character1.potition.y + character1.potition.h < view.viewWin.h)
-					character1.potition.y += CHARACTER_MOVE_SPEED;
+					app::moveCharacter(&character1, 0, CHARACTER_MOVE_SPEED);
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
 				if(character1.potition.x > 0)
-					character1.potition.x -= CHARACTER_MOVE_SPEED;
+					app::moveCharacter(&character1, -CHARACTER_MOVE_SPEED, 0);
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
 				if (character1.potition.x + character1.potition.w < view.viewWin.w)
-					character1.potition.x += CHARACTER_MOVE_SPEED;
+					app::moveCharacter(&character1, CHARACTER_MOVE_SPEED, 0);
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
 				app::setToStartOfMap(&view.viewWin);
@@ -197,10 +198,10 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
@@ -411,4 +412,9 @@ void app::setToStartOfMap(Rect* viewWin) {
 	viewWin->x = 0;
 	viewWin->y = 0;
 	view.dpyChanged = true;
+}
+
+void app::moveCharacter(Character *character, int dx, int dy) {
+	character->potition.x += dx;
+	character->potition.y += dy;
 }
