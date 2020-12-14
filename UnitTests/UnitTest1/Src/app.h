@@ -21,17 +21,18 @@ namespace app {
 	#define TILE_WIDTH 16
 	#define TILE_HEIGHT 16
 
-	#define VIEW_WIN_X 640
-	#define VIEW_WIN_Y 480
-	#define DISP_AREA_X 640
-	#define DISP_AREA_Y 480
-
 	#define MUL_TILE_WIDTH(i) ((i) << 4)
 	#define MUL_TILE_HEIGHT(i) ((i) << 4)
 	#define DIV_TILE_WIDTH(i) ((i) >> 4)
 	#define DIV_TILE_HEIGHT(i) ((i) >> 4)
 	#define MOD_TILE_WIDTH(i) ((i) & 15)
 	#define MOD_TILE_HEIGHT(i) ((i) & 15)
+
+	#define VIEW_WIN_X 640
+	#define VIEW_WIN_Y 480
+	#define DISP_AREA_X 640
+	#define DISP_AREA_Y 480
+
 	#define MAX_WIDTH 1024
 	#define MAX_HEIGHT 256
 	#define TILEX_MASK 0xFF00
@@ -159,8 +160,6 @@ namespace app {
 	void FilterScroll(const Rect& viewWin, int *dx, int *dy);
 
 	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy);
-
-	void setToStartOfMap(Rect* viewWin);
 }
 
 #endif // !APP_H

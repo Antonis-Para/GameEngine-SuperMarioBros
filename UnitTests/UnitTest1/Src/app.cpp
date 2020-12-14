@@ -112,7 +112,9 @@ void input() {
 			prev_mouse_y = mouse_y;
 		}
 		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_HOME) {
-			app::setToStartOfMap(&viewWin);
+			viewWin.x = 0;
+			viewWin.y = 0;
+			dpyChanged = true;
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_END) {
 			app::ScrollWithBoundsCheck(&viewWin, app::GetMapPixelWidth(), app::GetMapPixelHeight());
@@ -140,10 +142,10 @@ void loadMap2() {
 }
 
 void loadMap3() {
-	tiles = app::BitmapLoad(".\\Media\\Outside\\buch-outdoor.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Outside\\buch-outdoor.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\Media\\Outside\\orthogonal-outside_Ground.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest1\\Media\\Outside\\orthogonal-outside_Ground.csv");
 }
 //--------------------------------------
 
@@ -326,10 +328,4 @@ int app::GetMapPixelWidth(void) {
 
 int app::GetMapPixelHeight(void) {
 	return heightInTiles * TILE_HEIGHT > displayArea.h ? heightInTiles * TILE_HEIGHT : displayArea.h;
-}
-
-void app::setToStartOfMap(Rect* viewWin) {
-	viewWin->x = 0;
-	viewWin->y = 0;
-	dpyChanged = true;
 }
