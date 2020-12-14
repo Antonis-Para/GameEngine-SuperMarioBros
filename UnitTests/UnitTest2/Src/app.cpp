@@ -13,6 +13,9 @@ app::ViewData view;
 app::Bitmap tiles;
 int widthInTiles = 0, heightInTiles = 0;
 bool closeWindowClicked = false;
+app::Character character1;
+bool keys[ALLEGRO_KEY_MAX] = { 0 };
+ALLEGRO_TIMER* timer;
 
 /*Pre caching*/
 app::Index* divIndex;
@@ -92,11 +95,14 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_init_image_addon();
+	al_init_primitives_addon();
 	view.dpyBuffer = app::BitmapCreate(view.displayArea.w + TILE_WIDTH, view.displayArea.h + TILE_HEIGHT);//it may start on half of the first tile (row) and end on half of the last tile row
-																										  //thus meaning we should create one extra tile, even though we will print only half of it
-																										  //Same goes for columns
-	//view.viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
-	//view.displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
+	
+	timer = al_create_timer(1.0 / 60);
+	al_register_event_source(queue, al_get_timer_event_source(timer));
+	al_start_timer(timer);
+
+	character1.potition = {100, 150, 16, 16};
 }
 
 /*
@@ -120,6 +126,8 @@ bool done() {
 void render() {
 	app::TileTerrainDisplay(&map, al_get_backbuffer(display), view.viewWin, view.displayArea);
 
+	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 1.0f);
+
 	al_flip_display();
 }
 
@@ -135,16 +143,37 @@ void input() {
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
 		}
-		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_HOME) {
-			app::setToStartOfMap(&view.viewWin);
+		if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+			keys[event.keyboard.keycode] = true;
 		}
-		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_END) {
-			app::ScrollWithBoundsCheck(&view.viewWin, app::GetMapPixelWidth(), app::GetMapPixelHeight());
+		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
+			keys[event.keyboard.keycode] = false;
 		}
 		else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			closeWindowClicked = true;
 		}
+		if (event.type == ALLEGRO_EVENT_TIMER) {
+			if (keys[ALLEGRO_KEY_W]) {
+				character1.potition.y -= CHARACTER_MOVE_SPEED;
+			}
+			if (keys[ALLEGRO_KEY_S]) {
+				character1.potition.y += CHARACTER_MOVE_SPEED;
+			}
+			if (keys[ALLEGRO_KEY_A]) {
+				character1.potition.x -= CHARACTER_MOVE_SPEED;
+			}
+			if (keys[ALLEGRO_KEY_D]) {
+				character1.potition.x += CHARACTER_MOVE_SPEED;
+			}
+			if (keys[ALLEGRO_KEY_HOME]) {
+				app::setToStartOfMap(&view.viewWin);
+			}
+			if (keys[ALLEGRO_KEY_END]) {
+				app::ScrollWithBoundsCheck(&view.viewWin, app::GetMapPixelWidth(), app::GetMapPixelHeight());
+			}
+		}
 	}
+	
 }
 
 //demi-functions for maps
@@ -160,24 +189,24 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
 }
 
 void loadMap3() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
 }
 //--------------------------------------
 
@@ -199,6 +228,8 @@ void app::MainApp::Load(void) {
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
+
+	
 }
 void app::MainApp::Clear(void) {
 	al_destroy_display(display);

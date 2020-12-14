@@ -10,6 +10,7 @@
 #include <iostream>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 using namespace std;
 
@@ -40,6 +41,7 @@ namespace app {
 	#define TILEY_MASK 0x00FF
 
 	#define MAX_VIEWS 4
+	#define CHARACTER_MOVE_SPEED 1
 
 
 	//--------------------TYPEDEFS--------------------------
@@ -74,6 +76,10 @@ namespace app {
 		Dim dpyX = 0, dpyY = 0;
 		Rect viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 		Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
+	};
+
+	struct Character {
+		Rect potition;
 	};
 
 	//--------------------TYPEDEFS 2------------------------
