@@ -2,7 +2,7 @@
 
 using namespace app;
 
-void SetPalette(RGB* palette) {
+void app::SetPalette(RGB* palette) {
 
 }
 
