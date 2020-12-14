@@ -138,7 +138,11 @@ void input() {
 			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
 			al_get_mouse_state(&mouse_state);
 			if (mouse_state.buttons & 1) {
-				app::ScrollWithBoundsCheck(&view.viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y);
+				int temp_x = prev_mouse_x - mouse_x;
+				int temp_y = prev_mouse_y - mouse_y;
+				app::ScrollWithBoundsCheck(&view.viewWin, &temp_x, &temp_y);
+				character1.potition.x -= temp_x;
+				character1.potition.y -= temp_y;
 			}
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
@@ -153,17 +157,21 @@ void input() {
 			closeWindowClicked = true;
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
-			if (keys[ALLEGRO_KEY_W]) {
-				character1.potition.y -= CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
+				if(character1.potition.y > 0)
+					character1.potition.y -= CHARACTER_MOVE_SPEED;
 			}
-			if (keys[ALLEGRO_KEY_S]) {
-				character1.potition.y += CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
+				if (character1.potition.y + character1.potition.h < view.viewWin.h)
+					character1.potition.y += CHARACTER_MOVE_SPEED;
 			}
-			if (keys[ALLEGRO_KEY_A]) {
-				character1.potition.x -= CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
+				if(character1.potition.x > 0)
+					character1.potition.x -= CHARACTER_MOVE_SPEED;
 			}
-			if (keys[ALLEGRO_KEY_D]) {
-				character1.potition.x += CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
+				if (character1.potition.x + character1.potition.w < view.viewWin.w)
+					character1.potition.x += CHARACTER_MOVE_SPEED;
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
 				app::setToStartOfMap(&view.viewWin);
@@ -384,6 +392,11 @@ void app::FilterScroll(const Rect& viewWin, int *dx, int *dy) {
 void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 	FilterScroll(*viewWin, &dx, &dy);
 	Scroll(viewWin, dx, dy);
+}
+
+void app::ScrollWithBoundsCheck(Rect* viewWin, int *dx, int *dy) {
+	FilterScroll(*viewWin, dx, dy);
+	Scroll(viewWin, *dx, *dy);
 }
 
 int app::GetMapPixelWidth(void) {

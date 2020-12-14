@@ -207,6 +207,7 @@ namespace app {
 	void FilterScroll(const Rect& viewWin, int *dx, int *dy);
 
 	void ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy);
+	void ScrollWithBoundsCheck(Rect* viewWin, int *dx, int *dy);
 
 	void setToStartOfMap(Rect* viewWin);
 
