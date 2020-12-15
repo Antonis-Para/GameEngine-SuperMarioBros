@@ -1,14 +1,9 @@
 #include "app.h"
+#include "Grid.h"
 
 using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
-/*app::ViewData views[MAX_VIEWS];
-app::Bitmap dpyBuffer = nullptr;
-bool dpyChanged = true;
-app::Dim dpyX = 0, dpyY = 0;
-app::Rect viewWin;
-app::Rect displayArea;*/
 app::ViewData view;
 app::Bitmap tiles;
 int widthInTiles = 0, heightInTiles = 0;
@@ -21,10 +16,6 @@ ALLEGRO_TIMER* timer;
 app::Index* divIndex;
 app::Index* modIndex;
 
-//static app::GridMap grid;
-
-//static app::TileColorsHolder emptyTileColors;
-
 app::TileMap map;
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
@@ -32,6 +23,9 @@ bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
+
+extern GridMap grid;
+
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -102,18 +96,9 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	character1.potition = {100, 150, 16, 16};
+	character1.potition = {100, 200, 16, 16};
 }
 
-/*
-void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
-	if (indices.find(index) == indices.end()) {
-		indices.insert(index);
-		BitmapAccessPixels(bmp, [this](unsigned char* mem) {
-			colors.insert(GetPixel32(mem));
-			});
-	}
-}*/
 
 bool app::TileColorsHolder::In(Color c) const {
 	return true;
@@ -126,7 +111,7 @@ bool done() {
 void render() {
 	app::TileTerrainDisplay(&map, al_get_backbuffer(display), view.viewWin, view.displayArea);
 
-	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 1.0f);
+	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
 
 	al_flip_display();
 }
@@ -153,17 +138,21 @@ void input() {
 			closeWindowClicked = true;
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
-			if (keys[ALLEGRO_KEY_W]) {
-				character1.potition.y -= CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
+				if (character1.potition.y > 0)
+					app::moveCharacter(&character1, 0, -CHARACTER_MOVE_SPEED);
 			}
-			if (keys[ALLEGRO_KEY_S]) {
-				character1.potition.y += CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
+				if (character1.potition.y + character1.potition.h < view.viewWin.h)
+					app::moveCharacter(&character1, 0, CHARACTER_MOVE_SPEED);
 			}
-			if (keys[ALLEGRO_KEY_A]) {
-				character1.potition.x -= CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
+				if(character1.potition.x > 0)
+					app::moveCharacter(&character1, -CHARACTER_MOVE_SPEED, 0);
 			}
-			if (keys[ALLEGRO_KEY_D]) {
-				character1.potition.x += CHARACTER_MOVE_SPEED;
+			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
+				if (character1.potition.x + character1.potition.w < view.viewWin.w)
+					app::moveCharacter(&character1, CHARACTER_MOVE_SPEED, 0);
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
 				app::setToStartOfMap(&view.viewWin);
@@ -189,10 +178,10 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
@@ -229,7 +218,7 @@ void app::MainApp::Load(void) {
 	game.SetRender(render);
 	game.SetInput(input);
 
-	
+	ComputeTileGridBlocks1(&map, &grid[0][0]);
 }
 void app::MainApp::Clear(void) {
 	al_destroy_display(display);
@@ -304,16 +293,10 @@ app::Index GetRow(app::Index index)
 
 
 app::Dim TileX3(app::Index index) {
-	//return MUL_TILE_WIDTH(GetCol(index));
-	//return GetCol(index) * TILE_WIDTH;
-	//return index >> TILEX_SHIFT;
 	return MUL_TILE_WIDTH(index) % app::BitmapGetWidth(tiles);
 }
 
 app::Dim TileY3(app::Index index) {
-	//return MUL_TILE_HEIGHT(GetRow(index));
-	//return GetRow(index) * TILE_HEIGHT;
-	//return index & TILEY_MASK;
 	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / app::BitmapGetWidth(tiles));
 }
 
@@ -398,4 +381,12 @@ void app::setToStartOfMap(Rect* viewWin) {
 	viewWin->x = 0;
 	viewWin->y = 0;
 	view.dpyChanged = true;
+}
+
+void app::moveCharacter(Character *character, int dx, int dy) {
+	//cout << dx << "  ";
+	FilterGridMotion(&grid, character->potition, &dx, &dy);
+	//cout << dx << endl;
+	character->potition.x += dx;
+	character->potition.y += dy;
 }

@@ -11,37 +11,13 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include "Defines.h"
 
 using namespace std;
 
 namespace app {
 	//extern Bitmap tiles;
 
-
-	//--------------------DEFINES---------------------------
-	/*size of each tile in pixels*/
-	#define TILE_WIDTH 16
-	#define TILE_HEIGHT 16
-
-	#define VIEW_WIN_X 640
-	#define VIEW_WIN_Y 480
-	#define DISP_AREA_X 640
-	#define DISP_AREA_Y 480
-
-	#define MUL_TILE_WIDTH(i) ((i) << 4)
-	#define MUL_TILE_HEIGHT(i) ((i) << 4)
-	#define DIV_TILE_WIDTH(i) ((i) >> 4)
-	#define DIV_TILE_HEIGHT(i) ((i) >> 4)
-	#define MOD_TILE_WIDTH(i) ((i) & 15)
-	#define MOD_TILE_HEIGHT(i) ((i) & 15)
-	#define MAX_WIDTH 1024
-	#define MAX_HEIGHT 256
-	#define TILEX_MASK 0xFF00
-	#define TILEX_SHIFT 8
-	#define TILEY_MASK 0x00FF
-
-	#define MAX_VIEWS 4
-	#define CHARACTER_MOVE_SPEED 1
 
 
 	//--------------------TYPEDEFS--------------------------
@@ -211,6 +187,7 @@ namespace app {
 
 	void setToStartOfMap(Rect* viewWin);
 
+	void moveCharacter(Character *character, int dx, int dy);
 }
 
 #endif // !APP_H
