@@ -11,6 +11,7 @@ bool closeWindowClicked = false;
 app::Character character1;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
+bool gridOn = true;
 
 /*Pre caching*/
 app::Index* divIndex;
@@ -133,7 +134,10 @@ void input() {
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
 		}
-		if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_TILDE) {
+			gridOn = !gridOn;
+		}
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 			keys[event.keyboard.keycode] = true;
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
@@ -427,7 +431,8 @@ void app::moveCharacter(Character *character, int dx, int dy) {
 }
 
 void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
-	FilterGridMotion(&grid, character->potition, &dx, &dy);
+	if(gridOn)
+		FilterGridMotion(&grid, character->potition, &dx, &dy);
 	character->potition.x += dx;
 	character->potition.y += dy;
 }
