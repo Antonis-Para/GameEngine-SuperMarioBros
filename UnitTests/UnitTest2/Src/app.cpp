@@ -96,7 +96,7 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	character1.potition = {100, 200, 16, 16};
+	character1.potition = {120, 150, 16, 16};
 }
 
 
@@ -143,20 +143,40 @@ void input() {
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				if (character1.potition.y > 0)
+				if (character1.potition.y > 0) {
+					character1.potition.y += view.viewWin.y;
+					character1.potition.x += view.viewWin.x;
 					app::moveCharacter(&character1, 0, -CHARACTER_MOVE_SPEED);
+					character1.potition.x -= view.viewWin.x;
+					character1.potition.y -= view.viewWin.y;
+				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
-				if (character1.potition.y + character1.potition.h < view.viewWin.h)
+				if (character1.potition.y + character1.potition.h < view.viewWin.h) {
+					character1.potition.y += view.viewWin.y;
+					character1.potition.x += view.viewWin.x;
 					app::moveCharacter(&character1, 0, CHARACTER_MOVE_SPEED);
+					character1.potition.x -= view.viewWin.x;
+					character1.potition.y -= view.viewWin.y;
+				}
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
-				if(character1.potition.x > 0)
+				if (character1.potition.x > 0) {
+					character1.potition.x += view.viewWin.x;
+					character1.potition.y += view.viewWin.y;
 					app::moveCharacter(&character1, -CHARACTER_MOVE_SPEED, 0);
+					character1.potition.y -= view.viewWin.y;
+					character1.potition.x -= view.viewWin.x;
+				}
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
-				if (character1.potition.x + character1.potition.w < view.viewWin.w)
+				if (character1.potition.x + character1.potition.w < view.viewWin.w) {
+					character1.potition.x += view.viewWin.x;
+					character1.potition.y += view.viewWin.y;
 					app::moveCharacter(&character1, CHARACTER_MOVE_SPEED, 0);
+					character1.potition.y -= view.viewWin.y;
+					character1.potition.x -= view.viewWin.x;
+				}
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
 				app::setToStartOfMap(&view.viewWin);
@@ -182,10 +202,10 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
@@ -223,6 +243,13 @@ void app::MainApp::Load(void) {
 	game.SetInput(input);
 
 	ComputeTileGridBlocks1(&map, &grid[0][0]);
+
+	/*for (auto row = 0; row < 480 * 4; ++row) {
+		for (auto col = 0; col < 640 * 4; ++col) {
+			cout << (int)grid[row][col] << " ";
+		}
+		cout << endl;
+	}*/
 }
 void app::MainApp::Clear(void) {
 	al_destroy_display(display);

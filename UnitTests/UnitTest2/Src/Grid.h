@@ -3,7 +3,7 @@
 #include "Defines.h"
 
 using GridIndex = unsigned char;
-typedef GridIndex GridMap[GRID_MAX_WIDTH][GRID_MAX_HEIGHT];
+typedef GridIndex GridMap[GRID_MAX_HEIGHT][GRID_MAX_WIDTH];
 
 void SetGridTile(GridMap* m, app::Dim col, app::Dim row, GridIndex index);
 
