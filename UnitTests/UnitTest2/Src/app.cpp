@@ -123,11 +123,7 @@ void input() {
 			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
 			al_get_mouse_state(&mouse_state);
 			if (mouse_state.buttons & 1) {
-				int temp_x = prev_mouse_x - mouse_x;
-				int temp_y = prev_mouse_y - mouse_y;
-				app::ScrollWithBoundsCheck(&view.viewWin, &temp_x, &temp_y);
-				character1.potition.x -= temp_x;
-				character1.potition.y -= temp_y;
+				app::ScrollWithBoundsCheck(&view.viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y);
 			}
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
@@ -398,11 +394,6 @@ void app::FilterScroll(const Rect& viewWin, int *dx, int *dy) {
 void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 	FilterScroll(*viewWin, &dx, &dy);
 	Scroll(viewWin, dx, dy);
-}
-
-void app::ScrollWithBoundsCheck(Rect* viewWin, int *dx, int *dy) {
-	FilterScroll(*viewWin, dx, dy);
-	Scroll(viewWin, *dx, *dy);
 }
 
 int app::GetMapPixelWidth(void) {
