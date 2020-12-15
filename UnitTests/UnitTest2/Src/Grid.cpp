@@ -53,7 +53,6 @@ void FilterGridMotion(GridMap* m, const Rect& r, int* dx, int* dy) {
 
 void FilterGridMotionLeft(GridMap* m, const Rect& r, int* dx) {
 	auto x1_next = r.x + *dx;
-	cout << *dx << " " << x1_next << endl;
 	if (x1_next < 0)
 		*dx = -r.x;
 	else {
@@ -140,11 +139,19 @@ bool IsTileIndexAssumedEmpty(app::Index index) {
 		case 48:
 		case 49:
 		case 50:
+		case 54:
+		case 55:
+		case 56:
 		case 60:
 		case 62:
+		case 66:
+		case 68:
 		case 72:
 		case 73:
 		case 74:
+		case 78:
+		case 79:
+		case 80:
 		case 85:
 		case 84:
 		case 61:

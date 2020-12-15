@@ -123,7 +123,12 @@ void input() {
 			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
 			al_get_mouse_state(&mouse_state);
 			if (mouse_state.buttons & 1) {
-				app::ScrollWithBoundsCheck(&view.viewWin, prev_mouse_x - mouse_x, prev_mouse_y - mouse_y);
+				int move_x = prev_mouse_x - mouse_x;
+				int move_y = prev_mouse_y - mouse_y;
+				if (app::characterStaysInFrame(&character1, &move_x, &move_y)) {
+					app::ScrollWithBoundsCheck(&view.viewWin, &move_x, &move_y);
+					app::moveCharacter(&character1, -move_x, -move_y);
+				}
 			}
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
@@ -142,7 +147,7 @@ void input() {
 				if (character1.potition.y > 0) {
 					character1.potition.y += view.viewWin.y;
 					character1.potition.x += view.viewWin.x;
-					app::moveCharacter(&character1, 0, -CHARACTER_MOVE_SPEED);
+					app::moveCharacterWithFilter(&character1, 0, -CHARACTER_MOVE_SPEED);
 					character1.potition.x -= view.viewWin.x;
 					character1.potition.y -= view.viewWin.y;
 				}
@@ -151,7 +156,7 @@ void input() {
 				if (character1.potition.y + character1.potition.h < view.viewWin.h) {
 					character1.potition.y += view.viewWin.y;
 					character1.potition.x += view.viewWin.x;
-					app::moveCharacter(&character1, 0, CHARACTER_MOVE_SPEED);
+					app::moveCharacterWithFilter(&character1, 0, CHARACTER_MOVE_SPEED);
 					character1.potition.x -= view.viewWin.x;
 					character1.potition.y -= view.viewWin.y;
 				}
@@ -160,7 +165,7 @@ void input() {
 				if (character1.potition.x > 0) {
 					character1.potition.x += view.viewWin.x;
 					character1.potition.y += view.viewWin.y;
-					app::moveCharacter(&character1, -CHARACTER_MOVE_SPEED, 0);
+					app::moveCharacterWithFilter(&character1, -CHARACTER_MOVE_SPEED, 0);
 					character1.potition.y -= view.viewWin.y;
 					character1.potition.x -= view.viewWin.x;
 				}
@@ -169,7 +174,7 @@ void input() {
 				if (character1.potition.x + character1.potition.w < view.viewWin.w) {
 					character1.potition.x += view.viewWin.x;
 					character1.potition.y += view.viewWin.y;
-					app::moveCharacter(&character1, CHARACTER_MOVE_SPEED, 0);
+					app::moveCharacterWithFilter(&character1, CHARACTER_MOVE_SPEED, 0);
 					character1.potition.y -= view.viewWin.y;
 					character1.potition.x -= view.viewWin.x;
 				}
@@ -198,10 +203,10 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
@@ -252,6 +257,7 @@ void app::MainApp::Clear(void) {
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
 	al_destroy_bitmap(view.dpyBuffer);
+	exit(0);
 }
 
 void app::App::Main(void) {
@@ -396,6 +402,11 @@ void app::ScrollWithBoundsCheck(Rect* viewWin, int dx, int dy) {
 	Scroll(viewWin, dx, dy);
 }
 
+void app::ScrollWithBoundsCheck(Rect* viewWin, int *dx, int *dy) {
+	FilterScroll(*viewWin, dx, dy);
+	Scroll(viewWin, *dx, *dy);
+}
+
 int app::GetMapPixelWidth(void) {
 	return widthInTiles * TILE_WIDTH > view.displayArea.w ? widthInTiles * TILE_WIDTH : view.displayArea.w;
 }
@@ -411,9 +422,19 @@ void app::setToStartOfMap(Rect* viewWin) {
 }
 
 void app::moveCharacter(Character *character, int dx, int dy) {
-	//cout << dx << "  ";
-	FilterGridMotion(&grid, character->potition, &dx, &dy);
-	//cout << dx << endl;
 	character->potition.x += dx;
 	character->potition.y += dy;
+}
+
+void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
+	FilterGridMotion(&grid, character->potition, &dx, &dy);
+	character->potition.x += dx;
+	character->potition.y += dy;
+}
+
+bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
+	return !(character->potition.x - *dx < 0
+			|| character->potition.x + character->potition.w - *dx > view.displayArea.w
+			|| character->potition.y - *dy < 0
+			|| character->potition.y + character->potition.h - *dy > view.displayArea.h);
 }

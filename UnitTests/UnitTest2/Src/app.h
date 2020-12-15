@@ -188,6 +188,9 @@ namespace app {
 	void setToStartOfMap(Rect* viewWin);
 
 	void moveCharacter(Character *character, int dx, int dy);
+	void moveCharacterWithFilter(Character* character, int dx, int dy);
+
+	bool characterStaysInFrame(Character *character, int *dx, int *dy);
 }
 
 #endif // !APP_H
