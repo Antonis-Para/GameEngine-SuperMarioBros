@@ -1,4 +1,5 @@
 #include "app.h"
+#include <allegro5/allegro.h>
 
 using namespace app;
 
@@ -51,14 +52,24 @@ void app::BitmapUnlock(Bitmap bmp) {
 	al_unlock_bitmap(bmp);
 }
 
-void* app::BitmapGetMemory(Bitmap bmp) {
-	return bmp;
+//TODO
+PixelMemory app::BitmapGetMemory(Bitmap bmp) {
+	//return bmp;
 }
 
 int app::BitmapGetLineOffset(Bitmap bmp) {
+	//is this ok?
+	return al_get_bitmap_width(bmp);
+	//return 1;
+}
+
+//TODO
+int GetDepth(Bitmap bmp) {
+	//return get_color_depth(); 
+	//return al_get_bitmap_depth(bmp);
 	return 1;
 }
-/*
+
 template<typename Tfunc>
 void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
@@ -75,4 +86,4 @@ void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	}
 	
 	BitmapUnlock(bmp);
-}*/
+}

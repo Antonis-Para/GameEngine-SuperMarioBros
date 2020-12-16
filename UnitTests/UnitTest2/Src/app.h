@@ -117,7 +117,7 @@ namespace app {
 	class TileColorsHolder final {
 	private:
 		std::set<Index> indices;
-		//std::set<Color> colors;
+		std::set<Color> colors;
 	public:
 		void Insert(Bitmap bmp, Index index);
 		bool In(Color c) const;
@@ -137,10 +137,11 @@ namespace app {
 	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
 	ALLEGRO_LOCKED_REGION* BitmapLock(Bitmap bmp);
 	void BitmapUnlock(Bitmap bmp);
-	void* BitmapGetMemory(Bitmap bmp);
+	PixelMemory BitmapGetMemory(Bitmap bmp);
 	int BitmapGetLineOffset(Bitmap bmp);
-	//template<typename Tfunc>
-	//void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
+	template<typename Tfunc>
+	void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
+	typedef unsigned char* PixelMemory;
 
 	//---------Color------------
 	extern void SetPalette(RGB* palette);
