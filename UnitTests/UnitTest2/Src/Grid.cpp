@@ -180,7 +180,7 @@ void ComputeTileGridBlocks1(const TileMap* map, GridIndex* grid) {
 		grid = tmp2 + GRID_MAX_WIDTH * 4;
 	}
 }
-/*
+
 bool IsTileColorEmpty(Color c) {
 	return emptyTileColors.In(c);
 }
@@ -222,4 +222,4 @@ bool ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned char
 			++n;
 		});
 	return n <= solidThreshold;
-}*/
+}

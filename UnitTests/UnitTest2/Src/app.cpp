@@ -102,7 +102,18 @@ void app::MainApp::Initialise(void) {
 
 
 bool app::TileColorsHolder::In(Color c) const {
-	return true;
+	return colors.find(c) != colors.end();
+}
+
+void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
+	if (indices.find(index) == indices.end()) {
+		indices.insert(index);
+		BitmapAccessPixels(
+			bmp,
+			[this](PixelMemory mem)
+			{ colors.insert(GetPixel32(mem)); }
+		);
+	}
 }
 
 bool done() {
