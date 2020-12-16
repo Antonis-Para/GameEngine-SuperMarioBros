@@ -53,30 +53,31 @@ void app::BitmapUnlock(Bitmap bmp) {
 }
 
 //TODO
-PixelMemory app::BitmapGetMemory(Bitmap bmp) {
-	//return bmp;
+/*PixelMemory app::BitmapGetMemory(Bitmap bmp) {
+	return (PixelMemory) bmp;
 }
 
 int app::BitmapGetLineOffset(Bitmap bmp) {
 	//is this ok?
 	return al_get_bitmap_width(bmp);
 	//return 1;
-}
+}*/
 
-//TODO
-int GetDepth(Bitmap bmp) {
-	//return get_color_depth(); 
-	//return al_get_bitmap_depth(bmp);
-	return 1;
+extern ALLEGRO_DISPLAY* display;
+
+int GetDepth() {
+	return al_get_display_option(display, ALLEGRO_DEPTH_SIZE);
 }
 
 template<typename Tfunc>
-
 void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
 	assert(result);
-	auto mem = BitmapGetMemory(bmp);
-	auto offset = BitmapGetLineOffset(bmp);
+	auto mem = result->data;
+	for (int y = 0; y < BitmapGetHeight(bmp); ++y)
+		for (int x = 0; x < BitmapGetWidth(bmp); ++x)
+			f(mem[(x + y * BitmapGetWidth(bmp)) * 4]);
+	/*auto offset = BitmapGetLineOffset(bmp);
 	for (auto y = BitmapGetHeight(bmp); y--;) {
 		auto buff = mem;
 		for (auto x = BitmapGetWidth(bmp); x--;) {
@@ -84,8 +85,6 @@ void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 			buff += GetDepth();
 		}
 		mem += offset;
-	}
-	
+	}*/
 	BitmapUnlock(bmp);
-
 }

@@ -23,7 +23,7 @@ Color app::Make32(RGBValue r, RGBValue g, RGBValue b, Alpha alpha = 0) {
 }
 
 void app::ReadPixelColor32(PixelMemory mem, RGBA *c, Alpha *a) {
-	Color cl = al_get_pixel((Bitmap)mem, 0, 0);
+	Color cl = Make32(mem[0], mem[1], mem[2], mem[3]);
 	al_unmap_rgba(cl, &c->r, &c->g, &c->b, a);
 }
 

@@ -138,8 +138,8 @@ namespace app {
 	void BitmapBlit(Bitmap src, const Rect& from, Bitmap dest, const Point& to);
 	ALLEGRO_LOCKED_REGION* BitmapLock(Bitmap bmp);
 	void BitmapUnlock(Bitmap bmp);
-	PixelMemory BitmapGetMemory(Bitmap bmp);
-	int BitmapGetLineOffset(Bitmap bmp);
+	/*PixelMemory BitmapGetMemory(Bitmap bmp);
+	int BitmapGetLineOffset(Bitmap bmp);*/
 	template<typename Tfunc>
 	void BitmapAccessPixels(Bitmap bmp, const Tfunc& f);
 	typedef unsigned char* PixelMemory;
