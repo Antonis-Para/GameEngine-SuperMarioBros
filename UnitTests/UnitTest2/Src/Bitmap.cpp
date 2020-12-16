@@ -71,6 +71,7 @@ int GetDepth(Bitmap bmp) {
 }
 
 template<typename Tfunc>
+
 void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	auto result = BitmapLock(bmp);
 	assert(result);
@@ -86,4 +87,5 @@ void app::BitmapAccessPixels(Bitmap bmp, const Tfunc& f) {
 	}
 	
 	BitmapUnlock(bmp);
+
 }

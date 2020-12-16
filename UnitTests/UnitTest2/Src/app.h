@@ -28,6 +28,7 @@ namespace app {
 	typedef ALLEGRO_COLOR Color;
 	typedef unsigned char RGBValue;
 	typedef unsigned char Alpha;
+	typedef unsigned char* PixelMemory;
 
 	using BitmapAccessFunctor = std::function<void(unsigned char**)>;
 
@@ -149,11 +150,10 @@ namespace app {
 	extern Color Make16(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make24(RGBValue r, RGBValue g, RGBValue b);
 	extern Color Make32(RGBValue r, RGBValue g, RGBValue b, Alpha alpha);
-	void ReadPixelColor32(void* mem, RGBA *c, Alpha *a);
-	Color GetPixel32(void* mem);
+	void ReadPixelColor32(PixelMemory mem, RGBA *c, Alpha *a);
+	Color GetPixel32(PixelMemory mem);
 
-	void init(void);
-
+	//---------App----------------
 	void SetTile(TileMap* m, Dim col, Dim row, Index index);
 
 	Index GetTile(const TileMap* m, Dim col, Dim row);
@@ -193,5 +193,9 @@ namespace app {
 
 	bool characterStaysInFrame(Character *character, int *dx, int *dy);
 }
+
+//--------------------OVERLOADED OPS--------------------
+
+bool operator<(const app::Color left, const app::Color right);
 
 #endif // !APP_H

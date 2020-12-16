@@ -105,14 +105,15 @@ bool app::TileColorsHolder::In(Color c) const {
 	return colors.find(c) != colors.end();
 }
 
-void app::TileColorsHolder::Insert(Bitmap bmp, Index index)  {
+
+void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 	if (indices.find(index) == indices.end()) {
 		indices.insert(index);
-		//BitmapAccessPixels(
-		//	bmp,
-		//	[this](PixelMemory mem)
-		//{ colors.insert(GetPixel32(mem)); }
-		//);
+		BitmapAccessPixels(
+			bmp,
+			[this](PixelMemory mem)
+			{ colors.insert(GetPixel32(mem)); }
+		);
 	}
 }
 
