@@ -115,6 +115,7 @@ namespace app {
 			void	Clear(void);
 	};
 
+	/*
 	class TileColorsHolder final {
 	private:
 		std::set<Index> indices;
@@ -122,7 +123,7 @@ namespace app {
 	public:
 		void Insert(Bitmap bmp, Index index);
 		bool In(Color c) const;
-	};
+	};*/
 
 	//--------------------FUNCTIONS-------------------------
 

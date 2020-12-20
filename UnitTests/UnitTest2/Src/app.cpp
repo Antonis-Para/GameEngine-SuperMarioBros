@@ -1,5 +1,7 @@
 #include "app.h"
 #include "Grid.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -100,12 +102,12 @@ void app::MainApp::Initialise(void) {
 	character1.potition = {120, 150, 16, 16};
 }
 
-
+/*
 bool app::TileColorsHolder::In(Color c) const {
 	return colors.find(c) != colors.end();
-}
+}*/
 
-
+/*
 void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 	if (indices.find(index) == indices.end()) {
 		indices.insert(index);
@@ -115,7 +117,7 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 			{ colors.insert(GetPixel32(mem)); }
 		);
 	}
-}
+}*/
 
 bool done() {
 	return !closeWindowClicked;
@@ -219,10 +221,10 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = app::BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = app::BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(&map, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
@@ -239,6 +241,17 @@ void loadMap3() {
 	app::ReadTextMap(&map, ".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
 }
 //--------------------------------------
+
+set <app::Index> solids;
+void loadSolidTiles(string path) {
+	int tile;
+
+	std::ifstream infile(path);
+
+	while (infile >> tile) {
+		solids.insert(tile);
+	}
+}
 
 void app::MainApp::Load(void) {
 	loadMap1();
@@ -259,6 +272,7 @@ void app::MainApp::Load(void) {
 	game.SetRender(render);
 	game.SetInput(input);
 
+	loadSolidTiles(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\solid_tiles.txt");
 	ComputeTileGridBlocks1(&map, &grid[0][0]);
 
 	/*for (auto row = 0; row < 480 * 4; ++row) {

@@ -3,7 +3,7 @@
 using namespace app;
 
 GridMap grid;
-static TileColorsHolder emptyTileColors;
+//static TileColorsHolder emptyTileColors;
 
 void SetGridTile(GridMap* m, Dim col, Dim row, GridIndex index) {
 	(*m)[row][col] = index;
@@ -134,32 +134,10 @@ void FilterGridMotionDown(GridMap* m, const Rect& r, int* dy) {
 	}
 }
 
+extern set <app::Index> solids;
 bool IsTileIndexAssumedEmpty(app::Index index) {
-	switch (index) {
-		case 48:
-		case 49:
-		case 50:
-		case 54:
-		case 55:
-		case 56:
-		case 60:
-		case 62:
-		case 66:
-		case 68:
-		case 72:
-		case 73:
-		case 74:
-		case 78:
-		case 79:
-		case 80:
-		case 85:
-		case 84:
-		case 61:
-		case 96:
-		case 97:
-			return false;
-			break;
-	}
+	if (solids.find(index) != solids.end()) //if it is in the list, then its solid (not empty)
+		return false;
 	return true;
 }
 
@@ -180,7 +158,7 @@ void ComputeTileGridBlocks1(const TileMap* map, GridIndex* grid) {
 		grid = tmp2 + GRID_MAX_WIDTH * 4;
 	}
 }
-
+/*
 bool IsTileColorEmpty(Color c) {
 	return emptyTileColors.In(c);
 }
@@ -223,3 +201,4 @@ bool ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned char
 		});
 	return n <= solidThreshold;
 }
+*/
