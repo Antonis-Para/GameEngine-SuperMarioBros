@@ -60,7 +60,7 @@ unsigned TileLayer::GetTileHeight(void) const { return DIV_TILE_HEIGHT(viewWin.h
 
 void TileLayer::Save(const std::string& path) const
 {
-	fclose(WriteText(fopen(path.c_str(), "wt")));
+	//fclose(WriteText(fopen(path.c_str(), "wt")));
 }
 
 FILE* TileLayer::WriteText(FILE* fp) const
