@@ -7,8 +7,6 @@
 class GridLayer {
 private:
 	GridMap grid;
-	unsigned total = 0;
-	Dim totalRows = 0, totalColumns = 0;
 	void Allocate(void);
 
 	void FilterGridMotionDown(const Rect& r, int* dy);

@@ -7,7 +7,7 @@
 //--------------------TYPEDEFS--------------------------
 typedef unsigned short Dim;
 typedef unsigned short Index;
-typedef Index TileMap[MAX_WIDTH][MAX_HEIGHT];
+typedef Index TileMap[MAX_HEIGHT][MAX_WIDTH];
 typedef ALLEGRO_BITMAP* Bitmap;
 typedef ALLEGRO_COLOR Color;
 typedef unsigned char RGBValue;
