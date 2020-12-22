@@ -242,10 +242,10 @@ void loadMap3() {
 }
 
 void loadSuperMarioMap() {
-	tiles = BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_tiles.png");
+	tiles = BitmapLoad(".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\hy-454-super-mario\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_world_Background.csv");
+	app::ReadTextMap(".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_world_Background.csv");
 }
 //--------------------------------------
 
