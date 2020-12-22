@@ -221,24 +221,24 @@ void input() {
 * map: 336x672 pixels
 */
 void loadMap1() {
-	tiles = BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
-	tiles = BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
+	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
 }
 
 void loadMap3() {
-	tiles = BitmapLoad(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
+	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\hy-454-super-mario\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
+	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
 }
 
 void loadSuperMarioMap() {
