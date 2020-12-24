@@ -155,14 +155,7 @@ void GridLayer::FilterGridMotionDown(const Rect& r, int* dy) {
 	}
 }
 
-extern std::set <Index> solids;
-bool GridLayer::IsTileIndexAssumedEmpty(Index index) {
-	if (solids.find(index) != solids.end()) //if it is in the list, then its solid (not empty)
-		return false;
-	return true;
-}
-
-void GridLayer::ComputeTileGridBlocks1(class TileLayer *tilelayer) {
+/*void GridLayer::ComputeTileGridBlocks1(class TileLayer *tilelayer) {
 	GridIndex* grid_start = &grid[0][0];
 	for (auto row = 0; row < MAX_HEIGHT; ++row) {
 		GridIndex* tmp2 = grid_start;
@@ -180,7 +173,7 @@ void GridLayer::ComputeTileGridBlocks1(class TileLayer *tilelayer) {
 		grid_start = tmp2 + GRID_MAX_WIDTH * 4;
 	}
 }
-/*
+
 bool GridLayer::IsTileColorEmpty(Color c) {
 	return emptyTileColors.In(c);
 }

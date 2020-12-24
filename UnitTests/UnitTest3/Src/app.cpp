@@ -1,13 +1,18 @@
 #include "app.h"
-#include "GridLayer.h"
+#include "TileLayer.h"
 #include <iostream>
 #include <fstream>
 #include "Bitmap.h"
 
+const string backround_path = ".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_world_Background.csv";
+const string foreground_path = "";
+const string tiles_path = ".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_tiles.png";
+const string solid_tiles_path = ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\solid_tiles.txt";
+
 using namespace std;
 
-class TileLayer tilelayer;
-class GridLayer gridlayer;
+class TileLayer tilelayer(MAX_HEIGHT, MAX_WIDTH);
+//class GridLayer gridlayer;
 
 //--------------------GLOBAL VARS-----------------------
 //app::ViewData view;
@@ -64,10 +69,6 @@ void app::Game::MainLoopIteration(void) {
 
 //-------------Class APP----------------
 
-void app::App::Run(void) {
-	game.MainLoop();
-}
-
 void app::App::RunIteration(void) {
 	game.MainLoopIteration();
 }
@@ -77,30 +78,6 @@ app::Game& app::App::GetGame(void) {
 }
 
 const app::Game& app::App::GetGame(void) const { return game; }
-
-void app::MainApp::Initialise(void) {
-
-	if (!al_init()) {
-		std::cout << "ERROR: Could not init allegro\n";
-		assert(false);
-	}
-	al_set_new_display_flags(ALLEGRO_WINDOWED);
-	display = al_create_display(displayArea.w, displayArea.h);
-	queue = al_create_event_queue();
-	al_install_keyboard();
-	al_install_mouse();
-	al_register_event_source(queue, al_get_mouse_event_source());
-	al_register_event_source(queue, al_get_keyboard_event_source());
-	al_register_event_source(queue, al_get_display_event_source(display));
-	al_init_image_addon();
-	al_init_primitives_addon();
-	
-	timer = al_create_timer(1.0 / 60);
-	al_register_event_source(queue, al_get_timer_event_source(timer));
-	al_start_timer(timer);
-
-	character1.potition = {120, 150, 16, 16};
-}
 
 /*
 bool app::TileColorsHolder::In(Color c) const {
@@ -242,10 +219,10 @@ void loadMap3() {
 }
 
 void loadSuperMarioMap() {
-	tiles = BitmapLoad(".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_tiles.png");
+	tiles = BitmapLoad(tiles_path);
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_world_Background.csv");
+	app::ReadTextMap(backround_path);
 }
 //--------------------------------------
 
@@ -260,22 +237,45 @@ void loadSolidTiles(string path) {
 	}
 }
 
+void app::MainApp::Initialise(void) {
+	if (!al_init()) {
+		std::cout << "ERROR: Could not init allegro\n";
+		assert(false);
+	}
+	al_set_new_display_flags(ALLEGRO_WINDOWED);
+	display = al_create_display(displayArea.w, displayArea.h);
+	queue = al_create_event_queue();
+	al_install_keyboard();
+	al_install_mouse();
+	al_register_event_source(queue, al_get_mouse_event_source());
+	al_register_event_source(queue, al_get_keyboard_event_source());
+	al_register_event_source(queue, al_get_display_event_source(display));
+	al_init_image_addon();
+	al_init_primitives_addon();
+
+	timer = al_create_timer(1.0 / 60);
+	al_register_event_source(queue, al_get_timer_event_source(timer));
+	al_start_timer(timer);
+
+	tilelayer.Allocate();
+
+	character1.potition = { 120, 150, 16, 16 };
+}
+
 void app::MainApp::Load(void) {
 	loadSuperMarioMap();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
-	// for map2 -> 24x44 but tilesw = 49 & tilesh = 26 (???????)
 
-	tilelayer.Allocate();
-	tilelayer.AllocateCaching(tilesw, tilesh);
+	tilelayer.InitCaching(tilesw, tilesh);
 
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
 
-	loadSolidTiles(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\solid_tiles.txt");
-	gridlayer.ComputeTileGridBlocks1(&tilelayer);
+	loadSolidTiles(solid_tiles_path);
+	tilelayer.ComputeTileGridBlocks1();
 
 	/*for (auto row = 0; row < 480 * 4; ++row) {
 		for (auto col = 0; col < 640 * 4; ++col) {
@@ -284,6 +284,11 @@ void app::MainApp::Load(void) {
 		cout << endl;
 	}*/
 }
+
+void app::App::Run(void) {
+	game.MainLoop();
+}
+
 void app::MainApp::Clear(void) {
 	al_destroy_display(display);
 	al_uninstall_keyboard();
@@ -374,7 +379,7 @@ void app::moveCharacter(Character *character, int dx, int dy) {
 
 void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
 	if(gridOn)
-		gridlayer.FilterGridMotion(character->potition, &dx, &dy);
+		tilelayer.GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
 	character->potition.x += dx;
 	character->potition.y += dy;
 }

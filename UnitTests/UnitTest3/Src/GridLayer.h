@@ -2,7 +2,21 @@
 //#include "app.h"
 #include "Defines.h"
 #include "Typedefs.h"
-#include "TileLayer.h"
+//#include "TileLayer.h"
+
+struct Rect {
+	int x, y, w, h;
+};
+
+struct Point {
+	int x, y;
+};
+struct RGB {
+	RGBValue r, g, b;
+};
+struct RGBA : public RGB {
+	RGBValue a;
+};
 
 class GridLayer {
 private:
@@ -24,9 +38,6 @@ public:
 	GridMap* GetBuffer(void);
 	const GridMap* GetBuffer(void) const;
 	//GridLayer(unsigned rows, unsigned cols);
-	void ComputeTileGridBlocks1(class TileLayer *tilelayer);
-	void ComputeTileGridBlocks2(const TileMap* map, GridIndex* grid, Bitmap tileSet, Color transColor, unsigned char solidThreshold);
-	void ComputeGridBlock(GridIndex*& grid, Index index, Bitmap tileElem, Bitmap gridElem, Bitmap tileSet, Color transColor, unsigned char solidThreshold);
 };
 
 void SetGridTile(GridMap* m, Dim col, Dim row, GridIndex index);

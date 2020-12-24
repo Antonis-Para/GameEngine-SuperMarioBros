@@ -2,27 +2,13 @@
 #include "Typedefs.h"
 #include "Defines.h"
 #include <string>
-
-struct Rect {
-	int x, y, w, h;
-};
-
-struct Point {
-	int x, y;
-};
-struct RGB {
-	RGBValue r, g, b;
-};
-struct RGBA : public RGB {
-	RGBValue a;
-};
-
+#include "GridLayer.h"
 
 class GridLayer;
 
 class TileLayer {
 	private:
-		TileMap map;
+		Index* map = nullptr;
 		GridLayer* grid = nullptr;
 		Dim totalRows = 0, totalColumns = 0;
 		Bitmap tileSet = nullptr;
@@ -33,8 +19,8 @@ class TileLayer {
 
 
 		/*Pre caching*/
-		Index* divIndex;
-		Index* modIndex;
+		Index* divIndex = nullptr;
+		Index* modIndex = nullptr;
 		Dim TileXc(Index index);
 		Dim TileYc(Index index);
 
@@ -48,10 +34,12 @@ class TileLayer {
 		void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile);
 	public:
 		void Allocate(void);
-		void AllocateCaching(int width, int height);
+		void InitCaching(int width, int height);
 
 		void SetTile(Dim col, Dim row, Index index);
 		Index GetTile(Dim col, Dim row) const;
+		void ComputeTileGridBlocks1(void);
+		GridLayer* GetGrid(void) const;
 		const Point Pick(Dim x, Dim y) const;
 
 		const Rect& GetViewWindow(void) const;
@@ -77,7 +65,7 @@ class TileLayer {
 		bool Load(const std::string& path);
 		FILE* WriteText(FILE* fp) const;
 		bool ReadText(FILE* fp); // TODO: carefull generic parsing
-		TileLayer();
+		TileLayer(Dim _rows, Dim _cols);
 		~TileLayer(); // cleanup here with care!
 };
 

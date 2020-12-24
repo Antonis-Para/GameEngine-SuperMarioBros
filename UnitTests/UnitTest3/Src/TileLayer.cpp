@@ -4,23 +4,27 @@
 //Rect viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 //Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 
-TileLayer::TileLayer() {
-	//do nothing
+TileLayer::TileLayer(Dim _rows, Dim _cols) {
+	grid = new class GridLayer();
+	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+	totalRows = _rows;
+	totalColumns = _cols;
 }
 
 TileLayer::~TileLayer() {
-	//Do nothing for now
+	delete grid;
 }
 
 extern Rect displayArea;
 
 void TileLayer::Allocate(void) {
-	//map = new Index[totalRows * totalColumns];
-	dpyBuffer = BitmapCreate(displayArea.w + TILE_WIDTH, displayArea.h + TILE_HEIGHT);
-	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+	map = new Index[totalRows * totalColumns];
+	int x = displayArea.w + TILE_WIDTH;
+	int y = displayArea.h + TILE_HEIGHT;
+	dpyBuffer = BitmapCreate(x, y);
 }
 
-void TileLayer::AllocateCaching(int width, int height) {
+void TileLayer::InitCaching(int width, int height) {
 	int size = width * height;
 	divIndex = new Index[size];
 	modIndex = new Index[size];
@@ -70,11 +74,13 @@ FILE* TileLayer::WriteText(FILE* fp) const
 }
 
 void TileLayer::SetTile(Dim col, Dim row, Index index) {
-	map[row][col] = index;
+	//map[row][col] = index;
+	map[row * totalColumns + col] = index;
 }
 
 Index TileLayer::GetTile(Dim row, Dim col) const{
-	return map[row][col];
+	//return map[row][col];
+	return map[row * totalColumns + col];
 }
 
 bool TileLayer::CanScrollHoriz(int dx) const{
@@ -152,6 +158,37 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea, Bitmap 
 
 
 //-----------GRID LAYER-----------------
+
+extern std::set <Index> solids;
+bool IsTileIndexAssumedEmpty(Index index) {
+	if (solids.find(index) != solids.end()) //if it is in the list, then its solid (not empty)
+		return false;
+	return true;
+}
+
+void TileLayer::ComputeTileGridBlocks1() {
+
+	GridIndex* grid_start = grid->GetBuffer()[0][0];
+	for (auto row = 0; row < MAX_HEIGHT; ++row) {
+		GridIndex* tmp2 = grid_start;
+		for (auto col = 0; col < MAX_WIDTH; ++col) {
+			GridIndex* tmp = grid_start;
+			for (auto k = 0; k < GRID_ELEMENT_HEIGHT; ++k) {
+				memset(grid_start, IsTileIndexAssumedEmpty(GetTile(row, col)) ? GRID_EMPTY_TILE : GRID_SOLID_TILE, GRID_ELEMENT_WIDTH);
+				grid_start += GRID_MAX_WIDTH;
+			}
+			grid_start = tmp + GRID_ELEMENT_WIDTH;
+			//memset(grid, IsTileIndexAssumedEmpty(GetTile(map, row, col)) ? GRID_EMPTY_TILE : GRID_SOLID_TILE, GRID_ELEMENTS_PER_TILE);
+			//grid += GRID_ELEMENTS_PER_TILE;
+		}
+		//grid += GRID_MAX_WIDTH * 3;
+		grid_start = tmp2 + GRID_MAX_WIDTH * 4;
+	}
+}
+
+GridLayer* TileLayer::GetGrid(void) const{
+	return grid;
+}
 
 //void GridLayer::Allocate(void) {
 //	grid = new GridIndex[total = totalRows * totalColumns];
