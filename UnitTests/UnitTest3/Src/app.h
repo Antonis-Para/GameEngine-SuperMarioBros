@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef APP_H
-#define APP_H
-
 #include <functional>
 #include <set>
 #include <fstream>
@@ -13,7 +10,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "Defines.h"
 #include "Typedefs.h"
-#include "GridLayer.h"
+#include "TileLayer.h"
 
 using namespace std;
 
@@ -110,7 +107,7 @@ namespace app {
 	void ReadPixelColor32(PixelMemory mem, RGBA *c, Alpha *a);
 	Color GetPixel32(PixelMemory mem);
 
-	bool ReadTextMap(string filename);
+	bool ReadTextMap(class TileLayer* layer, string filename);
 
 	//void TileTerrainDisplay(TileMap* map, Bitmap dest, ViewData& view);
 
@@ -127,5 +124,3 @@ namespace app {
 //--------------------OVERLOADED OPS--------------------
 
 bool operator<(const Color left, const Color right);
-
-#endif // !APP_H

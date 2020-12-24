@@ -1,5 +1,4 @@
 #include "app.h"
-#include "TileLayer.h"
 #include <iostream>
 #include <fstream>
 #include "Bitmap.h"
@@ -11,7 +10,7 @@ const string solid_tiles_path = ".\\UnitTests\\UnitTest2\\Media\\Overworld_Grass
 
 using namespace std;
 
-class TileLayer tilelayer(MAX_HEIGHT, MAX_WIDTH);
+class TileLayer* tilelayer = new class TileLayer(MAX_HEIGHT, MAX_WIDTH);
 //class GridLayer gridlayer;
 
 //--------------------GLOBAL VARS-----------------------
@@ -101,7 +100,7 @@ bool done() {
 }
 
 void render() {
-	tilelayer.TileTerrainDisplay(al_get_backbuffer(display), displayArea, tiles);
+	tilelayer->TileTerrainDisplay(al_get_backbuffer(display), displayArea, tiles);
 
 	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
 
@@ -118,7 +117,7 @@ void input() {
 				int move_x = prev_mouse_x - mouse_x;
 				int move_y = prev_mouse_y - mouse_y;
 				if (app::characterStaysInFrame(&character1, &move_x, &move_y)) {
-					tilelayer.ScrollWithBoundsCheck(&move_x, &move_y);
+					tilelayer->ScrollWithBoundsCheck(&move_x, &move_y);
 					app::moveCharacter(&character1, -move_x, -move_y);
 				}
 			}
@@ -140,45 +139,45 @@ void input() {
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (character1.potition.y > 0) {
-					character1.potition.y += tilelayer.GetViewWindow().y;
-					character1.potition.x += tilelayer.GetViewWindow().x;
+					character1.potition.y += tilelayer->GetViewWindow().y;
+					character1.potition.x += tilelayer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, 0, -CHARACTER_MOVE_SPEED);
-					character1.potition.x -= tilelayer.GetViewWindow().x;
-					character1.potition.y -= tilelayer.GetViewWindow().y;
+					character1.potition.x -= tilelayer->GetViewWindow().x;
+					character1.potition.y -= tilelayer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
-				if (character1.potition.y + character1.potition.h < tilelayer.GetViewWindow().h) {
-					character1.potition.y += tilelayer.GetViewWindow().y;
-					character1.potition.x += tilelayer.GetViewWindow().x;
+				if (character1.potition.y + character1.potition.h < tilelayer->GetViewWindow().h) {
+					character1.potition.y += tilelayer->GetViewWindow().y;
+					character1.potition.x += tilelayer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, 0, CHARACTER_MOVE_SPEED);
-					character1.potition.x -= tilelayer.GetViewWindow().x;
-					character1.potition.y -= tilelayer.GetViewWindow().y;
+					character1.potition.x -= tilelayer->GetViewWindow().x;
+					character1.potition.y -= tilelayer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
 				if (character1.potition.x > 0) {
-					character1.potition.y += tilelayer.GetViewWindow().y;
-					character1.potition.x += tilelayer.GetViewWindow().x;
+					character1.potition.y += tilelayer->GetViewWindow().y;
+					character1.potition.x += tilelayer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, -CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= tilelayer.GetViewWindow().x;
-					character1.potition.y -= tilelayer.GetViewWindow().y;
+					character1.potition.x -= tilelayer->GetViewWindow().x;
+					character1.potition.y -= tilelayer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
-				if (character1.potition.x + character1.potition.w < tilelayer.GetViewWindow().w) {
-					character1.potition.y += tilelayer.GetViewWindow().y;
-					character1.potition.x += tilelayer.GetViewWindow().x;
+				if (character1.potition.x + character1.potition.w < tilelayer->GetViewWindow().w) {
+					character1.potition.y += tilelayer->GetViewWindow().y;
+					character1.potition.x += tilelayer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= tilelayer.GetViewWindow().x;
-					character1.potition.y -= tilelayer.GetViewWindow().y;
+					character1.potition.x -= tilelayer->GetViewWindow().x;
+					character1.potition.y -= tilelayer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
-				tilelayer.SetViewWindow({0, 0, tilelayer.GetViewWindow().w , tilelayer.GetViewWindow().h}); //set to start of map
+				tilelayer->SetViewWindow({0, 0, tilelayer->GetViewWindow().w , tilelayer->GetViewWindow().h}); //set to start of map
 			}
 			if (keys[ALLEGRO_KEY_END]) {
-				tilelayer.ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
+				tilelayer->ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
 			}
 		}
 	}
@@ -201,28 +200,28 @@ void loadMap1() {
 	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
 }
 
 void loadMap2() {
 	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
+	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
 }
 
 void loadMap3() {
 	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
 	assert(tiles != NULL);
 
-	app::ReadTextMap(".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
+	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
 }
 
 void loadSuperMarioMap() {
 	tiles = BitmapLoad(tiles_path);
 	assert(tiles != NULL);
 
-	app::ReadTextMap(backround_path);
+	app::ReadTextMap(tilelayer, backround_path);
 }
 //--------------------------------------
 
@@ -257,7 +256,7 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	tilelayer.Allocate();
+	tilelayer->Allocate();
 
 	character1.potition = { 120, 150, 16, 16 };
 }
@@ -268,14 +267,14 @@ void app::MainApp::Load(void) {
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
 
-	tilelayer.InitCaching(tilesw, tilesh);
+	tilelayer->InitCaching(tilesw, tilesh);
 
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
 
 	loadSolidTiles(solid_tiles_path);
-	tilelayer.ComputeTileGridBlocks1();
+	tilelayer->ComputeTileGridBlocks1();
 
 	/*for (auto row = 0; row < 480 * 4; ++row) {
 		for (auto col = 0; col < 640 * 4; ++col) {
@@ -293,8 +292,9 @@ void app::MainApp::Clear(void) {
 	al_destroy_display(display);
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
-	al_destroy_bitmap(tilelayer.GetBitmap());
+	al_destroy_bitmap(tilelayer->GetBitmap());
 	//TODO destroy grid, tiles
+	delete tilelayer;
 	exit(0);
 }
 
@@ -307,7 +307,7 @@ void app::App::Main(void) {
 
 /*--------------------FUNCTIONS-------------------------*/
 
-bool app::ReadTextMap(string filename) {
+bool app::ReadTextMap(class TileLayer* layer, string filename) {
 	string line, token, delimiter = ",";
 	size_t pos = 0;
 	ifstream csvFile(filename);
@@ -321,14 +321,14 @@ bool app::ReadTextMap(string filename) {
 				stringstream ss(token);
 				int val;
 				ss >> val;
-				tilelayer.SetTile(x, y, val);
+				layer->SetTile(x, y, val);
 				x++;
 				line.erase(0, pos + delimiter.length());
 			}
 			stringstream ss(line);
 			int val;
 			ss >> val;
-			tilelayer.SetTile(x, y, val);
+			layer->SetTile(x, y, val);
 			x++;
 			y++;
 		}
@@ -379,7 +379,7 @@ void app::moveCharacter(Character *character, int dx, int dy) {
 
 void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
 	if(gridOn)
-		tilelayer.GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
+		tilelayer->GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
 	character->potition.x += dx;
 	character->potition.y += dy;
 }

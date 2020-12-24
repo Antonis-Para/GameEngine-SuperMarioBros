@@ -28,7 +28,6 @@ private:
 	void FilterGridMotionRight(const Rect& r, int* dy);
 	void FilterGridMotionUp(const Rect& r, int* dy);
 
-	bool IsTileIndexAssumedEmpty(Index index);
 	bool IsTileColorEmpty(Color c);
 	bool ComputeIsGridIndexEmpty(Bitmap gridElement, Color transColor, unsigned char solidThreshold);
 public:
