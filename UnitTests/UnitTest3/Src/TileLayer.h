@@ -2,6 +2,7 @@
 #include "Typedefs.h"
 #include "Defines.h"
 #include <string>
+#include <set>
 #include "GridLayer.h"
 
 class GridLayer;
@@ -16,7 +17,7 @@ class TileLayer {
 		Bitmap dpyBuffer = nullptr;
 		bool dpyChanged = true;
 		Dim dpyX = 0, dpyY = 0;
-
+		std::set <Index> solids; //holds the ids of the solid tiles
 
 		/*Pre caching*/
 		Index* divIndex = nullptr;
@@ -32,10 +33,12 @@ class TileLayer {
 		);
 		void FilterScroll(int* dx, int* dy);
 		void PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile);
+		bool IsTileIndexAssumedEmpty(Index index);
 	public:
 		void Allocate(void);
 		void InitCaching(int width, int height);
 
+		void insertSolid(Index id);
 		void SetTile(Dim col, Dim row, Index index);
 		Index GetTile(Dim col, Dim row) const;
 		void ComputeTileGridBlocks1(void);
@@ -45,7 +48,7 @@ class TileLayer {
 		const Rect& GetViewWindow(void) const;
 		void SetViewWindow(const Rect& r);
 
-		void TileTerrainDisplay(Bitmap dest, const Rect& displayArea, Bitmap tiles);
+		void TileTerrainDisplay(Bitmap dest, const Rect& displayArea);
 		Bitmap GetBitmap(void) const;
 		int GetPixelWidth(void) const;
 		int GetPixelHeight(void) const;
@@ -65,27 +68,17 @@ class TileLayer {
 		bool Load(const std::string& path);
 		FILE* WriteText(FILE* fp) const;
 		bool ReadText(FILE* fp); // TODO: carefull generic parsing
-		TileLayer(Dim _rows, Dim _cols);
+		TileLayer(Dim _rows, Dim _cols, Bitmap _tileSet);
 		~TileLayer(); // cleanup here with care!
 };
 
-
-//class GridLayer {
-//	private:
-//		GridIndex* grid = nullptr;
-//		unsigned total = 0;
-//		Dim totalRows = 0, totalColumns = 0;
-//		void Allocate(void);
-//		// TODO: adapt as needed and insert all rest motion control functions
-//		// inside the private section
-//		void FilterGridMotionDown(const Rect& r, int* dy) const;
-//		void FilterGridMotionLeft(const Rect& r, int* dy) const;
-//		void FilterGridMotionRight(const Rect& r, int* dy) const;
-//		void FilterGridMotionUp(const Rect& r, int* dy) const;
-//	public:
-//		void FilterGridMotion(const Rect& r, int* dx, int* dy) const;
-//		bool IsOnSolidGround(const Rect& r) const;
-//		GridIndex*& GetBuffer(void);
-//		const GridIndex* GetBuffer(void) const;
-//		GridLayer(unsigned rows, unsigned cols);
-//};
+class CircularBackground { // horizontal stripe
+	private:
+		Rect viewWin;
+		Bitmap bg = nullptr; //buffer
+		void InitBuffer(Bitmap tileset, std::string filename, int width);
+	public:
+		void Scroll(int dx);
+		void Display(Bitmap dest, int x, int y) const;
+		CircularBackground(Bitmap tileset, std::string filename);
+};

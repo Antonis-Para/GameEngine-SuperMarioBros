@@ -4,11 +4,12 @@
 //Rect viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 //Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 
-TileLayer::TileLayer(Dim _rows, Dim _cols) {
+TileLayer::TileLayer(Dim _rows, Dim _cols, Bitmap _tileSet) {
 	grid = new class GridLayer();
 	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 	totalRows = _rows;
 	totalColumns = _cols;
+	tileSet = _tileSet;
 }
 
 TileLayer::~TileLayer() {
@@ -133,12 +134,20 @@ Dim TileLayer::TileYc(Index index) {
 	return divIndex[index];
 }
 
+extern unsigned int total_tiles;
 void TileLayer::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
-	BitmapBlit(tiles, Rect{ TileXc(tile), TileYc(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
+	//blit or not to blit.
+	//I dont like this if statmenent because it is excecuted a lot of times in every game loop, but couldn't think of something else
+	if (tile != total_tiles)
+		BitmapBlit(tiles, Rect{ TileXc(tile), TileYc(tile), TILE_WIDTH, TILE_HEIGHT }, dest, Point{ x, y });
 }
 
-void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea, Bitmap tiles) {
+void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 	if (dpyChanged) {
+		//reset the buffer
+		al_set_target_bitmap(dpyBuffer);
+		al_clear_to_color(app::Make32(0, 0, 0, 0));
+
 		auto startCol = DIV_TILE_WIDTH(viewWin.x);
 		auto startRow = DIV_TILE_HEIGHT(viewWin.y);
 		auto endCol = DIV_TILE_WIDTH(viewWin.x + viewWin.w - 1);
@@ -148,7 +157,7 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea, Bitmap 
 		dpyChanged = false;
 		for (Dim row = startRow; row <= endRow; ++row) {
 			for (Dim col = startCol; col <= endCol; ++col) {
-				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tiles, GetTile(row, col));
+				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
 			}
 		}
 	}
@@ -159,8 +168,11 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea, Bitmap 
 
 //-----------GRID LAYER-----------------
 
-extern std::set <Index> solids;
-bool IsTileIndexAssumedEmpty(Index index) {
+void TileLayer::insertSolid(Index id) {
+	solids.insert(id);
+}
+
+bool TileLayer::IsTileIndexAssumedEmpty(Index index) {
 	if (solids.find(index) != solids.end()) //if it is in the list, then its solid (not empty)
 		return false;
 	return true;
@@ -204,3 +216,81 @@ GridLayer* TileLayer::GetGrid(void) const{
 //GridIndex*& GridLayer::GetBuffer(void) { return grid; }
 //
 //const GridIndex* GridLayer::GetBuffer(void) const { return grid; }
+
+
+
+CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {
+	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
+
+	int width_in_tiles = DIV_TILE_WIDTH(BitmapGetWidth(_tileset));
+
+	InitBuffer(_tileset, filename, width_in_tiles);
+}
+
+
+void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int width) {
+	string line, token, delimiter = ",";
+	size_t pos = 0;
+	ifstream csvFile(filename);
+	int x = 0, y = 0;
+
+	Bitmap tmp = BitmapCreate(MUL_TILE_WIDTH(MAX_WIDTH), MUL_TILE_HEIGHT(MAX_HEIGHT));
+
+	if (csvFile.is_open()) {
+		while (getline(csvFile, line)) {
+			x = 0;
+			while ((pos = line.find(delimiter)) != string::npos) {
+				token = line.substr(0, pos);
+				stringstream ss(token);
+				int val;
+				ss >> val;
+
+				if (val != -1) {
+					BitmapBlit(tileset, Rect{ MUL_TILE_WIDTH(val % width), MUL_TILE_WIDTH(val / width), TILE_WIDTH, TILE_HEIGHT }, tmp, Point{ MUL_TILE_WIDTH(x), MUL_TILE_HEIGHT(y) });
+					x++;
+				}
+				line.erase(0, pos + delimiter.length());
+			}
+			stringstream ss(line);
+			int val;
+			ss >> val;
+			BitmapBlit(tileset, Rect{ MUL_TILE_WIDTH(val % width), MUL_TILE_HEIGHT(val / width), TILE_WIDTH, TILE_HEIGHT }, tmp, Point{ MUL_TILE_WIDTH(x), MUL_TILE_HEIGHT(y) });
+			y++;
+		}
+		csvFile.close();
+	}
+	//transfer the buffer to the right bitmap with the right dimensions;
+
+	int pixels_width = MUL_TILE_WIDTH(x);
+	int pixels_height = MUL_TILE_HEIGHT(y);
+
+	bg = BitmapCreate(pixels_width, pixels_height);
+
+	BitmapBlit(tmp, Rect{ 0, 0, pixels_width, pixels_height }, bg, Point{ 0, 0 });
+
+	BitmapDestroy(tmp);
+}
+
+
+void CircularBackground::Scroll(int dx) {
+	viewWin.x += dx;
+	if (viewWin.x < 0)
+		viewWin.x = BitmapGetWidth(bg) + viewWin.x;
+	else
+		if (viewWin.x >= BitmapGetWidth(bg))
+			viewWin.x = viewWin.x - BitmapGetWidth(bg);
+}
+
+
+void CircularBackground::Display(Bitmap dest, int x, int y) const {
+	auto bg_w = BitmapGetWidth(bg);
+	auto w1 = std::min(bg_w - viewWin.x, viewWin.w);
+	BitmapBlit(bg, { viewWin.x, viewWin.y, w1, viewWin.h }, dest, { x, y });
+	if (w1 < viewWin.w) { // not whole view win fits
+		auto w2 = viewWin.w - w1; // the remaining part
+		BitmapBlit(bg, { 0, viewWin.y, w2, viewWin.h }, dest, { x + w1, y });
+	}
+}
+
+
+

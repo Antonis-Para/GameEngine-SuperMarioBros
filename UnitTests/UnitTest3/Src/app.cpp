@@ -3,26 +3,31 @@
 #include <fstream>
 #include "Bitmap.h"
 
-const string backround_path = ".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_world_Background.csv";
+const string backround_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_Background.csv";
+const string circular_backround_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_circularBackground.csv";
+const string action_layer_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_Main Layer.csv";
 const string foreground_path = "";
-const string tiles_path = ".\\UnitTests\\UnitTest3\\UnitTest3Media\\super_mario_tiles.png";
-const string solid_tiles_path = ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\solid_tiles.txt";
+const string tiles_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_tiles.png";
+const string solid_tiles_path = ".\\UnitTests\\UnitTest3\\Media\\solid_tiles.txt";
+
 
 using namespace std;
 
-class TileLayer* tilelayer = new class TileLayer(MAX_HEIGHT, MAX_WIDTH);
+class TileLayer* action_layer;
+class CircularBackground* circular_background;
 //class GridLayer gridlayer;
 
 //--------------------GLOBAL VARS-----------------------
 //app::ViewData view;
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
+unsigned int total_tiles;
 bool closeWindowClicked = false;
 app::Character character1;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 bool gridOn = true;
-Bitmap tiles;
+//Bitmap tiles;
 
 //TileMap map;
 ALLEGRO_DISPLAY* display;
@@ -100,7 +105,8 @@ bool done() {
 }
 
 void render() {
-	tilelayer->TileTerrainDisplay(al_get_backbuffer(display), displayArea, tiles);
+	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
+	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
 
@@ -117,7 +123,8 @@ void input() {
 				int move_x = prev_mouse_x - mouse_x;
 				int move_y = prev_mouse_y - mouse_y;
 				if (app::characterStaysInFrame(&character1, &move_x, &move_y)) {
-					tilelayer->ScrollWithBoundsCheck(&move_x, &move_y);
+					action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
+					circular_background->Scroll(move_x);
 					app::moveCharacter(&character1, -move_x, -move_y);
 				}
 			}
@@ -139,45 +146,45 @@ void input() {
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (character1.potition.y > 0) {
-					character1.potition.y += tilelayer->GetViewWindow().y;
-					character1.potition.x += tilelayer->GetViewWindow().x;
+					character1.potition.y += action_layer->GetViewWindow().y;
+					character1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, 0, -CHARACTER_MOVE_SPEED);
-					character1.potition.x -= tilelayer->GetViewWindow().x;
-					character1.potition.y -= tilelayer->GetViewWindow().y;
+					character1.potition.x -= action_layer->GetViewWindow().x;
+					character1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
-				if (character1.potition.y + character1.potition.h < tilelayer->GetViewWindow().h) {
-					character1.potition.y += tilelayer->GetViewWindow().y;
-					character1.potition.x += tilelayer->GetViewWindow().x;
+				if (character1.potition.y + character1.potition.h < action_layer->GetViewWindow().h) {
+					character1.potition.y += action_layer->GetViewWindow().y;
+					character1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, 0, CHARACTER_MOVE_SPEED);
-					character1.potition.x -= tilelayer->GetViewWindow().x;
-					character1.potition.y -= tilelayer->GetViewWindow().y;
+					character1.potition.x -= action_layer->GetViewWindow().x;
+					character1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
 				if (character1.potition.x > 0) {
-					character1.potition.y += tilelayer->GetViewWindow().y;
-					character1.potition.x += tilelayer->GetViewWindow().x;
+					character1.potition.y += action_layer->GetViewWindow().y;
+					character1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, -CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= tilelayer->GetViewWindow().x;
-					character1.potition.y -= tilelayer->GetViewWindow().y;
+					character1.potition.x -= action_layer->GetViewWindow().x;
+					character1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
-				if (character1.potition.x + character1.potition.w < tilelayer->GetViewWindow().w) {
-					character1.potition.y += tilelayer->GetViewWindow().y;
-					character1.potition.x += tilelayer->GetViewWindow().x;
+				if (character1.potition.x + character1.potition.w < action_layer->GetViewWindow().w) {
+					character1.potition.y += action_layer->GetViewWindow().y;
+					character1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&character1, CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= tilelayer->GetViewWindow().x;
-					character1.potition.y -= tilelayer->GetViewWindow().y;
+					character1.potition.x -= action_layer->GetViewWindow().x;
+					character1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_HOME]) {
-				tilelayer->SetViewWindow({0, 0, tilelayer->GetViewWindow().w , tilelayer->GetViewWindow().h}); //set to start of map
+				action_layer->SetViewWindow({0, 0, action_layer->GetViewWindow().w , action_layer->GetViewWindow().h}); //set to start of map
 			}
 			if (keys[ALLEGRO_KEY_END]) {
-				tilelayer->ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
+				action_layer->ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
 			}
 		}
 	}
@@ -196,43 +203,41 @@ void input() {
 * map: 21x42 tiles
 * map: 336x672 pixels
 */
-void loadMap1() {
-	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
-	assert(tiles != NULL);
+//void loadMap1() {
+//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
+//	assert(tiles != NULL);
+//
+//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+//}
+//
+//void loadMap2() {
+//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
+//	assert(tiles != NULL);
+//
+//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
+//}
+//
+//void loadMap3() {
+//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
+//	assert(tiles != NULL);
+//
+//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
+//}
 
-	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
+void loadMap() {
+	app::ReadTextMap(action_layer, action_layer_path);
 }
 
-void loadMap2() {
-	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
-	assert(tiles != NULL);
-
-	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
-}
-
-void loadMap3() {
-	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
-	assert(tiles != NULL);
-
-	app::ReadTextMap(tilelayer, ".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
-}
-
-void loadSuperMarioMap() {
-	tiles = BitmapLoad(tiles_path);
-	assert(tiles != NULL);
-
-	app::ReadTextMap(tilelayer, backround_path);
-}
 //--------------------------------------
 
-set <Index> solids;
-void loadSolidTiles(string path) {
+void loadSolidTiles(TileLayer *layer, string path) {
 	int tile;
 
 	std::ifstream infile(path);
+	assert(infile);
 
 	while (infile >> tile) {
-		solids.insert(tile);
+		layer->insertSolid(tile);
 	}
 }
 
@@ -256,32 +261,32 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	tilelayer->Allocate();
-
-	character1.potition = { 120, 150, 16, 16 };
+	character1.potition = { 120, 420, 16, 16 };
 }
 
 void app::MainApp::Load(void) {
-	loadSuperMarioMap();
+	Bitmap tiles = BitmapLoad(tiles_path);
+	assert(tiles != NULL);
 
-	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles));
-	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles));
 
-	tilelayer->InitCaching(tilesw, tilesh);
+	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
+	action_layer->Allocate();
+
+	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles)); //tileset width
+	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); //tileset height
+	total_tiles = tilesw * tilesh;
+
+	action_layer->InitCaching(tilesw, tilesh);
+	loadMap();
+
+	circular_background = new CircularBackground(tiles, circular_backround_path);
 
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
 
-	loadSolidTiles(solid_tiles_path);
-	tilelayer->ComputeTileGridBlocks1();
-
-	/*for (auto row = 0; row < 480 * 4; ++row) {
-		for (auto col = 0; col < 640 * 4; ++col) {
-			cout << (int)grid[row][col] << " ";
-		}
-		cout << endl;
-	}*/
+	loadSolidTiles(action_layer, solid_tiles_path);
+	action_layer->ComputeTileGridBlocks1();
 }
 
 void app::App::Run(void) {
@@ -292,9 +297,9 @@ void app::MainApp::Clear(void) {
 	al_destroy_display(display);
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
-	al_destroy_bitmap(tilelayer->GetBitmap());
-	//TODO destroy grid, tiles
-	delete tilelayer;
+	al_destroy_bitmap(action_layer->GetBitmap());
+	//TODO destroy grid, tiles, background
+	delete action_layer;
 	exit(0);
 }
 
@@ -321,7 +326,12 @@ bool app::ReadTextMap(class TileLayer* layer, string filename) {
 				stringstream ss(token);
 				int val;
 				ss >> val;
-				layer->SetTile(x, y, val);
+				if (val == -1) {
+					layer->SetTile(x, y, total_tiles); //"crete" an extra tile which is going to be identified as the trasnparent tile
+				}
+				else {
+					layer->SetTile(x, y, val);
+				}
 				x++;
 				line.erase(0, pos + delimiter.length());
 			}
@@ -355,13 +365,13 @@ Index GetRow(Index index)
 }
 
 
-Dim TileX3(Index index) {
-	return MUL_TILE_WIDTH(index) % BitmapGetWidth(tiles);
-}
-
-Dim TileY3(Index index) {
-	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / BitmapGetWidth(tiles));
-}
+//Dim TileX3(Index index) {
+//	return MUL_TILE_WIDTH(index) % BitmapGetWidth(tiles);
+//}
+//
+//Dim TileY3(Index index) {
+//	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / BitmapGetWidth(tiles));
+//}
 
 int app::GetMapPixelWidth(void) {
 	return widthInTiles * TILE_WIDTH > displayArea.w ? widthInTiles * TILE_WIDTH : displayArea.w;
@@ -379,7 +389,7 @@ void app::moveCharacter(Character *character, int dx, int dy) {
 
 void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
 	if(gridOn)
-		tilelayer->GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
+		action_layer->GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
 	character->potition.x += dx;
 	character->potition.y += dy;
 }
