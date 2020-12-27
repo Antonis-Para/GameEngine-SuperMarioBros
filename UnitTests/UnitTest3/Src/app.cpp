@@ -116,7 +116,7 @@ void render() {
 void input() {
 	if (!al_is_event_queue_empty(queue)) {
 		al_wait_for_event(queue, &event);
-		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+		/*if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
 			al_get_mouse_state(&mouse_state);
 			if (mouse_state.buttons & 1) {
@@ -130,7 +130,7 @@ void input() {
 			}
 			prev_mouse_x = mouse_x;
 			prev_mouse_y = mouse_y;
-		}
+		}*/
 		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_TILDE) {
 			gridOn = !gridOn;
 		}
@@ -178,14 +178,21 @@ void input() {
 					app::moveCharacterWithFilter(&character1, CHARACTER_MOVE_SPEED, 0);
 					character1.potition.x -= action_layer->GetViewWindow().x;
 					character1.potition.y -= action_layer->GetViewWindow().y;
+					int move_x = CHARACTER_MOVE_SPEED;
+					int move_y = 0;
+					if (app::characterStaysInCenter(&character1, &move_x)) {
+						action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
+						circular_background->Scroll(move_x);
+						app::moveCharacter(&character1, -move_x, -move_y);
+					}
 				}
 			}
-			if (keys[ALLEGRO_KEY_HOME]) {
+			/*if (keys[ALLEGRO_KEY_HOME]) {
 				action_layer->SetViewWindow({0, 0, action_layer->GetViewWindow().w , action_layer->GetViewWindow().h}); //set to start of map
 			}
 			if (keys[ALLEGRO_KEY_END]) {
 				action_layer->ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
-			}
+			}*/
 		}
 	}
 	
@@ -399,4 +406,8 @@ bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
 			|| character->potition.x + character->potition.w - *dx > displayArea.w
 			|| character->potition.y - *dy < 0
 			|| character->potition.y + character->potition.h - *dy > displayArea.h);
+}
+
+bool app::characterStaysInCenter(Character* character, int* dx) {
+	return character->potition.x + character->potition.w/2 - *dx == displayArea.w/2;
 }

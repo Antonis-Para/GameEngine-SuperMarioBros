@@ -119,6 +119,7 @@ namespace app {
 	void moveCharacterWithFilter(Character* character, int dx, int dy);
 
 	bool characterStaysInFrame(Character *character, int *dx, int *dy);
+	bool characterStaysInCenter(Character* character, int* dx);
 }
 
 //--------------------OVERLOADED OPS--------------------
