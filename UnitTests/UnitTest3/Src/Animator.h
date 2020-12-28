@@ -2,6 +2,7 @@
 
 #include "app.h"
 #include "Animation.h"
+#include "Destruction.h"
 
 namespace app {
 	typedef uint64_t timestamp_t;
@@ -9,7 +10,9 @@ namespace app {
 		ANIMATOR_FINISHED = 0, ANIMATOR_RUNNING = 1, ANIMATOR_STOPPED = 2
 	};
 
-	class Animator {
+	// may adopt this for animators in case we wish to Destroy() incallbacks
+	// and do not bother to have deleted pointers being used
+	class Animator: public app::LatelyDestroyable {
 	public:
 		using OnFinish = std::function<void(Animator*)>;
 		using OnStart = std::function<void(Animator*)>;
