@@ -1,5 +1,100 @@
 #include "Animation.h"
 
+// AnimationFilm
+app::AnimationFilm::AnimationFilm(const std::string& _id) : id(_id) {}
+app::AnimationFilm::AnimationFilm(Bitmap, const std::vector<Rect>&, const std::string&) {}
+
+unsigned char app::AnimationFilm::GetTotalFrames(void) const {
+	return boxes.size();
+}
+
+Bitmap app::AnimationFilm::GetBitmap(void) const {
+	return bitmap;
+}
+
+auto app::AnimationFilm::GetId(void) const -> const std::string& {
+	return id;
+}
+
+const Rect& app::AnimationFilm::GetFrameBox(unsigned char frameNo) const {
+	assert(boxes.size() > frameNo);
+	return boxes[frameNo];
+}
+
+void app::AnimationFilm::DisplayFrame(Bitmap dest, const Point& at, unsigned char frameNo) const {
+	BitmapBlit(bitmap, GetFrameBox(frameNo), dest, at); // MaskedBlit
+}
+
+void app::AnimationFilm::SetBitmap(Bitmap b) {
+	assert(!bitmap); bitmap = b;
+}
+
+void app::AnimationFilm::Append(const Rect& r) {
+	boxes.push_back(r);
+}
+
+// AnimationFilmHolder
+auto app::AnimationFilmHolder::Get(void) -> const AnimationFilmHolder& {
+	return holder;
+}
+// TODO(4u): set a parsing functor implemented externally to the class
+int app::AnimationFilmHolder::ParseEntry( // -1=error, 0=ended gracefully, else #chars read
+	int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
+
+}
+void app::AnimationFilmHolder::LoadAll(const std::string& text) {
+	int pos = 0;
+	while (true) {
+		std::string id, path;
+		std::vector<Rect> rects;
+		auto i = ParseEntry(pos, text, id, path, rects);
+		assert(i >= 0);
+		if (!i) return;
+		pos += i;
+		assert(!GetFilm(id));
+		films[id] = new AnimationFilm(bitmaps.Load(path), rects, id);
+	}
+}
+
+void app::AnimationFilmHolder::CleanUp(void) {
+	for (auto& i : films)
+		delete (i.second);
+	films.clear();
+}
+
+auto app::AnimationFilmHolder::GetFilm(const std::string& id) -> const AnimationFilm* const {
+	auto i = films.find(id);
+	return i != films.end() ? i->second : nullptr;
+}
+
+// BitmapLoader
+app::BitmapLoader::BitmapLoader(void) {}
+app::BitmapLoader::~BitmapLoader() {
+	CleanUp();
+}
+
+Bitmap app::BitmapLoader::GetBitmap(const std::string& path) const {
+	auto i = bitmaps.find(path);
+	return i != bitmaps.end() ? i->second : nullptr;
+}
+
+Bitmap app::BitmapLoader::Load(const std::string& path) {
+	auto b = GetBitmap(path);
+	if (!b) {
+		bitmaps[path] = b = BitmapLoad(path);
+		assert(b);
+	}
+	return b;
+}
+
+// prefer to massively clear bitmaps at the end than
+// to destroy individual bitmaps during gameplay
+void  app::BitmapLoader::CleanUp(void) {
+	for (auto& i : bitmaps)
+		BitmapDestroy(i.second);
+	bitmaps.clear();
+}
+
 // Animation
 app::Animation::Animation(const std::string& _id) : id(_id) {}
 app::Animation::~Animation() {}
@@ -174,99 +269,160 @@ app::Animation* app::ScrollAnimation::Clone(void) const {
 	return new ScrollAnimation(id, scroll);
 }
 
-// AnimationFilm
-app::AnimationFilm::AnimationFilm(const std::string& _id) : id(_id) {}
-app::AnimationFilm::AnimationFilm(Bitmap, const std::vector<Rect>&, const std::string&) {}
-
-unsigned char app::AnimationFilm::GetTotalFrames(void) const {
-	return boxes.size();
+// Animator
+app::Animator::Animator(void) {
+	AnimatorManager::GetSingleton().Register(this);
 }
 
-Bitmap app::AnimationFilm::GetBitmap(void) const {
-	return bitmap;
+app::Animator::~Animator(void) {
+	AnimatorManager::GetSingleton().Cancel(this);
 }
 
-auto app::AnimationFilm::GetId(void) const -> const std::string& {
-	return id;
+void app::Animator::NotifyStopped(void) {
+	AnimatorManager::GetSingleton().MarkAsSuspended(this);
+	if (onFinish)
+		(onFinish)(this);
 }
 
-const Rect& app::AnimationFilm::GetFrameBox(unsigned char frameNo) const {
-	assert(boxes.size() > frameNo);
-	return boxes[frameNo];
+void app::Animator::NotifyStarted(void) {
+	AnimatorManager::GetSingleton().MarkAsRunning(this);
+	if (onStart)
+		(onStart)(this);
 }
 
-void app::AnimationFilm::DisplayFrame(Bitmap dest, const Point& at, unsigned char frameNo) const {
-	BitmapBlit(bitmap, GetFrameBox(frameNo), dest, at); // MaskedBlit
+void app::Animator::NotifyAction(const Animation& anim) {
+	if (onAction)
+		(onAction)(this, anim);
 }
 
-void app::AnimationFilm::SetBitmap(Bitmap b) {
-	assert(!bitmap); bitmap = b;
-}
-
-void app::AnimationFilm::Append(const Rect& r) {
-	boxes.push_back(r);
-}
-
-// AnimationFilmHolder
-auto app::AnimationFilmHolder::Get(void) -> const AnimationFilmHolder& {
-	return holder;
-}
-// TODO(4u): set a parsing functor implemented externally to the class
-int app::AnimationFilmHolder::ParseEntry( // -1=error, 0=ended gracefully, else #chars read
-	int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
-
-}
-void app::AnimationFilmHolder::LoadAll(const std::string& text) {
-	int pos = 0;
-	while (true) {
-		std::string id, path;
-		std::vector<Rect> rects;
-		auto i = ParseEntry(pos, text, id, path, rects);
-		assert(i >= 0);
-		if (!i) return;
-		pos += i;
-		assert(!GetFilm(id));
-		films[id] = new AnimationFilm(bitmaps.Load(path), rects, id);
+void app::Animator::Finish(bool isForced) {
+	if (!HasFinished()) {
+		state = isForced ? ANIMATOR_STOPPED : ANIMATOR_FINISHED; NotifyStopped();
 	}
 }
 
-void app::AnimationFilmHolder::CleanUp(void) {
-	for (auto& i : films)
-		delete (i.second);
-	films.clear();
+bool app::Animator::HasFinished(void) const {
+	return state != ANIMATOR_RUNNING;
 }
 
-auto app::AnimationFilmHolder::GetFilm(const std::string& id) -> const AnimationFilm* const {
-	auto i = films.find(id);
-	return i != films.end() ? i->second : nullptr;
+template<typename Tfunc>
+void app::Animator::SetOnFinish(const Tfunc& f) {
+	onFinish = f;
 }
 
-// BitmapLoader
-app::BitmapLoader::BitmapLoader(void) {}
-app::BitmapLoader::~BitmapLoader() {
-	CleanUp();
+template<typename Tfunc>
+void app::Animator::SetOnStart(const Tfunc& f) {
+	onStart = f;
 }
 
-Bitmap app::BitmapLoader::GetBitmap(const std::string& path) const {
-	auto i = bitmaps.find(path);
-	return i != bitmaps.end() ? i->second : nullptr;
+template<typename Tfunc>
+void app::Animator::SetOnAction(const Tfunc& f) {
+	onAction = f;
 }
 
-Bitmap app::BitmapLoader::Load(const std::string& path) {
-	auto b = GetBitmap(path);
-	if (!b) {
-		bitmaps[path] = b = BitmapLoad(path);
-		assert(b);
+void app::Animator::Stop(void) {
+	Finish(true);
+}
+
+void app::Animator::TimeShift(timestamp_t offset) {
+	lastTime += offset;
+}
+
+// MovingAnimator
+void app::MovingAnimator::Progress(timestamp_t currTime) {
+	while (currTime > lastTime && (currTime - lastTime) >= anim->GetDelay()) {
+		lastTime += anim->GetDelay();
+		NotifyAction(*anim);
+		if (!anim->IsForever() && ++currRep == anim->GetReps()) {
+			state = ANIMATOR_FINISHED;
+			NotifyStopped();
+		}
 	}
-	return b;
 }
 
-// prefer to massively clear bitmaps at the end than
-// to destroy individual bitmaps during gameplay
-void  app::BitmapLoader::CleanUp(void) {
-	for (auto& i : bitmaps)
-		BitmapDestroy(i.second);
-	bitmaps.clear();
+auto app::MovingAnimator::GetAnim(void) const -> const MovingAnimation& {
+	return *anim;
+}
+
+void app::MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
+	anim = a;
+	lastTime = t;
+	state = ANIMATOR_RUNNING;
+	currRep = 0;
+	NotifyStarted();
+}
+
+// FrameRangeAnimator
+void app::FrameRangeAnimator::Progress(timestamp_t currTime) {
+	while (currTime > lastTime && (currTime - lastTime) >= anim->GetDelay()) {
+		if (currFrame == anim->GetEndFrame()) {
+			assert(anim->IsForever() || currRep < anim->GetReps());
+			currFrame = anim->GetStartFrame(); // flip to start
+		} else
+			++currFrame;
+		lastTime+= anim->GetDelay();
+		NotifyAction(*anim);
+		if(currFrame== anim->GetEndFrame())
+			if(!anim->IsForever() && ++currRep== anim->GetReps()) {
+				state = ANIMATOR_FINISHED;NotifyStopped();
+				return;
+			}
+	}
+}
+
+unsigned app::FrameRangeAnimator::GetCurrFrame(void) const {
+	return currFrame;
+}
+
+unsigned app::FrameRangeAnimator::GetCurrRep(void) const {
+	return currRep;
+}
+
+void app::FrameRangeAnimator::Start(FrameRangeAnimation* a, timestamp_t t) {
+	anim = a;
+	lastTime = t;
+	state = ANIMATOR_RUNNING;
+	currFrame = anim->GetStartFrame();
+	currRep = 0;
+	NotifyStarted();
+	NotifyAction(*anim);
+}
+
+// AnimatorManager
+void app::AnimatorManager::Register(Animator* a) {
+	assert(a->HasFinished());
+	suspended.insert(a);
+}
+
+void app::AnimatorManager::Cancel(Animator* a) {
+	assert(a->HasFinished());
+	suspended.erase(a);
+}
+
+void app::AnimatorManager::MarkAsRunning(Animator* a) {
+	assert(!a->HasFinished());
+	suspended.erase(a);
+	running.insert(a);
+}
+
+void app::AnimatorManager::MarkAsSuspended(Animator* a) {
+	assert(a->HasFinished());
+	running.erase(a);
+	suspended.insert(a);
+}
+
+void app::AnimatorManager::Progress(timestamp_t currTime) {
+	auto copied(running);
+	for (auto* a : copied)
+		a->Progress(currTime);
+}
+
+auto app::AnimatorManager::GetSingleton(void) -> AnimatorManager& {
+	return singleton;
+}
+
+auto app::AnimatorManager::GetSingletonConst(void) -> const AnimatorManager& {
+	return singleton;
 }
 
 void app::Animate(AnimationFilm& film, const Point at) {
