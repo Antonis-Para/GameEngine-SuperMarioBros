@@ -12,7 +12,7 @@ namespace app {
 
 	// may adopt this for animators in case we wish to Destroy() incallbacks
 	// and do not bother to have deleted pointers being used
-	class Animator: public app::LatelyDestroyable {
+	class Animator: public LatelyDestroyable {
 	public:
 		using OnFinish = std::function<void(Animator*)>;
 		using OnStart = std::function<void(Animator*)>;
@@ -106,6 +106,34 @@ namespace app {
 		FrameRange_Action(sprite, animator, (constFrameRangeAnimation&)anim);
 		}
 	);*/
+
+	class TickAnimator: public Animator {
+	protected:
+		TickAnimation *anim = nullptr;
+		unsigned currRep = 0;
+		unsigned elapsedTime = 0;
+	public:
+		TickAnimator(void) = default;
+
+		void Progress(timestamp_t currTime) override;
+		unsigned GetCurrRep(void) const {
+			return currRep;
+		}
+		unsigned GetElapsedTime(void) const {
+			return elapsedTime;
+		}
+		float GetElapsedTimeNormalised(void) const {
+			return float(elapsedTime) / float(anim->GetDelay());
+		}
+		void Start(const TickAnimation& a, timestamp_t t) {
+			anim = (TickAnimation*)a.Clone();
+			lastTime = t;
+			state = ANIMATOR_RUNNING;
+			currRep = 0;
+			elapsedTime = 0;
+			NotifyStarted();
+		}
+	};
 
 	class AnimatorManager {
 	private:

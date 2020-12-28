@@ -269,6 +269,51 @@ app::Animation* app::ScrollAnimation::Clone(void) const {
 	return new ScrollAnimation(id, scroll);
 }
 
+// TickAnimation
+app::TickAnimation::TickAnimation(const std::string& _id, unsigned d, unsigned r, bool discrete) :
+	Animation(id), delay(d), reps(r), isDiscrete(discrete) {
+	assert(Inv());
+}
+
+bool app::TickAnimation::Inv(void) const {
+	return isDiscrete || reps == 1;
+}
+
+unsigned app::TickAnimation::GetDelay(void) const {
+	return delay;
+}
+
+app::TickAnimation::Me& app::TickAnimation::SetDelay(unsigned v) {
+	delay = v;
+	return *this;
+}
+
+unsigned app::TickAnimation::GetReps(void) const {
+	return reps;
+}
+
+app::TickAnimation::Me& app::TickAnimation::SetReps(unsigned n) {
+	reps = n;
+	return *this;
+}
+
+bool app::TickAnimation::IsForever(void) const {
+	return !reps;
+}
+
+app::TickAnimation::Me& app::TickAnimation::SetForever(void) {
+	reps = 0;
+	return *this;
+}
+
+bool app::TickAnimation::IsDiscrete(void) const {
+	return isDiscrete;
+}
+
+app::Animation* app::TickAnimation::Clone(void) const {
+	return new TickAnimation(id, delay, reps, isDiscrete);
+}
+
 void app::Animate(AnimationFilm& film, const Point at) {
 	uint64_t t = 0;
 	for (unsigned char i = 0; i < film.GetTotalFrames(); )

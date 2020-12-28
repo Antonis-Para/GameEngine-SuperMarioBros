@@ -5,6 +5,7 @@
 #include "app.h"
 #include "Bitmap.h"
 #include "Defines.h"
+#include "SystemClock.h"
 
 namespace app {
 	class AnimationFilm {
@@ -176,6 +177,28 @@ namespace app {
 
 		const Scroll& GetScroll(void) const;
 		void SetScroll(const Scroll& p);
+		Animation* Clone(void) const override;
+	};
+
+	class TickAnimation: public Animation {
+	protected:
+		unsigned delay = 0;
+		unsigned reps = 1;
+		bool isDiscrete = true;
+
+		bool Inv(void) const;
+	public:
+		using Me = TickAnimation;
+
+		TickAnimation(const std::string& _id, unsigned d, unsigned r, bool discrete);
+
+		unsigned GetDelay(void) const;
+		Me& SetDelay(unsigned v);
+		unsigned GetReps(void) const;
+		Me& SetReps(unsigned n);
+		bool IsForever(void) const;
+		Me& SetForever(void);
+		bool IsDiscrete(void) const;
 		Animation* Clone(void) const override;
 	};
 

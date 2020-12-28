@@ -120,6 +120,46 @@ void app::FrameRangeAnimator::Start(FrameRangeAnimation* a, timestamp_t t) {
 	NotifyAction(*anim);
 }
 
+// TickAnimator
+void app::TickAnimator::Progress(timestamp_t currTime) {
+	if (!anim->IsDiscrete()) {
+		elapsedTime = currTime - lastTime;
+		lastTime = currTime;
+		NotifyAction(*anim);
+	}
+	else
+		while (currTime > lastTime && (currTime - lastTime) >= anim->GetDelay()) {
+			lastTime += anim->GetDelay();
+			NotifyAction(*anim);
+			if (!anim->IsForever() && ++currRep == anim->GetReps()) {
+				state = ANIMATOR_FINISHED;
+				NotifyStopped();
+				return;
+			}
+		}
+}
+
+unsigned app::TickAnimator::GetCurrRep(void) const {
+	return currRep;
+}
+
+unsigned app::TickAnimator::GetElapsedTime(void) const {
+	return elapsedTime;
+}
+
+float app::TickAnimator::GetElapsedTimeNormalised(void) const {
+	return float(elapsedTime) / float(anim->GetDelay());
+}
+
+void app::TickAnimator::Start(const TickAnimation& a, timestamp_t t) {
+	anim = (TickAnimation*)a.Clone();
+	lastTime = t;
+	state = ANIMATOR_RUNNING;
+	currRep = 0;
+	elapsedTime = 0;
+	NotifyStarted();
+}
+
 // AnimatorManager
 void app::AnimatorManager::Register(Animator* a) {
 	assert(a->HasFinished());
