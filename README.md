@@ -14,7 +14,7 @@
 - [x] Map APIs from lecture to Allegro
 - [ ] INI file
 - [ ] Make sprites
-- [ ] Graviry
+- [ ] Graviry and jump
 
 ---
 
