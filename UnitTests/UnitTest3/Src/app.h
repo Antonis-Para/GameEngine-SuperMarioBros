@@ -121,6 +121,8 @@ namespace app {
 
 	bool characterStaysInFrame(Character *character, int *dx, int *dy);
 	bool characterStaysInCenter(Character* character, int* dx);
+
+	void loadConfigFile();
 }
 
 //--------------------OVERLOADED OPS--------------------

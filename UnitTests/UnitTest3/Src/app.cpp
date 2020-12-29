@@ -3,13 +3,11 @@
 #include <fstream>
 #include "Bitmap.h"
 
-const string backround_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_Background.csv";
-const string circular_backround_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_circularBackground.csv";
-const string action_layer_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_world_Main Layer.csv";
-const string foreground_path = "";
-const string tiles_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_tiles.png";
-const string solid_tiles_path = ".\\UnitTests\\UnitTest3\\Media\\solid_tiles.txt";
-const string characters_path = ".\\UnitTests\\UnitTest3\\Media\\characters.png";
+string circular_backround_path = "";
+string action_layer_path = "";
+string tiles_path = "";
+string solid_tiles_path = "";
+string characters_path = "";
 
 
 using namespace std;
@@ -275,6 +273,8 @@ void app::MainApp::Initialise(void) {
 }
 
 void app::MainApp::Load(void) {
+	loadConfigFile();
+
 	Bitmap tiles = BitmapLoad(tiles_path);
 	assert(tiles != NULL);
 
@@ -418,4 +418,15 @@ bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
 
 bool app::characterStaysInCenter(Character* character, int* dx) {
 	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
+}
+
+void app::loadConfigFile() {
+	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
+	assert(config != NULL);
+
+	circular_backround_path = al_get_config_value(config, "paths", "circular_backround_path");
+	action_layer_path = al_get_config_value(config, "paths", "action_layer_path");
+	tiles_path = al_get_config_value(config, "paths", "tiles_path");
+	solid_tiles_path = al_get_config_value(config, "paths", "solid_tiles_path");
+	characters_path = al_get_config_value(config, "paths", "characters_path");
 }
