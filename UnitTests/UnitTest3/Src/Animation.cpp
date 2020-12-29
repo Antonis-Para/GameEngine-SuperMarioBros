@@ -5,7 +5,7 @@ app::AnimationFilm::AnimationFilm(const std::string& _id) : id(_id) {}
 app::AnimationFilm::AnimationFilm(Bitmap, const std::vector<Rect>&, const std::string&) {}
 
 unsigned char app::AnimationFilm::GetTotalFrames(void) const {
-	return boxes.size();
+	return (unsigned char)boxes.size();
 }
 
 Bitmap app::AnimationFilm::GetBitmap(void) const {
@@ -37,11 +37,13 @@ void app::AnimationFilm::Append(const Rect& r) {
 auto app::AnimationFilmHolder::Get(void) -> const AnimationFilmHolder& {
 	return holder;
 }
+
 // TODO(4u): set a parsing functor implemented externally to the class
 int app::AnimationFilmHolder::ParseEntry( // -1=error, 0=ended gracefully, else #chars read
 	int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
-
+	return 0;
 }
+
 void app::AnimationFilmHolder::LoadAll(const std::string& text) {
 	int pos = 0;
 	while (true) {

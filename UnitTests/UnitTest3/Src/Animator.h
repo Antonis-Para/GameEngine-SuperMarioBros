@@ -32,7 +32,7 @@ namespace app {
 		Animator(void);
 		Animator(const Animator&) = delete;
 		Animator(Animator&&) = delete;
-		virtual ~Animator() {}
+		virtual ~Animator();
 
 		void Stop(void);
 		bool HasFinished(void) const;
@@ -78,21 +78,9 @@ namespace app {
 		FrameRangeAnimator(void) = default;
 
 		void Progress(timestamp_t currTime);
-		unsigned GetCurrFrame(void) const {
-			return currFrame;
-		}
-		unsigned GetCurrRep(void) const {
-			return currRep;
-		}
-		void Start(FrameRangeAnimation* a, timestamp_t t) {
-			anim = a;
-			lastTime = t;
-			state = ANIMATOR_RUNNING;
-			currFrame = anim->GetStartFrame();
-			currRep = 0;
-			NotifyStarted();
-			NotifyAction(*anim);
-		}
+		unsigned GetCurrFrame(void) const;
+		unsigned GetCurrRep(void) const;
+		void Start(FrameRangeAnimation* a, timestamp_t t);
 	};
 
 	/*void FrameRange_Action(Sprite* sprite, Animator* animator, const FrameRangeAnimation& anim) {
@@ -116,23 +104,10 @@ namespace app {
 		TickAnimator(void) = default;
 
 		void Progress(timestamp_t currTime) override;
-		unsigned GetCurrRep(void) const {
-			return currRep;
-		}
-		unsigned GetElapsedTime(void) const {
-			return elapsedTime;
-		}
-		float GetElapsedTimeNormalised(void) const {
-			return float(elapsedTime) / float(anim->GetDelay());
-		}
-		void Start(const TickAnimation& a, timestamp_t t) {
-			anim = (TickAnimation*)a.Clone();
-			lastTime = t;
-			state = ANIMATOR_RUNNING;
-			currRep = 0;
-			elapsedTime = 0;
-			NotifyStarted();
-		}
+		unsigned GetCurrRep(void) const;
+		unsigned GetElapsedTime(void) const;
+		float GetElapsedTimeNormalised(void) const;
+		void Start(const TickAnimation& a, timestamp_t t);
 	};
 
 	class AnimatorManager {

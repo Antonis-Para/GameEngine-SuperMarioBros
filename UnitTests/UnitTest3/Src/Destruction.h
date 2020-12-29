@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <stack>
 #include "app.h"
 
 class LatelyDestroyable;
