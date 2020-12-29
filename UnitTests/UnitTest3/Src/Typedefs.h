@@ -19,3 +19,6 @@ typedef unsigned char* PixelMemory;
 using GridIndex = unsigned char;
 typedef GridIndex GridMap[GRID_MAX_HEIGHT][GRID_MAX_WIDTH];
 typedef unsigned char* PixelMemory;
+
+//Sprites
+typedef int BoundingArea; //???????????

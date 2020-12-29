@@ -9,6 +9,7 @@ const string action_layer_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_wo
 const string foreground_path = "";
 const string tiles_path = ".\\UnitTests\\UnitTest3\\Media\\super_mario_tiles.png";
 const string solid_tiles_path = ".\\UnitTests\\UnitTest3\\Media\\solid_tiles.txt";
+const string characters_path = ".\\UnitTests\\UnitTest3\\Media\\characters.gif";
 
 
 using namespace std;
@@ -27,6 +28,7 @@ app::Character character1;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 bool gridOn = true;
+Bitmap characters = nullptr;
 //Bitmap tiles;
 
 //TileMap map;
@@ -109,6 +111,7 @@ void render() {
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 	al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
+
 
 	al_flip_display();
 }
@@ -275,6 +278,8 @@ void app::MainApp::Load(void) {
 	Bitmap tiles = BitmapLoad(tiles_path);
 	assert(tiles != NULL);
 
+	characters = BitmapLoad(characters_path);
+	assert(tiles != NULL);
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
@@ -294,6 +299,9 @@ void app::MainApp::Load(void) {
 
 	loadSolidTiles(action_layer, solid_tiles_path);
 	action_layer->ComputeTileGridBlocks1();
+
+	Rect tmp = { 50, 50, 16, 16 };
+	character1.btm = SubBitmapCreate(characters, tmp);
 }
 
 void app::App::Run(void) {

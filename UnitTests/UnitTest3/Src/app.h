@@ -29,6 +29,7 @@ namespace app {
 
 	struct Character {
 		Rect potition;
+		Bitmap btm;
 	};
 
 	//--------------------TYPEDEFS 2------------------------

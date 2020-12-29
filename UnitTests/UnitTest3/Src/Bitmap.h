@@ -12,6 +12,8 @@ Bitmap BitmapLoad(const std::string& path);
 
 Bitmap BitmapCreate(unsigned short w, unsigned short h);
 
+Bitmap SubBitmapCreate(Bitmap src, Rect& from);
+
 Bitmap BitmapCopy(Bitmap bmp);
 
 Bitmap BitmapClear(Bitmap bmp, Color c);

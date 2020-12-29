@@ -40,7 +40,7 @@ app::Clipper& app::Clipper::SetView(const Tfunc& f) {
 }
 
 // Sprite
-app::Sprite::Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId = "") :
+app::Sprite::Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId) :
 	x(_x), y(_y), currFilm(film), typeId(_typeId) {
 	frameNo = currFilm->GetTotalFrames();
 	SetFrame(0);
@@ -84,7 +84,7 @@ unsigned char app::Sprite::GetFrame(void) const {
 
 void app::Sprite::SetBoundingArea(const BoundingArea& area) {
 	assert(!boundingArea);
-	boundingArea = area.Clone();
+	//boundingArea = area.Clone();
 }
 
 void app::Sprite::SetBoundingArea(BoundingArea* area) {
