@@ -161,6 +161,8 @@ void app::TickAnimator::Start(const TickAnimation& a, timestamp_t t) {
 }
 
 // AnimatorManager
+app::AnimatorManager app::AnimatorManager::singleton;
+
 void app::AnimatorManager::Register(Animator* a) {
 	assert(a->HasFinished());
 	suspended.insert(a);

@@ -34,6 +34,8 @@ void app::AnimationFilm::Append(const Rect& r) {
 }
 
 // AnimationFilmHolder
+app::AnimationFilmHolder app::AnimationFilmHolder::holder;
+
 auto app::AnimationFilmHolder::Get(void) -> const AnimationFilmHolder& {
 	return holder;
 }

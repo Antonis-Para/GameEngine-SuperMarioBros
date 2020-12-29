@@ -1,6 +1,8 @@
 #include "Destruction.h"
 
 // DestructionManager
+DestructionManager DestructionManager::singleton;
+
 auto DestructionManager::Get(void) -> DestructionManager& {
 	return singleton;
 }

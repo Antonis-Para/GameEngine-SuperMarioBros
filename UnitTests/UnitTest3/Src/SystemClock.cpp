@@ -1,5 +1,7 @@
 #include "SystemClock.h"
 
+SystemClock SystemClock::singleton;
+
 auto SystemClock::Get(void) -> SystemClock& {
 	return singleton;
 }
