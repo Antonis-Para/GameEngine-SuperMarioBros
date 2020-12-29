@@ -417,5 +417,5 @@ bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
 }
 
 bool app::characterStaysInCenter(Character* character, int* dx) {
-	return character->potition.x + character->potition.w/2 - *dx == displayArea.w/2;
+	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
 }
