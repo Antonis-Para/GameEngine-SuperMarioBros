@@ -111,7 +111,7 @@ void render() {
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 	//al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
-	BitmapBlit(character1.btm, { 0,0,16,32 }, al_get_backbuffer(display), {character1.potition.x, character1.potition.y});
+	BitmapBlit(character1.btm, { 0, 0, character1.potition.w, character1.potition.h }, al_get_backbuffer(display), {character1.potition.x, character1.potition.y});
 
 	al_flip_display();
 }
@@ -271,7 +271,7 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	character1.potition = { 120, 400, 16, 32 };
+	character1.potition = { 120, 400, 14, 18 };
 }
 
 void app::MainApp::Load(void) {
@@ -300,7 +300,7 @@ void app::MainApp::Load(void) {
 	loadSolidTiles(action_layer, solid_tiles_path);
 	action_layer->ComputeTileGridBlocks1();
 
-	Rect tmp = { 125, 55, 16, 32};
+	Rect tmp = { 128, 59, character1.potition.w, character1.potition.h};
 	character1.btm = SubBitmapCreate(characters, tmp);
 }
 
