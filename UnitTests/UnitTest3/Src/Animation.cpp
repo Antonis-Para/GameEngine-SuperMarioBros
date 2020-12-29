@@ -317,9 +317,9 @@ app::Animation* app::TickAnimation::Clone(void) const {
 void app::Animate(AnimationFilm& film, const Point at) {
 	uint64_t t = 0;
 	for (unsigned char i = 0; i < film.GetTotalFrames(); )
-		if (CurrTime() >= t) {
-			t = CurrTime() + FRAME_DELAY; Vsync();
-			BitmapClear(BitmapGetScreen(), BLACK_COLOR);
+		if (GetSystemTime() >= t) {
+			t = GetSystemTime() + FRAME_DELAY; while (!al_wait_for_vsync());//Vsync();
+			BitmapClear(BitmapGetScreen(), Make24(0, 0, 0));
 			film.DisplayFrame(BitmapGetScreen(), at, i++);
 		}
 }

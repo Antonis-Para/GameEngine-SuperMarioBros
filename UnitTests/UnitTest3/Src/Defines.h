@@ -55,3 +55,5 @@
 #define DIV_GRID_ELEMENT_HEIGHT(i) ((i) >> 2)
 #define MUL_GRID_ELEMENT_WIDTH(i) ((i) << 2)
 #define MUL_GRID_ELEMENT_HEIGHT(i) ((i) << 2)
+
+#define FRAME_DELAY 60
