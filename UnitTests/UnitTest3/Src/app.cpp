@@ -271,7 +271,7 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
-	character1.potition = { 120, 400, 14, 18 };
+	character1.potition = { 120, 400, 14, 16 };
 }
 
 void app::MainApp::Load(void) {
@@ -300,7 +300,7 @@ void app::MainApp::Load(void) {
 	loadSolidTiles(action_layer, solid_tiles_path);
 	action_layer->ComputeTileGridBlocks1();
 
-	Rect tmp = { 128, 59, character1.potition.w, character1.potition.h};
+	Rect tmp = { 128, 60, character1.potition.w, character1.potition.h};
 	character1.btm = SubBitmapCreate(characters, tmp);
 }
 

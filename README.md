@@ -11,7 +11,10 @@
 ## TODO
 
 - [x] Write code from lectures
-- [ ] Map APIs from lecture to Allegro
+- [x] Map APIs from lecture to Allegro
+- [ ] INI file
+- [ ] Make sprites
+- [ ] Graviry
 
 ---
 
