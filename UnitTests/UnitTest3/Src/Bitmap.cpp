@@ -11,7 +11,7 @@ Bitmap BitmapCreate(unsigned short w, unsigned short h){
 	return al_create_bitmap(w, h);
 }
 
-Bitmap SubBitmapCreate(Bitmap src, Rect& from) {
+Bitmap SubBitmapCreate(Bitmap src, const Rect& from) {
 	return al_create_sub_bitmap(src, from.x, from.y, from.w, from.h);
 }
 
