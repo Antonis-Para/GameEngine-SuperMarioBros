@@ -1,35 +1,22 @@
 #include "app.h"
-#include <iostream>
-#include <fstream>
 #include "Bitmap.h"
-
-string circular_backround_path = "";
-string action_layer_path = "";
-string tiles_path = "";
-string solid_tiles_path = "";
-string characters_path = "";
-
 
 using namespace std;
 
+//--------------------GLOBAL VARS-----------------------
 class TileLayer* action_layer;
 class CircularBackground* circular_background;
-//class GridLayer gridlayer;
 
-//--------------------GLOBAL VARS-----------------------
-//app::ViewData view;
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
 unsigned int total_tiles;
 bool closeWindowClicked = false;
-app::Character character1;
+app::Character player1;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 bool gridOn = true;
 Bitmap characters = nullptr;
-//Bitmap tiles;
 
-//TileMap map;
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
 bool scrollEnabled = false;
@@ -37,7 +24,7 @@ int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
 
-//extern GridMap grid;
+std::map<string, app::Character> prefix_character;
 
 /*--------------------CLASSES---------------------------*/
 
@@ -108,8 +95,7 @@ void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
-	//al_draw_rectangle(character1.potition.x, character1.potition.y, character1.potition.x + character1.potition.w, character1.potition.y + character1.potition.h, {10, 10, 10, 10}, 2.0f);
-	BitmapBlit(character1.btm, { 0, 0, character1.potition.w, character1.potition.h }, al_get_backbuffer(display), {character1.potition.x, character1.potition.y});
+	BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), {player1.potition.x, player1.potition.y});
 
 	al_flip_display();
 }
@@ -117,21 +103,7 @@ void render() {
 void input() {
 	if (!al_is_event_queue_empty(queue)) {
 		al_wait_for_event(queue, &event);
-		/*if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-			al_get_mouse_cursor_position(&mouse_x, &mouse_y);
-			al_get_mouse_state(&mouse_state);
-			if (mouse_state.buttons & 1) {
-				int move_x = prev_mouse_x - mouse_x;
-				int move_y = prev_mouse_y - mouse_y;
-				if (app::characterStaysInFrame(&character1, &move_x, &move_y)) {
-					action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
-					circular_background->Scroll(move_x);
-					app::moveCharacter(&character1, -move_x, -move_y);
-				}
-			}
-			prev_mouse_x = mouse_x;
-			prev_mouse_y = mouse_y;
-		}*/
+
 		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_TILDE) {
 			gridOn = !gridOn;
 		}
@@ -146,107 +118,82 @@ void input() {
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				if (character1.potition.y > 0) {
-					character1.potition.y += action_layer->GetViewWindow().y;
-					character1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&character1, 0, -CHARACTER_MOVE_SPEED);
-					character1.potition.x -= action_layer->GetViewWindow().x;
-					character1.potition.y -= action_layer->GetViewWindow().y;
+				if (player1.potition.y > 0) {
+					player1.potition.y += action_layer->GetViewWindow().y;
+					player1.potition.x += action_layer->GetViewWindow().x;
+					app::moveCharacterWithFilter(&player1, 0, -CHARACTER_MOVE_SPEED);
+					player1.potition.x -= action_layer->GetViewWindow().x;
+					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
-				if (character1.potition.y + character1.potition.h < action_layer->GetViewWindow().h) {
-					character1.potition.y += action_layer->GetViewWindow().y;
-					character1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&character1, 0, CHARACTER_MOVE_SPEED);
-					character1.potition.x -= action_layer->GetViewWindow().x;
-					character1.potition.y -= action_layer->GetViewWindow().y;
+				if (player1.potition.y + player1.potition.h < action_layer->GetViewWindow().h) {
+					player1.potition.y += action_layer->GetViewWindow().y;
+					player1.potition.x += action_layer->GetViewWindow().x;
+					app::moveCharacterWithFilter(&player1, 0, CHARACTER_MOVE_SPEED);
+					player1.potition.x -= action_layer->GetViewWindow().x;
+					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
-				if (character1.potition.x > 0) {
-					character1.potition.y += action_layer->GetViewWindow().y;
-					character1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&character1, -CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= action_layer->GetViewWindow().x;
-					character1.potition.y -= action_layer->GetViewWindow().y;
+				if (player1.potition.x > 0) {
+					player1.potition.y += action_layer->GetViewWindow().y;
+					player1.potition.x += action_layer->GetViewWindow().x;
+					app::moveCharacterWithFilter(&player1, -CHARACTER_MOVE_SPEED, 0);
+					player1.potition.x -= action_layer->GetViewWindow().x;
+					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
-				if (character1.potition.x + character1.potition.w < action_layer->GetViewWindow().w) {
-					character1.potition.y += action_layer->GetViewWindow().y;
-					character1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&character1, CHARACTER_MOVE_SPEED, 0);
-					character1.potition.x -= action_layer->GetViewWindow().x;
-					character1.potition.y -= action_layer->GetViewWindow().y;
+				if (player1.potition.x + player1.potition.w < action_layer->GetViewWindow().w) {
+					player1.potition.y += action_layer->GetViewWindow().y;
+					player1.potition.x += action_layer->GetViewWindow().x;
+					app::moveCharacterWithFilter(&player1, CHARACTER_MOVE_SPEED, 0);
+					player1.potition.x -= action_layer->GetViewWindow().x;
+					player1.potition.y -= action_layer->GetViewWindow().y;
 					int move_x = CHARACTER_MOVE_SPEED;
 					int move_y = 0;
-					if (app::characterStaysInCenter(&character1, &move_x)) {
+					if (app::characterStaysInCenter(&player1, &move_x)) {
 						action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 						circular_background->Scroll(move_x);
-						app::moveCharacter(&character1, -move_x, -move_y);
+						app::moveCharacter(&player1, -move_x, -move_y);
 					}
 				}
 			}
-			/*if (keys[ALLEGRO_KEY_HOME]) {
-				action_layer->SetViewWindow({0, 0, action_layer->GetViewWindow().w , action_layer->GetViewWindow().h}); //set to start of map
-			}
-			if (keys[ALLEGRO_KEY_END]) {
-				action_layer->ScrollWithBoundsCheck(app::GetMapPixelWidth(), app::GetMapPixelHeight());
-			}*/
 		}
 	}
 	
 }
 
-//demi-functions for maps
-//--------------------------------------
-
-/*			MAP1:
-* tile size: 16x16 pixels
-* 
-* tileset: 12x21 tiles
-* tileset: 192x336 pixels
-* 
-* map: 21x42 tiles
-* map: 336x672 pixels
-*/
-//void loadMap1() {
-//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\overworld_tileset_grass.png");
-//	assert(tiles != NULL);
-//
-//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\Overworld_GrassBiome\\map1_Kachelebene 1.csv");
-//}
-//
-//void loadMap2() {
-//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\MagicLand\\magiclanddizzy_tiles.png");
-//	assert(tiles != NULL);
-//
-//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\MagicLand\\MagicLand.csv");
-//}
-//
-//void loadMap3() {
-//	tiles = BitmapLoad(".\\UnitTests\\UnitTest2\\Media\\Outside\\buch-outdoor.png");
-//	assert(tiles != NULL);
-//
-//	app::ReadTextMap(action_layer, ".\\UnitTests\\UnitTest2\\Media\\Outside\\orthogonal-outside_Ground.csv");
-//}
-
-void loadMap() {
-	app::ReadTextMap(action_layer, action_layer_path);
+void loadMap(string path) {
+	app::ReadTextMap(action_layer, path);
 }
 
 //--------------------------------------
 
-void loadSolidTiles(TileLayer *layer, string path) {
-	int tile;
+void loadSolidTiles(TileLayer *layer) {
 
-	std::ifstream infile(path);
-	assert(infile);
+	string temp = "", token = "", delimiter = " ";
+	size_t pos = 0;
 
-	while (infile >> tile) {
+
+	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
+	assert(config != NULL);
+
+	temp = al_get_config_value(config, "tiles", "solid");
+	while ((pos = temp.find(delimiter)) != string::npos) {
+		token = temp.substr(0, pos);
+		stringstream ss(token);
+		int tile;
+		ss >> tile;
 		layer->insertSolid(tile);
+		temp.erase(0, pos + delimiter.length());
 	}
+	token = temp;
+	stringstream ss(token);
+	int tile;
+	ss >> tile;
+	layer->insertSolid(tile);
 }
 
 void app::MainApp::Initialise(void) {
@@ -268,17 +215,17 @@ void app::MainApp::Initialise(void) {
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
-
-	character1.potition = { 120, 400, 14, 16 };
 }
 
 void app::MainApp::Load(void) {
-	loadConfigFile();
 
-	Bitmap tiles = BitmapLoad(tiles_path);
+	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
+	assert(config != NULL);
+
+	Bitmap tiles = BitmapLoad(al_get_config_value(config, "paths", "tiles_path"));
 	assert(tiles != NULL);
 
-	characters = BitmapLoad(characters_path);
+	characters = BitmapLoad(al_get_config_value(config, "paths", "characters_path"));
 	assert(characters != NULL);
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
@@ -289,19 +236,20 @@ void app::MainApp::Load(void) {
 	total_tiles = tilesw * tilesh;
 
 	action_layer->InitCaching(tilesw, tilesh);
-	loadMap();
+	loadMap(al_get_config_value(config, "paths", "action_layer_path"));
 
-	circular_background = new CircularBackground(tiles, circular_backround_path);
+	circular_background = new CircularBackground(tiles, al_get_config_value(config, "paths", "circular_backround_path"));
 
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
 
-	loadSolidTiles(action_layer, solid_tiles_path);
+	loadSolidTiles(action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
-	Rect tmp = { 128, 60, character1.potition.w, character1.potition.h};
-	character1.btm = SubBitmapCreate(characters, tmp);
+	initialize_prefix_character(config, "Mario_small");
+
+	player1 = prefix_character["Mario_small"];
 }
 
 void app::App::Run(void) {
@@ -420,13 +368,95 @@ bool app::characterStaysInCenter(Character* character, int* dx) {
 	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
 }
 
-void app::loadConfigFile() {
-	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
-	assert(config != NULL);
+void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
+	Character character;
+	string temp = "", token = "", token2 = "", delimiter = " ", delimiter2 = ",";
+	size_t pos = 0, pos2 = 0;
+	int x, y;
 
-	circular_backround_path = al_get_config_value(config, "paths", "circular_backround_path");
-	action_layer_path = al_get_config_value(config, "paths", "action_layer_path");
-	tiles_path = al_get_config_value(config, "paths", "tiles_path");
-	solid_tiles_path = al_get_config_value(config, "paths", "solid_tiles_path");
-	characters_path = al_get_config_value(config, "paths", "characters_path");
+	character.potition = { 60, 430, 16, 16 };
+
+	temp = al_get_config_value(config, char_name.c_str(), "stand_right");
+	pos = temp.find(delimiter);
+	token = temp.substr(0, pos);
+	stringstream s1(token);
+	s1 >> x;
+	temp.erase(0, pos + delimiter.length());
+	token = temp;
+	stringstream s2(token);
+	s2 >> y;
+	character.stand_right = SubBitmapCreate(characters, Rect{x, y, 16, 16});
+
+	temp = al_get_config_value(config, char_name.c_str(), "stand_left");
+	pos = temp.find(delimiter);
+	token = temp.substr(0, pos);
+	stringstream s3(token);
+	s3 >> x;
+	temp.erase(0, pos + delimiter.length());
+	token = temp;
+	stringstream s4(token);
+	s4 >> y;
+	character.stand_left = SubBitmapCreate(characters, Rect{ x, y, 16, 16 });
+
+	temp = al_get_config_value(config, char_name.c_str(), "walk_right");
+	while ((pos2 = temp.find(delimiter2)) != string::npos) {
+		token2 = temp.substr(0, pos2);
+		pos = temp.find(delimiter);
+		token = temp.substr(0, pos);
+		stringstream s5(token);
+		s5 >> x;
+		temp.erase(0, pos + delimiter.length());
+		token = temp;
+		stringstream s6(token);
+		s6 >> y;
+		temp.erase(0, pos2 - pos + delimiter2.length());
+		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	}
+
+	temp = al_get_config_value(config, char_name.c_str(), "walk_left");
+	while ((pos2 = temp.find(delimiter2)) != string::npos) {
+		token2 = temp.substr(0, pos2);
+		pos = temp.find(delimiter);
+		token = temp.substr(0, pos);
+		stringstream s7(token);
+		s7 >> x;
+		temp.erase(0, pos + delimiter.length());
+		token = temp;
+		stringstream s8(token);
+		s8 >> y;
+		temp.erase(0, pos2 - pos + delimiter2.length());
+		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	}
+
+	temp = al_get_config_value(config, char_name.c_str(), "jump_right");
+	while ((pos2 = temp.find(delimiter2)) != string::npos) {
+		token2 = temp.substr(0, pos2);
+		pos = temp.find(delimiter);
+		token = temp.substr(0, pos);
+		stringstream s9(token);
+		s9 >> x;
+		temp.erase(0, pos + delimiter.length());
+		token = temp;
+		stringstream s10(token);
+		s10 >> y;
+		temp.erase(0, pos2 - pos + delimiter2.length());
+		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	}
+
+	temp = al_get_config_value(config, char_name.c_str(), "jump_left");
+	while ((pos2 = temp.find(delimiter2)) != string::npos) {
+		token2 = temp.substr(0, pos2);
+		pos = temp.find(delimiter);
+		token = temp.substr(0, pos);
+		stringstream s11(token);
+		s11 >> x;
+		temp.erase(0, pos + delimiter.length());
+		token = temp;
+		stringstream s12(token);
+		s12 >> y;
+		temp.erase(0, pos2 - pos + delimiter2.length());
+		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	}
+
+	prefix_character[char_name] = character;
 }

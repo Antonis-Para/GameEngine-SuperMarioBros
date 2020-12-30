@@ -12,7 +12,9 @@
 
 - [x] Write code from lectures
 - [x] Map APIs from lecture to Allegro
-- [ ] INI file
+- [x] INI file
+- [x] Mario character load (small)
+- [ ] Rest of characters load
 - [ ] Make sprites
 - [ ] Graviry and jump
 

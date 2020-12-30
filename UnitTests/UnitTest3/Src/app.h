@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <map>
+#include <vector>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
@@ -29,7 +31,12 @@ namespace app {
 
 	struct Character {
 		Rect potition;
-		Bitmap btm;
+		Bitmap stand_right;
+		Bitmap stand_left;
+		vector<Bitmap> walk_right;
+		vector<Bitmap> walk_left;
+		vector<Bitmap> jump_right;
+		vector<Bitmap> jump_left;
 	};
 
 	//--------------------TYPEDEFS 2------------------------
@@ -122,7 +129,7 @@ namespace app {
 	bool characterStaysInFrame(Character *character, int *dx, int *dy);
 	bool characterStaysInCenter(Character* character, int* dx);
 
-	void loadConfigFile();
+	void initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name);
 }
 
 //--------------------OVERLOADED OPS--------------------
