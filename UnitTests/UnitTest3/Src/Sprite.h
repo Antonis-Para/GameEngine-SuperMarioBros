@@ -2,6 +2,8 @@
 
 #include "app.h"
 #include "Animation.h"
+#include "GravityHandler.h"
+#include <list>
 
 namespace app {
 	class MotionQuantizer {
@@ -36,6 +38,7 @@ namespace app {
 		bool Clip(const Rect& r, const Rect& dpyArea, Point* dpyPos, Rect* clippedBox) const;
 		
 	};
+
 	class Sprite {
 	public:
 		using Mover = std::function<void(const Rect&, int* dx, int* dy)>;
@@ -50,6 +53,9 @@ namespace app {
 		std::string typeId, stateId;
 		Mover mover;
 		MotionQuantizer quantizer;
+
+		bool directMotion = false;
+		GravityHandler gravity;
 	public:
 		Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId = "");
 
@@ -70,7 +76,52 @@ namespace app {
 		bool IsVisible(void) const;
 		bool CollisionCheck(const Sprite* s) const;
 		void Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const;
+
+		GravityHandler& GetGravityHandler(void);
+		void SetHasDirectMotion(bool v);
+		bool GetHasDirectMotion(void) const;
 	};
+
+	class CollisionChecker final{
+	public:
+		using Action = std::function<void(Sprite* s1, Sprite* s2)>;
+		static CollisionChecker singleton;
+	
+	protected:
+		using Entry = std::tuple<Sprite*, Sprite*, Action>;
+		std::list<Entry> entries;
+	
+	public:
+		template<typename T>
+		void Register(Sprite* s1, Sprite* s2, const T& f);
+		void Cancel(Sprite* s1, Sprite* s2);
+		void Check(void) const;
+		static auto GetSingleton(void)->CollisionChecker&;
+		static auto GetSingletonConst(void) -> const CollisionChecker&;
+	};
+
+	class SpriteManager final {
+	public:
+		using SpriteList = std::list<Sprite*>;
+		using TypeLists = std::map<std::string, SpriteList>;
+
+	private:
+		SpriteList dpyList;
+		TypeLists types;
+		static SpriteManager singleton;
+
+	public:
+		void Add(Sprite* s); // insert by ascending order
+		void Remove(Sprite* s);
+		auto GetDisplayList(void) -> const SpriteList&;
+		auto GetTypeList(const std::string& typeId) -> const SpriteList&;
+		static auto GetSingleton(void)->SpriteManager&;
+		static auto GetSingletonConst(void) -> const SpriteManager&;
+	};
+
+	const Clipper MakeTileLayerClipper(TileLayer* layer);
+	const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprite);
+	void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite);
 
 	template<typename Tnum>
 	int number_sign(Tnum x);
