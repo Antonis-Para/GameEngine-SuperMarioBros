@@ -1,5 +1,6 @@
 #include "app.h"
 #include "Bitmap.h"
+#include "Utilities.h"
 
 using namespace std;
 
@@ -171,29 +172,16 @@ void loadMap(string path) {
 
 //--------------------------------------
 
-void loadSolidTiles(TileLayer *layer) {
+void loadSolidTiles(ALLEGRO_CONFIG* config, TileLayer *layer) {
+	string text = "";
+	vector<string> tiles;
 
-	string temp = "", token = "", delimiter = " ";
-	size_t pos = 0;
-
-
-	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
-	assert(config != NULL);
-
-	temp = al_get_config_value(config, "tiles", "solid");
-	while ((pos = temp.find(delimiter)) != string::npos) {
-		token = temp.substr(0, pos);
-		stringstream ss(token);
-		int tile;
-		ss >> tile;
-		layer->insertSolid(tile);
-		temp.erase(0, pos + delimiter.length());
+	text = al_get_config_value(config, "tiles", "solid");
+	tiles = splitString(text, " ");
+	for (auto tile : tiles) {
+		layer->insertSolid(atoi(tile.c_str()));
 	}
-	token = temp;
-	stringstream ss(token);
-	int tile;
-	ss >> tile;
-	layer->insertSolid(tile);
+	
 }
 
 void app::MainApp::Initialise(void) {
@@ -244,7 +232,7 @@ void app::MainApp::Load(void) {
 	game.SetRender(render);
 	game.SetInput(input);
 
-	loadSolidTiles(action_layer);
+	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
 	initialize_prefix_character(config, "Mario_small");
@@ -370,92 +358,46 @@ bool app::characterStaysInCenter(Character* character, int* dx) {
 
 void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
 	Character character;
-	string temp = "", token = "", token2 = "", delimiter = " ", delimiter2 = ",";
-	size_t pos = 0, pos2 = 0;
-	int x, y;
+	string text;
+	vector<string> tokens;
+	vector<string> coordinates;
 
 	character.potition = { 60, 430, 16, 16 };
 
-	temp = al_get_config_value(config, char_name.c_str(), "stand_right");
-	pos = temp.find(delimiter);
-	token = temp.substr(0, pos);
-	stringstream s1(token);
-	s1 >> x;
-	temp.erase(0, pos + delimiter.length());
-	token = temp;
-	stringstream s2(token);
-	s2 >> y;
-	character.stand_right = SubBitmapCreate(characters, Rect{x, y, 16, 16});
+	text = al_get_config_value(config, char_name.c_str(), "stand_right");
+	coordinates = splitString(text, " ");
+	character.stand_right = SubBitmapCreate(characters, Rect{atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16});
 
-	temp = al_get_config_value(config, char_name.c_str(), "stand_left");
-	pos = temp.find(delimiter);
-	token = temp.substr(0, pos);
-	stringstream s3(token);
-	s3 >> x;
-	temp.erase(0, pos + delimiter.length());
-	token = temp;
-	stringstream s4(token);
-	s4 >> y;
-	character.stand_left = SubBitmapCreate(characters, Rect{ x, y, 16, 16 });
+	text = al_get_config_value(config, char_name.c_str(), "stand_left");
+	coordinates = splitString(text, " ");
+	character.stand_left = SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 });
 
-	temp = al_get_config_value(config, char_name.c_str(), "walk_right");
-	while ((pos2 = temp.find(delimiter2)) != string::npos) {
-		token2 = temp.substr(0, pos2);
-		pos = temp.find(delimiter);
-		token = temp.substr(0, pos);
-		stringstream s5(token);
-		s5 >> x;
-		temp.erase(0, pos + delimiter.length());
-		token = temp;
-		stringstream s6(token);
-		s6 >> y;
-		temp.erase(0, pos2 - pos + delimiter2.length());
-		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	text = al_get_config_value(config, char_name.c_str(), "walk_right");
+	tokens = splitString(text, ",");
+	for (auto token : tokens) {
+		coordinates = splitString(token, " ");
+		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
 	}
 
-	temp = al_get_config_value(config, char_name.c_str(), "walk_left");
-	while ((pos2 = temp.find(delimiter2)) != string::npos) {
-		token2 = temp.substr(0, pos2);
-		pos = temp.find(delimiter);
-		token = temp.substr(0, pos);
-		stringstream s7(token);
-		s7 >> x;
-		temp.erase(0, pos + delimiter.length());
-		token = temp;
-		stringstream s8(token);
-		s8 >> y;
-		temp.erase(0, pos2 - pos + delimiter2.length());
-		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	text = al_get_config_value(config, char_name.c_str(), "walk_left");
+	tokens = splitString(text, ",");
+	for (auto token : tokens) {
+		coordinates = splitString(token, " ");
+		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
 	}
 
-	temp = al_get_config_value(config, char_name.c_str(), "jump_right");
-	while ((pos2 = temp.find(delimiter2)) != string::npos) {
-		token2 = temp.substr(0, pos2);
-		pos = temp.find(delimiter);
-		token = temp.substr(0, pos);
-		stringstream s9(token);
-		s9 >> x;
-		temp.erase(0, pos + delimiter.length());
-		token = temp;
-		stringstream s10(token);
-		s10 >> y;
-		temp.erase(0, pos2 - pos + delimiter2.length());
-		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	text = al_get_config_value(config, char_name.c_str(), "jump_right");
+	tokens = splitString(text, ",");
+	for (auto token : tokens) {
+		coordinates = splitString(token, " ");
+		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
 	}
 
-	temp = al_get_config_value(config, char_name.c_str(), "jump_left");
-	while ((pos2 = temp.find(delimiter2)) != string::npos) {
-		token2 = temp.substr(0, pos2);
-		pos = temp.find(delimiter);
-		token = temp.substr(0, pos);
-		stringstream s11(token);
-		s11 >> x;
-		temp.erase(0, pos + delimiter.length());
-		token = temp;
-		stringstream s12(token);
-		s12 >> y;
-		temp.erase(0, pos2 - pos + delimiter2.length());
-		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ x, y, 16, 16 }));
+	text = al_get_config_value(config, char_name.c_str(), "jump_left");
+	tokens = splitString(text, ",");
+	for (auto token : tokens) {
+		coordinates = splitString(token, " ");
+		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
 	}
 
 	prefix_character[char_name] = character;
