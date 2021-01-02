@@ -4,4 +4,4 @@
 
 using namespace std;
 
-vector<string> splitString(string text, string delimiter);
+vector <string> splitString(string text, string delimiter);

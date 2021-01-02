@@ -2,7 +2,7 @@
 
 using namespace std;
 
-vector<string> splitString(string text, string delimiter) {
+vector <string> splitString(string text, string delimiter) {
 	string token = "";
 	int pos = 0;
 	vector<string> results;

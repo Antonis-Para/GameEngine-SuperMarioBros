@@ -1,6 +1,8 @@
 #include "app.h"
 #include "Bitmap.h"
 #include "Utilities.h"
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -355,6 +357,7 @@ bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
 bool app::characterStaysInCenter(Character* character, int* dx) {
 	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
 }
+
 
 void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
 	Character character;

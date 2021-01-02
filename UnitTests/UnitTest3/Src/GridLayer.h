@@ -1,16 +1,9 @@
 #pragma once
-//#include "app.h"
 #include "Defines.h"
 #include "Typedefs.h"
-//#include "TileLayer.h"
+#include "Shapes.h"
 
-struct Rect {
-	int x, y, w, h;
-};
 
-struct Point {
-	int x, y;
-};
 struct RGB {
 	RGBValue r, g, b;
 };
