@@ -1,17 +1,17 @@
 #include "Sprite.h"
 
-/*// MotionQuantizer
+// MotionQuantizer
 MotionQuantizer& MotionQuantizer::SetRange(int h, int v) {
 	horizMax = h, vertMax = v;
 	used = true;
 	return *this;
 }
 
-template<typename Tfunc>
-MotionQuantizer& MotionQuantizer::SetMover(const Tfunc& f) {
-	mover = f;
-	return *this;
-}
+//template<typename Tfunc>
+//MotionQuantizer& MotionQuantizer::SetMover(const Tfunc& f) {
+//	mover = f;
+//	return *this;
+//}
 
 void MotionQuantizer::Move(const Rect& r, int* dx, int* dy) {
 	if (!used)
@@ -53,7 +53,7 @@ bool Clipper::Clip(const Rect& r, const Rect& dpyArea, Point* dpyPos, Rect* clip
 		dpyPos->y = dpyArea.y + (visibleArea.y - view().y);
 		return true;
 	}
-}*/
+}
 
 // Sprite
 Sprite::Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId) :
@@ -62,10 +62,10 @@ Sprite::Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId) 
 	SetFrame(0);
 }
 
-template<typename Tfunc>
-void Sprite::SetMover(const Tfunc& f) {
-	quantizer.SetMover(mover = f);
-}
+//template<typename Tfunc>
+//void Sprite::SetMover(const Tfunc& f) {
+//	quantizer.SetMover(mover = f);
+//}
 
 const Rect Sprite::GetBox(void) const {
 	return { x, y, frameBox.w, frameBox.h };
@@ -75,10 +75,10 @@ void Sprite::Move(int dx, int dy) {
 	if (directMotion) // apply unconditionally offsets!
 		x += dx, y += dy;
 	else {
-		//quantizer.Move(GetBox(), &dx, &dy);
+		quantizer.Move(GetBox(), &dx, &dy);
 		gravity.Check(GetBox());
 	}
-	//quantizer.Move(GetBox(), &dx, &dy);
+	quantizer.Move(GetBox(), &dx, &dy);
 }
 
 void Sprite::SetPos(int _x, int _y) {
@@ -130,14 +130,14 @@ bool Sprite::IsVisible(void) const {
 	return isVisible;
 }
 
-/*void Sprite::Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const {
+void Sprite::Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const {
 	Rect clippedBox;
 	Point  dpyPos;
 	if (clipper.Clip(GetBox(), dpyArea, &dpyPos, &clippedBox)) {
 		Rect clippedFrame { frameBox.x + clippedBox.x, frameBox.y + clippedBox.y, clippedBox.w, clippedBox.h };
 		BitmapBlit(currFilm->GetBitmap(), clippedFrame, dest, dpyPos); // MaskedBlit
 	}
-}*/
+}
 
 const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprite) {
 	return [gridLayer, sprite](const Rect& rect, int* dx, int* dy) {
@@ -185,8 +185,13 @@ auto CollisionChecker::GetSingleton(void) -> CollisionChecker& {
 auto CollisionChecker::GetSingletonConst(void) -> const CollisionChecker& {
 	return singleton;
 }
+*/
+
 
 // SpriteManager
+
+SpriteManager SpriteManager::singleton;
+
 void SpriteManager::Add(Sprite* s) {
 	dpyList.push_back(s);
 	dpyList.sort([](Sprite* s1, Sprite* s2) -> bool { return s1->GetFrame() < s2->GetFrame(); });
@@ -216,7 +221,7 @@ auto SpriteManager::GetSingletonConst(void) -> const SpriteManager& {
 const Clipper MakeTileLayerClipper(TileLayer* layer) {
 	return Clipper().SetView([layer](void) { return layer->GetViewWindow(); });
 }
-*/
+
 
 void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite) {
 	sprite->GetGravityHandler().SetOnSolidGround([gridLayer](const Rect& r) {
@@ -224,17 +229,6 @@ void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite) {
 	});
 }
 
-template<typename Tnum>
-int number_sign(Tnum x) {
-	return x > 0 ? 1 : x < 0 ? -1 : 0;
-}
-
-template<class T>
-bool clip_rect(T x, T y, T w, T h, T wx, T wy, T ww, T wh, T* cx, T* cy, T* cw, T* ch) {
-	*cw = T(std::min(wx + ww, x + w)) - (*cx = T(std::max(wx, x)));
-	*ch = T(std::min(wy + wh, y + h)) - (*cy = T(std::max(wy, y)));
-	return *cw > 0 && *ch > 0;
-}
 
 bool clip_rect(const Rect& r, const Rect& area, Rect* result) {
 	return clip_rect(r.x, r.y, r.w, r.h, area.x, area.y, area.w, area.h, &result->x, &result->y, &result->w, &result->h);

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "app.h"
 #include "Animation.h"
 #include "GravityHandler.h"
 #include <list>
 
-/*class MotionQuantizer {
+class MotionQuantizer {
 public:
 	using Mover = std::function<void(const Rect& r, int* dx, int* dy)>;
 protected:
@@ -22,6 +21,13 @@ public:
 	void Move (const Rect& r, int* dx, int* dy);
 		
 };
+
+template<typename Tfunc>
+MotionQuantizer& MotionQuantizer::SetMover(const Tfunc& f) {
+	mover = f;
+	return *this;
+}
+
 	
 class Clipper {
 public:
@@ -36,7 +42,7 @@ public:
 	Clipper& SetView(const Tfunc& f);
 	bool Clip(const Rect& r, const Rect& dpyArea, Point* dpyPos, Rect* clippedBox) const;
 		
-};*/
+};
 
 class Sprite {
 public:
@@ -51,7 +57,7 @@ protected:
 	unsigned zorder = 0;
 	std::string typeId, stateId;
 	Mover mover;
-	//MotionQuantizer quantizer;
+	MotionQuantizer quantizer;
 
 	bool directMotion = false;
 	GravityHandler gravity;
@@ -74,12 +80,17 @@ public:
 	void SetVisibility(bool v);
 	bool IsVisible(void) const;
 	bool CollisionCheck(const Sprite* s) const;
-	//void Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const;
+	void Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const;
 
 	GravityHandler& GetGravityHandler(void);
 	void SetHasDirectMotion(bool v);
 	bool GetHasDirectMotion(void) const;
 };
+
+template<typename Tfunc>
+void Sprite::SetMover(const Tfunc& f) {
+	quantizer.SetMover(mover = f);
+}
 
 /*class CollisionChecker final{
 public:
@@ -97,7 +108,7 @@ public:
 	void Check(void) const;
 	static auto GetSingleton(void)->CollisionChecker&;
 	static auto GetSingletonConst(void) -> const CollisionChecker&;
-};
+};*/
 
 class SpriteManager final {
 public:
@@ -117,12 +128,22 @@ public:
 	static auto GetSingleton(void)->SpriteManager&;
 	static auto GetSingletonConst(void) -> const SpriteManager&;
 };
-*/
-//const Clipper MakeTileLayerClipper(TileLayer* layer);
+
+
+const Clipper MakeTileLayerClipper(TileLayer* layer);
 const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprite);
 
+
 template<typename Tnum>
-int number_sign(Tnum x);
+int number_sign(Tnum x) {
+	return x > 0 ? 1 : x < 0 ? -1 : 0;
+}
+
 template<class T>
-bool clip_rect(T x, T y, T w, T h, T wx, T wy, T ww, T wh, T* cx, T* cy, T* cw, T* ch);
+bool clip_rect(T x, T y, T w, T h, T wx, T wy, T ww, T wh, T* cx, T* cy, T* cw, T* ch) {
+	*cw = T(std::min(wx + ww, x + w)) - (*cx = T(std::max(wx, x)));
+	*ch = T(std::min(wy + wh, y + h)) - (*cy = T(std::max(wy, y)));
+	return *cw > 0 && *ch > 0;
+}
+
 bool clip_rect(const Rect& r, const Rect& area, Rect* result);
