@@ -25,3 +25,18 @@ public:
 	void Reset(void);
 	void Check(const Rect& r);
 };
+
+template<typename T>
+void GravityHandler::SetOnStartFalling(const T& f) {
+	onStartFalling = f;
+}
+
+template<typename T>
+void GravityHandler::SetOnStopFalling(const T& f) {
+	onStopFalling = f;
+}
+
+template<typename T>
+void GravityHandler::SetOnSolidGround(const T& f) {
+	onSolidGround = f;
+}
