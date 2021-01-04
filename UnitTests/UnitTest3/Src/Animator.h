@@ -18,7 +18,7 @@ public:
 	using OnAction = std::function<void(Animator*, const Animation&)>;
 protected:
 	timestamp_t lastTime = 0;
-	animatorstate_t state = animatorstate_t::ANIMATOR_FINISHED;
+	animatorstate_t state = ANIMATOR_FINISHED;
 	OnFinish onFinish;
 	OnStart onStart;
 	OnAction onAction;

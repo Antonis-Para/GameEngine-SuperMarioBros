@@ -3,6 +3,8 @@
 #include "Utilities.h"
 #include <string>
 #include <vector>
+#include "Sprite.h"
+#include "Animation.h"
 
 using namespace std;
 
@@ -28,6 +30,7 @@ ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
 
 std::map<string, app::Character> prefix_character;
+class BitmapLoader* bitmaploader;
 
 /*--------------------CLASSES---------------------------*/
 
@@ -205,6 +208,8 @@ void app::MainApp::Initialise(void) {
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
+
+	bitmaploader = new BitmapLoader();
 }
 
 void app::MainApp::Load(void) {
@@ -212,11 +217,9 @@ void app::MainApp::Load(void) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
 	assert(config != NULL);
 
-	Bitmap tiles = BitmapLoad(al_get_config_value(config, "paths", "tiles_path"));
-	assert(tiles != NULL);
-
-	characters = BitmapLoad(al_get_config_value(config, "paths", "characters_path"));
-	assert(characters != NULL);
+	//load bitmaps, TODO we shouldnt have a bitmap loader at all. Animation film will handle this
+	Bitmap tiles = bitmaploader->Load(al_get_config_value(config, "paths", "tiles_path"));
+	characters = bitmaploader->Load(al_get_config_value(config, "paths", "characters_path"));
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
@@ -237,6 +240,7 @@ void app::MainApp::Load(void) {
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
+	AnimationFilmHolder::GetInstance().LoadAll(config, "Mario_small.walk_right");
 	initialize_prefix_character(config, "Mario_small");
 
 	player1 = prefix_character["Mario_small"];
@@ -253,7 +257,7 @@ void app::MainApp::Clear(void) {
 	al_destroy_bitmap(action_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
-	exit(0);
+	delete bitmaploader;
 }
 
 void app::App::Main(void) {
@@ -280,7 +284,7 @@ bool app::ReadTextMap(class TileLayer* layer, string filename) {
 				int val;
 				ss >> val;
 				if (val == -1) {
-					layer->SetTile(x, y, total_tiles); //"crete" an extra tile which is going to be identified as the trasnparent tile
+					layer->SetTile(x, y, total_tiles); //"create" an extra tile which is going to be identified as the trasnparent tile
 				}
 				else {
 					layer->SetTile(x, y, val);
@@ -360,6 +364,7 @@ bool app::characterStaysInCenter(Character* character, int* dx) {
 
 
 void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
+
 	Character character;
 	string text;
 	vector<string> tokens;

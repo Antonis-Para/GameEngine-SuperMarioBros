@@ -9,6 +9,7 @@
 
 
 class AnimationFilm {
+private:
 	std::vector<Rect> boxes;
 	Bitmap bitmap = nullptr;
 	std::string id;
@@ -38,18 +39,19 @@ public:
 };
 
 class AnimationFilmHolder {
+
 	using Films = std::map<std::string, AnimationFilm*>;
 	Films films;
-	BitmapLoader bitmaps;// only for loading of film bitmaps
+	BitmapLoader *bitmaps = new BitmapLoader();// only for loading of film bitmaps
 	static AnimationFilmHolder holder;// singleton
-	AnimationFilmHolder(void) {}
-	~AnimationFilmHolder() { CleanUp(); }
+	AnimationFilmHolder(void);
+	~AnimationFilmHolder();
 public:
-	static auto Get(void) -> const AnimationFilmHolder&;
+	static auto GetInstance(void) -> AnimationFilmHolder&;
 	// TODO(4u): set a parsing functor implemented externally to the class
 	static int ParseEntry( // -1=error, 0=ended gracefully, else #chars read
 		int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects);
-	void LoadAll(const std::string& text);
+	void LoadAll(ALLEGRO_CONFIG* config, const std::string& text);
 	void CleanUp(void);
 	auto GetFilm(const std::string& id) -> const AnimationFilm* const;
 };

@@ -2,9 +2,11 @@
 
 int main() {
 
-    app::MainApp app;
+    app::MainApp *app = new app::MainApp();
 
-    app.Main();
+    app->Main();
     
+    delete app;
+
     return 0;
 }

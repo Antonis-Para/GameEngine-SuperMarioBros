@@ -111,22 +111,22 @@ public:
 };*/
 
 class SpriteManager final {
-public:
-	using SpriteList = std::list<Sprite*>;
-	using TypeLists = std::map<std::string, SpriteList>;
+	public:
+		using SpriteList = std::list<Sprite*>;
+		using TypeLists = std::map<std::string, SpriteList>;
 
-private:
-	SpriteList dpyList;
-	TypeLists types;
-	static SpriteManager singleton;
+	private:
+		SpriteList dpyList;
+		TypeLists types;
+		static SpriteManager singleton;
 
-public:
-	void Add(Sprite* s); // insert by ascending order
-	void Remove(Sprite* s);
-	auto GetDisplayList(void) -> const SpriteList&;
-	auto GetTypeList(const std::string& typeId) -> const SpriteList&;
-	static auto GetSingleton(void)->SpriteManager&;
-	static auto GetSingletonConst(void) -> const SpriteManager&;
+	public:
+		void Add(Sprite* s); // insert by ascending order
+		void Remove(Sprite* s);
+		auto GetDisplayList(void) -> const SpriteList&;
+		auto GetTypeList(const std::string& typeId) -> const SpriteList&;
+		static auto GetSingleton(void)->SpriteManager&;
+		static auto GetSingletonConst(void) -> const SpriteManager&;
 };
 
 

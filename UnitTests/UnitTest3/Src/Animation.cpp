@@ -1,8 +1,13 @@
 #include "Animation.h"
+#include "Utilities.h"
 
 // AnimationFilm
 AnimationFilm::AnimationFilm(const std::string& _id) : id(_id) {}
-AnimationFilm::AnimationFilm(Bitmap, const std::vector<Rect>&, const std::string&) {}
+AnimationFilm::AnimationFilm(Bitmap _bitmap, const std::vector<Rect>& _boxes, const std::string& _id) {
+	bitmap = _bitmap;
+	boxes = _boxes;
+	id = _id;
+}
 
 unsigned char AnimationFilm::GetTotalFrames(void) const {
 	return (unsigned char)boxes.size();
@@ -36,34 +41,56 @@ void AnimationFilm::Append(const Rect& r) {
 // AnimationFilmHolder
 AnimationFilmHolder AnimationFilmHolder::holder;
 
-auto AnimationFilmHolder::Get(void) -> const AnimationFilmHolder& {
+auto AnimationFilmHolder::GetInstance(void) -> AnimationFilmHolder& {
 	return holder;
 }
 
 // TODO(4u): set a parsing functor implemented externally to the class
-int AnimationFilmHolder::ParseEntry( // -1=error, 0=ended gracefully, else #chars read
-	int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
+// -1=error, 0=ended gracefully, else #chars read
+int AnimationFilmHolder::ParseEntry(int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
+
 	return 0;
 }
 
-void AnimationFilmHolder::LoadAll(const std::string& text) {
+//TODO!!!
+//Temporary way of doing that. Function should load all animation, not only one!
+//also, remove the config param
+void AnimationFilmHolder::LoadAll(ALLEGRO_CONFIG* config, const std::string& text) {
 	int pos = 0;
-	while (true) {
+	string positions = al_get_config_value(config, text.substr(0, text.find('.')).c_str(), text.substr(text.find('.') + 1, text.size()).c_str()); //e.g mario_small, walk_right
+
+	string id = text;
+	string path = al_get_config_value(config, "paths", "characters_path");
+	std::vector<Rect> rects;
+	for (auto i : splitString(positions, ",")) {
+		int x = atoi(i.substr(0, i.find(' ')).c_str());
+		int y = atoi(i.substr(i.find(' ')+1 , i.size()).c_str());
+		rects.push_back(Rect{x, y, 14, 16});
+	}
+	assert(!GetFilm(id));
+	films[id] = new AnimationFilm(bitmaps->Load(path), rects, id);
+
+	/*while (true) {
 		std::string id, path;
 		std::vector<Rect> rects;
-		auto i = ParseEntry(pos, text, id, path, rects);
+		int i = ParseEntry(pos, text, id, path, rects);
 		assert(i >= 0);
 		if (!i) return;
 		pos += i;
 		assert(!GetFilm(id));
 		films[id] = new AnimationFilm(bitmaps.Load(path), rects, id);
-	}
+	}*/
+
 }
+
+AnimationFilmHolder::AnimationFilmHolder() {}
+AnimationFilmHolder::~AnimationFilmHolder() { CleanUp(); }
 
 void AnimationFilmHolder::CleanUp(void) {
 	for (auto& i : films)
 		delete (i.second);
 	films.clear();
+	//delete bitmaps;
 }
 
 auto AnimationFilmHolder::GetFilm(const std::string& id) -> const AnimationFilm* const {
