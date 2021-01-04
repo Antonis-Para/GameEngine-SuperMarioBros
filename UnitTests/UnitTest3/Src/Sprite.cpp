@@ -181,6 +181,8 @@ auto app::CollisionChecker::GetSingletonConst(void) -> const CollisionChecker& {
 }
 
 // SpriteManager
+app::SpriteManager app::SpriteManager::singleton;
+
 void app::SpriteManager::Add(Sprite* s) {
 	dpyList.push_back(s);
 	dpyList.sort([](Sprite* s1, Sprite* s2) -> bool { return s1->GetFrame() < s2->GetFrame(); });
