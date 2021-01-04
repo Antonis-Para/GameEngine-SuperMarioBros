@@ -1,16 +1,17 @@
 #pragma once
-#include "app.h"
+#include <functional>
+#include "Shapes.h"
 
 class GravityHandler {
 public:
-	using OnSolidGroundPred = std::function<bool(const Rect&)>;
+	using OnSolidGround = std::function<bool(const Rect& r)>;
 	using OnStartFalling = std::function<void(void)>;
 	using OnStopFalling = std::function<void(void)>;
 
 protected:
 	bool gravityAddicted = false;
 	bool isFalling = false;
-	OnSolidGroundPred onSolidGround;
+	OnSolidGround onSolidGround;
 	OnStartFalling onStartFalling;
 	OnStopFalling onStopFalling;
 
@@ -24,3 +25,18 @@ public:
 	void Reset(void);
 	void Check(const Rect& r);
 };
+
+template<typename T>
+void GravityHandler::SetOnStartFalling(const T& f) {
+	onStartFalling = f;
+}
+
+template<typename T>
+void GravityHandler::SetOnStopFalling(const T& f) {
+	onStopFalling = f;
+}
+
+template<typename T>
+void GravityHandler::SetOnSolidGround(const T& f) {
+	onSolidGround = f;
+}

@@ -145,8 +145,7 @@ void TileLayer::PutTile(Bitmap dest, Dim x, Dim y, Bitmap tiles, Index tile) {
 void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 	if (dpyChanged) {
 		//reset the buffer
-		al_set_target_bitmap(dpyBuffer);
-		al_clear_to_color(app::Make32(0, 0, 0, 0));
+		BitmapClear(dpyBuffer, app::Make32(0, 0, 0, 0));
 
 		auto startCol = DIV_TILE_WIDTH(viewWin.x);
 		auto startRow = DIV_TILE_HEIGHT(viewWin.y);

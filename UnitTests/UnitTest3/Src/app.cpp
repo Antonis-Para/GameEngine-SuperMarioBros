@@ -1,6 +1,10 @@
 #include "app.h"
 #include "Bitmap.h"
 #include "Utilities.h"
+#include <string>
+#include <vector>
+#include "Sprite.h"
+#include "Animation.h"
 
 using namespace std;
 
@@ -26,7 +30,9 @@ ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
 
 std::map<string, app::Character> prefix_character;
-
+class BitmapLoader* bitmaploader;
+bool mario_walking_right = false;
+//class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -49,8 +55,8 @@ void app::Game::MainLoop(void) {
 }
 
 void app::Game::MainLoopIteration(void) {
-	Render();
 	Input();
+	Render();
 	ProgressAnimations();
 	AI();
 	Physics();
@@ -91,13 +97,19 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 bool done() {
 	return !closeWindowClicked;
 }
-
+unsigned long long int loop = 500;
 void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
-
-	BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), {player1.potition.x, player1.potition.y});
-
+	
+	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
+	loop++;
+	if (mario_walking_right) {
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 500 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
+	}
+	else {
+		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), { player1.potition.x, player1.potition.y });
+	}
 	al_flip_display();
 }
 
@@ -159,8 +171,12 @@ void input() {
 						circular_background->Scroll(move_x);
 						app::moveCharacter(&player1, -move_x, -move_y);
 					}
+					mario_walking_right = true;
 				}
 			}
+		}
+		else {
+			mario_walking_right = false;
 		}
 	}
 	
@@ -203,6 +219,9 @@ void app::MainApp::Initialise(void) {
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
+
+	//TODO delete this later we dont need it. Animation has one bitmaploader
+	bitmaploader = new BitmapLoader();
 }
 
 void app::MainApp::Load(void) {
@@ -210,11 +229,9 @@ void app::MainApp::Load(void) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
 	assert(config != NULL);
 
-	Bitmap tiles = BitmapLoad(al_get_config_value(config, "paths", "tiles_path"));
-	assert(tiles != NULL);
-
-	characters = BitmapLoad(al_get_config_value(config, "paths", "characters_path"));
-	assert(characters != NULL);
+	//load bitmaps, TODO we shouldnt have a bitmap loader at all. Animation film will handle this
+	Bitmap tiles = bitmaploader->Load(al_get_config_value(config, "paths", "tiles_path"));
+	characters = bitmaploader->Load(al_get_config_value(config, "paths", "characters_path"));
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
@@ -235,6 +252,7 @@ void app::MainApp::Load(void) {
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
+	AnimationFilmHolder::GetInstance().LoadAll(config, "Mario_small.walk_right");
 	initialize_prefix_character(config, "Mario_small");
 
 	player1 = prefix_character["Mario_small"];
@@ -251,7 +269,7 @@ void app::MainApp::Clear(void) {
 	al_destroy_bitmap(action_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
-	exit(0);
+	delete bitmaploader;
 }
 
 void app::App::Main(void) {
@@ -278,7 +296,7 @@ bool app::ReadTextMap(class TileLayer* layer, string filename) {
 				int val;
 				ss >> val;
 				if (val == -1) {
-					layer->SetTile(x, y, total_tiles); //"crete" an extra tile which is going to be identified as the trasnparent tile
+					layer->SetTile(x, y, total_tiles); //"create" an extra tile which is going to be identified as the trasnparent tile
 				}
 				else {
 					layer->SetTile(x, y, val);
@@ -356,7 +374,9 @@ bool app::characterStaysInCenter(Character* character, int* dx) {
 	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
 }
 
+
 void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
+
 	Character character;
 	string text;
 	vector<string> tokens;

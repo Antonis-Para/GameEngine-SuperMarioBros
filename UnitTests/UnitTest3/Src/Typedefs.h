@@ -14,7 +14,6 @@ typedef unsigned char RGBValue;
 typedef unsigned char Alpha;
 typedef unsigned char* PixelMemory;
 
-
 //grid
 using GridIndex = unsigned char;
 typedef GridIndex GridMap[GRID_MAX_HEIGHT][GRID_MAX_WIDTH];
