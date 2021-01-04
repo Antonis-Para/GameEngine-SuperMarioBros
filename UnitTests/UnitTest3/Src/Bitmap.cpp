@@ -20,8 +20,10 @@ Bitmap BitmapCopy(Bitmap bmp) {
 }
 
 Bitmap BitmapClear(Bitmap bmp, Color c) {
+	Bitmap tmp = al_get_target_bitmap();
 	al_set_target_bitmap(bmp);
-	al_clear_to_color(Make24(0, 0, 0));
+	al_clear_to_color(c);
+	al_set_target_bitmap(tmp);
 	return bmp;
 }
 
@@ -29,8 +31,9 @@ void BitmapDestroy(Bitmap bmp) {
 	al_destroy_bitmap(bmp);
 }
 
+extern ALLEGRO_DISPLAY* display;
 Bitmap BitmapGetScreen(void) {
-	return NULL;
+	return al_get_backbuffer(display);
 }
 
 int BitmapGetWidth(Bitmap bmp) {

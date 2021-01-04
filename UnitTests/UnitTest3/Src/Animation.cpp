@@ -31,7 +31,8 @@ void AnimationFilm::DisplayFrame(Bitmap dest, const Point& at, unsigned char fra
 }
 
 void AnimationFilm::SetBitmap(Bitmap b) {
-	assert(!bitmap); bitmap = b;
+	assert(!bitmap);
+	bitmap = b;
 }
 
 void AnimationFilm::Append(const Rect& r) {
@@ -345,11 +346,12 @@ Animation* TickAnimation::Clone(void) const {
 	return new TickAnimation(id, delay, reps, isDiscrete);
 }
 
-void Animate(AnimationFilm& film, const Point at) {
+void Animate(const AnimationFilm& film, const Point at) {
 	uint64_t t = 0;
 	for (unsigned char i = 0; i < film.GetTotalFrames(); )
 		if (GetSystemTime() >= t) {
-			t = GetSystemTime() + FRAME_DELAY; while (!al_wait_for_vsync());//Vsync();
+			t = GetSystemTime() + FRAME_DELAY; 
+			while (!al_wait_for_vsync());//Vsync();
 			BitmapClear(BitmapGetScreen(), Make24(0, 0, 0));
 			film.DisplayFrame(BitmapGetScreen(), at, i++);
 		}

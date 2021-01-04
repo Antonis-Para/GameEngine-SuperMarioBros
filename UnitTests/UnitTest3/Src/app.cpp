@@ -31,7 +31,8 @@ ALLEGRO_EVENT event;
 
 std::map<string, app::Character> prefix_character;
 class BitmapLoader* bitmaploader;
-
+bool mario_walking_right = false;
+//class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -54,8 +55,8 @@ void app::Game::MainLoop(void) {
 }
 
 void app::Game::MainLoopIteration(void) {
-	Render();
 	Input();
+	Render();
 	ProgressAnimations();
 	AI();
 	Physics();
@@ -96,13 +97,19 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 bool done() {
 	return !closeWindowClicked;
 }
-
+unsigned long long int loop = 500;
 void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
-
-	BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), {player1.potition.x, player1.potition.y});
-
+	
+	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
+	loop++;
+	if (mario_walking_right) {
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 500 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
+	}
+	else {
+		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), { player1.potition.x, player1.potition.y });
+	}
 	al_flip_display();
 }
 
@@ -164,8 +171,12 @@ void input() {
 						circular_background->Scroll(move_x);
 						app::moveCharacter(&player1, -move_x, -move_y);
 					}
+					mario_walking_right = true;
 				}
 			}
+		}
+		else {
+			mario_walking_right = false;
 		}
 	}
 	
@@ -209,6 +220,7 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
+	//TODO delete this later we dont need it. Animation has one bitmaploader
 	bitmaploader = new BitmapLoader();
 }
 

@@ -198,4 +198,4 @@ public:
 	Animation* Clone(void) const override;
 };
 
-void Animate(AnimationFilm& film, const Point at);
+void Animate(const AnimationFilm& film, const Point at);
