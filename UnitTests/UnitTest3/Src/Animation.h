@@ -50,8 +50,8 @@ public:
 	static auto GetInstance(void) -> AnimationFilmHolder&;
 	// TODO(4u): set a parsing functor implemented externally to the class
 	static int ParseEntry( // -1=error, 0=ended gracefully, else #chars read
-		int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects);
-	void LoadAll(ALLEGRO_CONFIG* config, const std::string& text);
+		int startPos, const std::string& text, std::string& id, std::vector<Rect>& rects);
+	void LoadAll(const std::string& text, const std::string& path);
 	void CleanUp(void);
 	auto GetFilm(const std::string& id) -> const AnimationFilm* const;
 };

@@ -32,6 +32,7 @@ ALLEGRO_EVENT event;
 std::map<string, app::Character> prefix_character;
 class BitmapLoader* bitmaploader;
 bool mario_walking_right = false;
+bool mario_walking_left = false;
 //class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
@@ -97,7 +98,7 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 bool done() {
 	return !closeWindowClicked;
 }
-unsigned long long int loop = 500;
+unsigned long long int loop = 300;
 void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
@@ -105,8 +106,9 @@ void render() {
 	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
 	loop++;
 	if (mario_walking_right) {
-		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 500 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
-	}
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
+	}else if (mario_walking_left)
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->GetTotalFrames());
 	else {
 		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), { player1.potition.x, player1.potition.y });
 	}
@@ -155,6 +157,7 @@ void input() {
 					app::moveCharacterWithFilter(&player1, -CHARACTER_MOVE_SPEED, 0);
 					player1.potition.x -= action_layer->GetViewWindow().x;
 					player1.potition.y -= action_layer->GetViewWindow().y;
+					mario_walking_left = true;
 				}
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
@@ -177,6 +180,7 @@ void input() {
 		}
 		else {
 			mario_walking_right = false;
+			mario_walking_left = false;
 		}
 	}
 	
@@ -224,6 +228,12 @@ void app::MainApp::Initialise(void) {
 	bitmaploader = new BitmapLoader();
 }
 
+string loadAllCharacters(const ALLEGRO_CONFIG* config) {
+
+	return "Mario_small.walk_right:" + string(al_get_config_value(config, "Mario_small", "walk_right")) + '$'
+		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$';
+}
+
 void app::MainApp::Load(void) {
 
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
@@ -252,7 +262,8 @@ void app::MainApp::Load(void) {
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
-	AnimationFilmHolder::GetInstance().LoadAll(config, "Mario_small.walk_right");
+	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
+
 	initialize_prefix_character(config, "Mario_small");
 
 	player1 = prefix_character["Mario_small"];

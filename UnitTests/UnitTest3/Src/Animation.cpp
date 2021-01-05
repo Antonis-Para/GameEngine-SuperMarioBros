@@ -48,39 +48,48 @@ auto AnimationFilmHolder::GetInstance(void) -> AnimationFilmHolder& {
 
 // TODO(4u): set a parsing functor implemented externally to the class
 // -1=error, 0=ended gracefully, else #chars read
-int AnimationFilmHolder::ParseEntry(int startPos, const std::string& text, std::string& id, std::string& path, std::vector<Rect>& rects) {
+int AnimationFilmHolder::ParseEntry(int startPos, const std::string& text, std::string& id, std::vector<Rect>& rects) {
+	if (startPos >= text.size())
+		return 0;
 
-	return 0;
+	char c;
+	int charsread = 1;
+	string sections[2]; // character with action, positions;
+	int pos = 0;
+	while ((c = text.at(startPos++)) != '$') {
+		charsread++;
+
+		if (c == ':') 
+			pos++;
+		else 
+			sections[pos] += c;
+	}
+
+	id = sections[0];
+
+	for (auto i : splitString(sections[1], ",")) {
+		int x = atoi(i.substr(0, i.find(' ')).c_str());
+		int y = atoi(i.substr(i.find(' ') + 1, i.size()).c_str());
+		rects.push_back(Rect{ x, y, 16, 16 });
+	}
+
+	return charsread;
 }
 
-//TODO!!!
-//Temporary way of doing that. Function should load all animation, not only one!
-//also, remove the config param
-void AnimationFilmHolder::LoadAll(ALLEGRO_CONFIG* config, const std::string& text) {
+
+void AnimationFilmHolder::LoadAll(const std::string& text, const std::string& path) {
 	int pos = 0;
-	string positions = al_get_config_value(config, text.substr(0, text.find('.')).c_str(), text.substr(text.find('.') + 1, text.size()).c_str()); //e.g mario_small, walk_right
 
-	string id = text;
-	string path = al_get_config_value(config, "paths", "characters_path");
-	std::vector<Rect> rects;
-	for (auto i : splitString(positions, ",")) {
-		int x = atoi(i.substr(0, i.find(' ')).c_str());
-		int y = atoi(i.substr(i.find(' ')+1 , i.size()).c_str());
-		rects.push_back(Rect{x, y, 14, 16});
-	}
-	assert(!GetFilm(id));
-	films[id] = new AnimationFilm(bitmaps->Load(path), rects, id);
-
-	/*while (true) {
-		std::string id, path;
+	while (true) {
+		std::string id;
 		std::vector<Rect> rects;
-		int i = ParseEntry(pos, text, id, path, rects);
+		int i = ParseEntry(pos, text, id, rects);
 		assert(i >= 0);
 		if (!i) return;
 		pos += i;
 		assert(!GetFilm(id));
-		films[id] = new AnimationFilm(bitmaps.Load(path), rects, id);
-	}*/
+		films[id] = new AnimationFilm(bitmaps->Load(path), rects, id);
+	}
 
 }
 
