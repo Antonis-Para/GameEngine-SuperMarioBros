@@ -33,6 +33,7 @@ std::map<string, app::Character> prefix_character;
 class BitmapLoader* bitmaploader;
 bool mario_walking_right = false;
 bool mario_walking_left = false;
+class Sprite* mario;
 //class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
@@ -102,15 +103,18 @@ unsigned long long int loop = 300;
 void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
-	
+
 	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
 	loop++;
 	if (mario_walking_right) {
 		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
-	}else if (mario_walking_left)
+	}
+	else if (mario_walking_left) {
+		std::cout << mario->GetBox().x << " " << mario->GetBox().y << std::endl;
 		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->GetTotalFrames());
-	else {
-		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, al_get_backbuffer(display), { player1.potition.x, player1.potition.y });
+	}
+else {
+		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, BitmapGetScreen(), { player1.potition.x, player1.potition.y });
 	}
 	al_flip_display();
 }
@@ -137,6 +141,7 @@ void input() {
 					player1.potition.y += action_layer->GetViewWindow().y;
 					player1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&player1, 0, -CHARACTER_MOVE_SPEED);
+					mario->Move(0, -CHARACTER_MOVE_SPEED);
 					player1.potition.x -= action_layer->GetViewWindow().x;
 					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
@@ -146,6 +151,7 @@ void input() {
 					player1.potition.y += action_layer->GetViewWindow().y;
 					player1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&player1, 0, CHARACTER_MOVE_SPEED);
+					mario->Move(0, CHARACTER_MOVE_SPEED);
 					player1.potition.x -= action_layer->GetViewWindow().x;
 					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
@@ -155,6 +161,7 @@ void input() {
 					player1.potition.y += action_layer->GetViewWindow().y;
 					player1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&player1, -CHARACTER_MOVE_SPEED, 0);
+					mario->Move(-CHARACTER_MOVE_SPEED, 0);
 					player1.potition.x -= action_layer->GetViewWindow().x;
 					player1.potition.y -= action_layer->GetViewWindow().y;
 					mario_walking_left = true;
@@ -165,6 +172,7 @@ void input() {
 					player1.potition.y += action_layer->GetViewWindow().y;
 					player1.potition.x += action_layer->GetViewWindow().x;
 					app::moveCharacterWithFilter(&player1, CHARACTER_MOVE_SPEED, 0);
+					mario->Move(CHARACTER_MOVE_SPEED, 0);
 					player1.potition.x -= action_layer->GetViewWindow().x;
 					player1.potition.y -= action_layer->GetViewWindow().y;
 					int move_x = CHARACTER_MOVE_SPEED;
@@ -231,7 +239,9 @@ void app::MainApp::Initialise(void) {
 string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 
 	return "Mario_small.walk_right:" + string(al_get_config_value(config, "Mario_small", "walk_right")) + '$'
-		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$';
+		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$'
+		 + "Mario_small.stand_right:" + string(al_get_config_value(config, "Mario_small", "stand_right")) + '$'
+		;
 }
 
 void app::MainApp::Load(void) {
@@ -263,6 +273,18 @@ void app::MainApp::Load(void) {
 	action_layer->ComputeTileGridBlocks1();
 
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
+	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
+	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
+		Rect posOnGrid{
+			pos.x + action_layer->GetViewWindow().x,
+			pos.y + action_layer->GetViewWindow().y,
+			pos.w,
+			pos.h,
+		};
+		if (gridOn)
+			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
+		mario->SetPos(pos.x + *dx, pos.y + *dy);
+	});
 
 	initialize_prefix_character(config, "Mario_small");
 

@@ -52,7 +52,7 @@ protected:
 	Rect frameBox;
 	int x = 0, y = 0;
 	bool isVisible = false;
-	AnimationFilm* currFilm = nullptr;
+	const AnimationFilm* currFilm = nullptr;
 	BoundingArea* boundingArea = nullptr;
 	unsigned zorder = 0;
 	std::string typeId, stateId;
@@ -62,7 +62,7 @@ protected:
 	bool directMotion = false;
 	GravityHandler gravity;
 public:
-	Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId = "");
+	Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId = "");
 
 	template<typename Tfunc>
 	void SetMover(const Tfunc& f);
@@ -89,7 +89,7 @@ public:
 
 template<typename Tfunc>
 void Sprite::SetMover(const Tfunc& f) {
-	quantizer.SetMover(mover = f);
+	quantizer.SetMover(f);
 }
 
 /*class CollisionChecker final{

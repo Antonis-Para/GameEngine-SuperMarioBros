@@ -56,16 +56,11 @@ bool Clipper::Clip(const Rect& r, const Rect& dpyArea, Point* dpyPos, Rect* clip
 }
 
 // Sprite
-Sprite::Sprite(int _x, int _y, AnimationFilm* film, const std::string& _typeId) :
+Sprite::Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId) :
 	x(_x), y(_y), currFilm(film), typeId(_typeId) {
 	frameNo = currFilm->GetTotalFrames();
 	SetFrame(0);
 }
-
-//template<typename Tfunc>
-//void Sprite::SetMover(const Tfunc& f) {
-//	quantizer.SetMover(mover = f);
-//}
 
 const Rect Sprite::GetBox(void) const {
 	return { x, y, frameBox.w, frameBox.h };
@@ -76,9 +71,9 @@ void Sprite::Move(int dx, int dy) {
 		x += dx, y += dy;
 	else {
 		quantizer.Move(GetBox(), &dx, &dy);
-		gravity.Check(GetBox());
+		//gravity.Check(GetBox()); TODO: ADD THIS LATER
 	}
-	quantizer.Move(GetBox(), &dx, &dy);
+	//quantizer.Move(GetBox(), &dx, &dy); TODO why is this here 2 times?
 }
 
 void Sprite::SetPos(int _x, int _y) {
