@@ -127,7 +127,7 @@ namespace app {
 	void moveCharacterWithFilter(Character* character, int dx, int dy);
 
 	bool characterStaysInFrame(Character *character, int *dx, int *dy);
-	bool characterStaysInCenter(Character* character, int* dx);
+	bool characterStaysInCenter(Rect pos, int* dx);
 
 	void initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name);
 }

@@ -107,14 +107,13 @@ void render() {
 	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
 	loop++;
 	if (mario_walking_right) {
-		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
 	}
 	else if (mario_walking_left) {
-		std::cout << mario->GetBox().x << " " << mario->GetBox().y << std::endl;
-		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->DisplayFrame(BitmapGetScreen(), Point{ player1.potition.x, player1.potition.y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->GetTotalFrames());
+		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->GetTotalFrames());
 	}
 else {
-		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, BitmapGetScreen(), { player1.potition.x, player1.potition.y });
+		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, BitmapGetScreen(), { mario->GetBox().x, mario->GetBox().y });
 	}
 	al_flip_display();
 }
@@ -137,52 +136,33 @@ void input() {
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				if (player1.potition.y > 0) {
-					player1.potition.y += action_layer->GetViewWindow().y;
-					player1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&player1, 0, -CHARACTER_MOVE_SPEED);
+				if (mario->GetBox().y > 0) {
 					mario->Move(0, -CHARACTER_MOVE_SPEED);
-					player1.potition.x -= action_layer->GetViewWindow().x;
-					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
-				if (player1.potition.y + player1.potition.h < action_layer->GetViewWindow().h) {
-					player1.potition.y += action_layer->GetViewWindow().y;
-					player1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&player1, 0, CHARACTER_MOVE_SPEED);
+				if (mario->GetBox().y + mario->GetBox().h < action_layer->GetViewWindow().h) {
 					mario->Move(0, CHARACTER_MOVE_SPEED);
-					player1.potition.x -= action_layer->GetViewWindow().x;
-					player1.potition.y -= action_layer->GetViewWindow().y;
 				}
 			}
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
-				if (player1.potition.x > 0) {
-					player1.potition.y += action_layer->GetViewWindow().y;
-					player1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&player1, -CHARACTER_MOVE_SPEED, 0);
+				if (mario->GetBox().x > 0) {
 					mario->Move(-CHARACTER_MOVE_SPEED, 0);
-					player1.potition.x -= action_layer->GetViewWindow().x;
-					player1.potition.y -= action_layer->GetViewWindow().y;
 					mario_walking_left = true;
 				}
+
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
-				if (player1.potition.x + player1.potition.w < action_layer->GetViewWindow().w) {
-					player1.potition.y += action_layer->GetViewWindow().y;
-					player1.potition.x += action_layer->GetViewWindow().x;
-					app::moveCharacterWithFilter(&player1, CHARACTER_MOVE_SPEED, 0);
+				if (mario->GetBox().x + mario->GetBox().w < action_layer->GetViewWindow().w) {
 					mario->Move(CHARACTER_MOVE_SPEED, 0);
-					player1.potition.x -= action_layer->GetViewWindow().x;
-					player1.potition.y -= action_layer->GetViewWindow().y;
+					mario_walking_right = true;
 					int move_x = CHARACTER_MOVE_SPEED;
 					int move_y = 0;
-					if (app::characterStaysInCenter(&player1, &move_x)) {
+					if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
 						action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 						circular_background->Scroll(move_x);
-						app::moveCharacter(&player1, -move_x, -move_y);
+						mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y);
 					}
-					mario_walking_right = true;
 				}
 			}
 		}
@@ -403,8 +383,8 @@ bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
 			|| character->potition.y + character->potition.h - *dy > displayArea.h);
 }
 
-bool app::characterStaysInCenter(Character* character, int* dx) {
-	return character->potition.x + character->potition.w/2 - *dx > displayArea.w/2;
+bool app::characterStaysInCenter(Rect pos, int* dx) {
+	return pos.x + pos.w/2 - *dx > displayArea.w/2;
 }
 
 
