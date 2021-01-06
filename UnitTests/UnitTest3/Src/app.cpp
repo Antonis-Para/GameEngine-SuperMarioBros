@@ -56,7 +56,16 @@ void app::Game::MainLoop(void) {
 		MainLoopIteration();
 }
 
+void Game::SetGameTime() {
+	currTime = GetSystemTime();
+}
+
+unsigned long Game::GetGameTime() {
+	return currTime;
+}
+
 void app::Game::MainLoopIteration(void) {
+	SetGameTime();
 	Input();
 	Render();
 	ProgressAnimations();

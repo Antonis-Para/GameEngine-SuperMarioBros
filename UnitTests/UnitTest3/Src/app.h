@@ -50,7 +50,7 @@ namespace app {
 		private:
 			Action render, anim, input, ai, physics, destruct, collisions, user;
 			Pred done;
-
+			static unsigned long currTime = 0;
 
 			void Invoke(const Action& f);
 		public:
@@ -69,6 +69,8 @@ namespace app {
 			bool IsFinished(void) const;
 			void MainLoop(void);
 			void MainLoopIteration(void);
+			void SetGameTime();
+			unsigned long GetGameTime();
 	};
 
 
