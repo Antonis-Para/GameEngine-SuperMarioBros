@@ -20,6 +20,11 @@
 
 ---
 
+## Questions
+
+- Are we supposed to change our sprites' animationFilm or is the animator going to handle this?
+
+
 ## About Allegro
 
 [Allegro Oficial repository](https://github.com/liballeg/allegro5)  
