@@ -68,9 +68,13 @@ int AnimationFilmHolder::ParseEntry(int startPos, const std::string& text, std::
 	id = sections[0];
 
 	for (auto i : splitString(sections[1], ",")) {
-		int x = atoi(i.substr(0, i.find(' ')).c_str());
-		int y = atoi(i.substr(i.find(' ') + 1, i.size()).c_str());
-		rects.push_back(Rect{ x, y, 16, 16 });
+		vector<string> coordinates = splitString(i, " ");
+
+		int x = atoi(coordinates[0].c_str());
+		int y = atoi(coordinates[1].c_str());
+		int width = atoi(coordinates[2].c_str());
+		int height = atoi(coordinates[3].c_str());
+		rects.push_back(Rect{ x, y, width, height });
 	}
 
 	return charsread;

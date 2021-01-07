@@ -71,6 +71,9 @@ public:
 	void SetPos(int _x, int _y);
 	void SetZorder(unsigned z);
 	unsigned GetZorder(void);
+	const AnimationFilm* GetCurrFilm();
+	void SetCurrFilm(const AnimationFilm* newFilm);  //savidis doesn't do this
+	void NextFrame();
 	void SetFrame(unsigned char i);
 	unsigned char GetFrame(void) const;
 	void SetBoundingArea(const BoundingArea& area);

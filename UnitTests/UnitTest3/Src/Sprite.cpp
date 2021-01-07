@@ -88,6 +88,20 @@ unsigned Sprite::GetZorder(void) {
 	return zorder;
 }
 
+const AnimationFilm* Sprite::GetCurrFilm() {
+	return currFilm;
+}
+
+void Sprite::SetCurrFilm(const AnimationFilm* newFilm) {
+	currFilm = newFilm;
+}
+
+void Sprite::NextFrame() {
+	frameNo++;
+	if (currFilm->GetTotalFrames() <= frameNo)
+		frameNo = 0; //start over
+}
+
 void Sprite::SetFrame(unsigned char i) {
 	if (i != frameNo) {
 		assert(i < currFilm->GetTotalFrames());

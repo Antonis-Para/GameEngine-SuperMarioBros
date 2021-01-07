@@ -47,6 +47,21 @@ public:
 	void SetOnAction(const Tfunc& f);
 };
 
+template<typename Tfunc>
+void Animator::SetOnFinish(const Tfunc& f) {
+	onFinish = f;
+}
+
+template<typename Tfunc>
+void Animator::SetOnStart(const Tfunc& f) {
+	onStart = f;
+}
+
+template<typename Tfunc>
+void Animator::SetOnAction(const Tfunc& f) {
+	onAction = f;
+}
+
 class MovingAnimator : public Animator {
 protected:
 	MovingAnimation* anim = nullptr;

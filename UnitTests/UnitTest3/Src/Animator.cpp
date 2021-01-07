@@ -28,27 +28,13 @@ void Animator::NotifyAction(const Animation& anim) {
 
 void Animator::Finish(bool isForced) {
 	if (!HasFinished()) {
-		state = isForced ? ANIMATOR_STOPPED : ANIMATOR_FINISHED; NotifyStopped();
+		state = isForced ? ANIMATOR_STOPPED : ANIMATOR_FINISHED; 
+		NotifyStopped();
 	}
 }
 
 bool Animator::HasFinished(void) const {
 	return state != ANIMATOR_RUNNING;
-}
-
-template<typename Tfunc>
-void Animator::SetOnFinish(const Tfunc& f) {
-	onFinish = f;
-}
-
-template<typename Tfunc>
-void Animator::SetOnStart(const Tfunc& f) {
-	onStart = f;
-}
-
-template<typename Tfunc>
-void Animator::SetOnAction(const Tfunc& f) {
-	onAction = f;
 }
 
 void Animator::Stop(void) {
@@ -80,8 +66,17 @@ void MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
 	lastTime = t;
 	state = ANIMATOR_RUNNING;
 	currRep = 0;
-	NotifyStarted();
+	//NotifyStarted();
 }
+
+/*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
+	sprite->Move(anim.GetDx(), anim.GetDy());
+}
+
+animator->SetOnAction([sprite](Animator* animator, constAnimation& anim) {
+	Sprite_MoveAction(sprite, (constMovingAnimation&)anim);
+	}
+);*/
 
 // FrameRangeAnimator
 void FrameRangeAnimator::Progress(timestamp_t currTime) {

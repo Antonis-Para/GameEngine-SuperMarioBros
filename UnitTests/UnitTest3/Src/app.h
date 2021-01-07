@@ -21,6 +21,8 @@ using namespace std;
 namespace app {
 	using BitmapAccessFunctor = std::function<void(unsigned char**)>;
 
+	extern unsigned long currTime;
+
 	//struct ViewData {
 	//	Bitmap dpyBuffer = nullptr;
 	//	bool dpyChanged = true;
@@ -50,14 +52,15 @@ namespace app {
 		private:
 			Action render, anim, input, ai, physics, destruct, collisions, user;
 			Pred done;
-			static unsigned long currTime = 0;
 
 			void Invoke(const Action& f);
 		public:
-			template <typename Tfunc> void SetDone(const Tfunc& f);
-			template <typename Tfunc> void SetRender(const Tfunc& f);
-			template <typename Tfunc> void SetInput(const Tfunc& f);
+			template <typename Tfunc> void SetDone(const Tfunc& f) { done = f; }
+			template <typename Tfunc> void SetRender(const Tfunc& f) { render = f; }
+			template <typename Tfunc> void SetInput(const Tfunc& f) { input = f; }
+			template <typename Tfunc> void SetProgressAnimations(const Tfunc& f) { anim = f; }
 			// rest of setters are similary defined
+
 			void Render(void);
 			void ProgressAnimations(void);
 			void Input(void);
@@ -69,8 +72,6 @@ namespace app {
 			bool IsFinished(void) const;
 			void MainLoop(void);
 			void MainLoopIteration(void);
-			void SetGameTime();
-			unsigned long GetGameTime();
 	};
 
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include "Sprite.h"
 #include "Animation.h"
+#include "Animator.h"
 
 using namespace std;
 
@@ -31,17 +32,16 @@ ALLEGRO_EVENT event;
 
 std::map<string, app::Character> prefix_character;
 class BitmapLoader* bitmaploader;
-bool mario_walking_right = false;
-bool mario_walking_left = false;
+
 class Sprite* mario;
+class MovingAnimator* walk;
+bool lasttime_movedright = true;
+bool not_moved = true;
 //class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
 void app::Game::Invoke(const Action& f) { if (f) f(); }
-template <typename Tfunc> void app::Game::SetDone(const Tfunc& f) { done = f; }
-template <typename Tfunc> void app::Game::SetRender(const Tfunc& f) { render = f; }
-template <typename Tfunc> void app::Game::SetInput(const Tfunc& f) { input = f; }
 void app::Game::Render(void) { Invoke(render); }
 void app::Game::ProgressAnimations(void) { Invoke(anim); }
 void app::Game::Input(void) { Invoke(input); }
@@ -56,18 +56,20 @@ void app::Game::MainLoop(void) {
 		MainLoopIteration();
 }
 
-void Game::SetGameTime() {
-	currTime = GetSystemTime();
+unsigned long app::currTime;
+
+void SetGameTime() {
+	app::currTime = GetSystemTime();
 }
 
-unsigned long Game::GetGameTime() {
-	return currTime;
+unsigned long GetGameTime() {
+	return app::currTime;
 }
 
 void app::Game::MainLoopIteration(void) {
 	SetGameTime();
-	Input();
 	Render();
+	Input();
 	ProgressAnimations();
 	AI();
 	Physics();
@@ -108,22 +110,12 @@ void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
 bool done() {
 	return !closeWindowClicked;
 }
-unsigned long long int loop = 300;
+
 void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
-	//Animate(*AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"), Point{ player1.potition.x, player1.potition.y });
-	loop++;
-	if (mario_walking_right) {
-		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right")->GetTotalFrames());
-	}
-	else if (mario_walking_left) {
-		AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, (loop / 300 - 1) % AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left")->GetTotalFrames());
-	}
-else {
-		BitmapBlit(player1.stand_right, { 0, 0, player1.potition.w, player1.potition.h }, BitmapGetScreen(), { mario->GetBox().x, mario->GetBox().y });
-	}
+	mario->GetCurrFilm()->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, mario->GetFrame());
 	al_flip_display();
 }
 
@@ -144,6 +136,7 @@ void input() {
 			closeWindowClicked = true;
 		}
 		if (event.type == ALLEGRO_EVENT_TIMER) {
+			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (mario->GetBox().y > 0) {
 					mario->Move(0, -CHARACTER_MOVE_SPEED);
@@ -154,33 +147,45 @@ void input() {
 					mario->Move(0, CHARACTER_MOVE_SPEED);
 				}
 			}
+
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
 				if (mario->GetBox().x > 0) {
 					mario->Move(-CHARACTER_MOVE_SPEED, 0);
-					mario_walking_left = true;
 				}
-
+				mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left"));
+				lasttime_movedright = false;
+				not_moved = false;
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
 				if (mario->GetBox().x + mario->GetBox().w < action_layer->GetViewWindow().w) {
 					mario->Move(CHARACTER_MOVE_SPEED, 0);
-					mario_walking_right = true;
 					int move_x = CHARACTER_MOVE_SPEED;
 					int move_y = 0;
 					if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
 						action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 						circular_background->Scroll(move_x);
-						mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y);
+						mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 					}
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"));
+					lasttime_movedright = true;
+					not_moved = false;
 				}
 			}
-		}
-		else {
-			mario_walking_right = false;
-			mario_walking_left = false;
+
+			if (not_moved) { //im not moving
+				mario->SetFrame(0);
+				if (lasttime_movedright)
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
+				else
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_left"));
+			}
 		}
 	}
 	
+}
+
+void progress_animations() {
+	walk->Progress(GetGameTime());
 }
 
 void loadMap(string path) {
@@ -201,7 +206,13 @@ void loadSolidTiles(ALLEGRO_CONFIG* config, TileLayer *layer) {
 	
 }
 
+void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
+	sprite->Move(anim.GetDx(), anim.GetDy());
+	sprite->NextFrame();
+}
+
 void app::MainApp::Initialise(void) {
+	SetGameTime();
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";
 		assert(false);
@@ -223,6 +234,13 @@ void app::MainApp::Initialise(void) {
 
 	//TODO delete this later we dont need it. Animation has one bitmaploader
 	bitmaploader = new BitmapLoader();
+	walk = new MovingAnimator();
+
+	walk->SetOnAction([](Animator* animator, const Animation& anim) {
+		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+	});
+
+	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());
 }
 
 string loadAllCharacters(const ALLEGRO_CONFIG* config) {
@@ -230,6 +248,7 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 	return "Mario_small.walk_right:" + string(al_get_config_value(config, "Mario_small", "walk_right")) + '$'
 		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$'
 		 + "Mario_small.stand_right:" + string(al_get_config_value(config, "Mario_small", "stand_right")) + '$'
+		 + "Mario_small.stand_left:" + string(al_get_config_value(config, "Mario_small", "stand_left")) + '$'
 		;
 }
 
@@ -257,6 +276,7 @@ void app::MainApp::Load(void) {
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
+	game.SetProgressAnimations(progress_animations);
 
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
@@ -408,38 +428,38 @@ void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) 
 
 	text = al_get_config_value(config, char_name.c_str(), "stand_right");
 	coordinates = splitString(text, " ");
-	character.stand_right = SubBitmapCreate(characters, Rect{atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16});
+	character.stand_right = SubBitmapCreate(characters, Rect{atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) });
 
 	text = al_get_config_value(config, char_name.c_str(), "stand_left");
 	coordinates = splitString(text, " ");
-	character.stand_left = SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 });
+	character.stand_left = SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) });
 
 	text = al_get_config_value(config, char_name.c_str(), "walk_right");
 	tokens = splitString(text, ",");
 	for (auto token : tokens) {
 		coordinates = splitString(token, " ");
-		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
+		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
 	}
 
 	text = al_get_config_value(config, char_name.c_str(), "walk_left");
 	tokens = splitString(text, ",");
 	for (auto token : tokens) {
 		coordinates = splitString(token, " ");
-		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
+		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
 	}
 
 	text = al_get_config_value(config, char_name.c_str(), "jump_right");
 	tokens = splitString(text, ",");
 	for (auto token : tokens) {
 		coordinates = splitString(token, " ");
-		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
+		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
 	}
 
 	text = al_get_config_value(config, char_name.c_str(), "jump_left");
 	tokens = splitString(text, ",");
 	for (auto token : tokens) {
 		coordinates = splitString(token, " ");
-		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), 16, 16 }));
+		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
 	}
 
 	prefix_character[char_name] = character;
