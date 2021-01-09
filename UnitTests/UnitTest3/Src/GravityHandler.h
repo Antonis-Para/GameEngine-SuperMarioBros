@@ -17,26 +17,11 @@ protected:
 
 public:
 	template<typename T>
-	void SetOnStartFalling(const T& f);
+	void SetOnStartFalling(const T& f) { onStartFalling = f; }
 	template<typename T>
-	void SetOnStopFalling(const T& f);
+	void SetOnStopFalling(const T& f) { onStopFalling = f; }
 	template<typename T>
-	void SetOnSolidGround(const T& f);
+	void SetOnSolidGround(const T& f) { onSolidGround = f; }
 	void Reset(void);
 	void Check(const Rect& r);
 };
-
-template<typename T>
-void GravityHandler::SetOnStartFalling(const T& f) {
-	onStartFalling = f;
-}
-
-template<typename T>
-void GravityHandler::SetOnStopFalling(const T& f) {
-	onStopFalling = f;
-}
-
-template<typename T>
-void GravityHandler::SetOnSolidGround(const T& f) {
-	onSolidGround = f;
-}

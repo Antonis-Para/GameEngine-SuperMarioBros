@@ -66,14 +66,14 @@ const Rect Sprite::GetBox(void) const {
 	return { x, y, frameBox.w, frameBox.h };
 }
 
-void Sprite::Move(int dx, int dy) {
+Sprite& Sprite::Move(int dx, int dy) {
 	if (directMotion) // apply unconditionally offsets!
 		x += dx, y += dy;
 	else {
 		quantizer.Move(GetBox(), &dx, &dy);
-		//gravity.Check(GetBox()); TODO: ADD THIS LATER
+		gravity.Check(GetBox());
 	}
-	//quantizer.Move(GetBox(), &dx, &dy); TODO why is this here 2 times?
+	return *this;
 }
 
 void Sprite::SetPos(int _x, int _y) {
@@ -196,7 +196,6 @@ auto CollisionChecker::GetSingletonConst(void) -> const CollisionChecker& {
 }
 */
 
-
 // SpriteManager
 SpriteManager SpriteManager::singleton;
 
@@ -230,13 +229,11 @@ const Clipper MakeTileLayerClipper(TileLayer* layer) {
 	return Clipper().SetView([layer](void) { return layer->GetViewWindow(); });
 }
 
-
 void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite) {
 	sprite->GetGravityHandler().SetOnSolidGround([gridLayer](const Rect& r) {
 		return gridLayer->IsOnSolidGround(r);
 	});
 }
-
 
 bool clip_rect(const Rect& r, const Rect& area, Rect* result) {
 	return clip_rect(r.x, r.y, r.w, r.h, area.x, area.y, area.w, area.h, &result->x, &result->y, &result->w, &result->h);
