@@ -7,14 +7,13 @@ class BoundingCircle;
 class BoundingPolygon;
 
 class BoundingArea {
-protected:
+public:
 	virtual bool Intersects(const BoundingBox&) const = 0;
 	virtual bool Intersects(const BoundingCircle&) const = 0;
 	virtual bool Intersects(const BoundingPolygon&) const = 0;
-public:
 	virtual bool In(unsigned, unsigned) const = 0;
 	virtual bool Intersects(const BoundingArea&) const = 0;
-	virtual BoundingArea* Clone(void) const;
+	virtual BoundingArea* Clone(void) const = 0;
 	~BoundingArea() {}
 };
 
@@ -24,9 +23,9 @@ private:
 public:
 	BoundingBox(unsigned, unsigned, unsigned, unsigned);
 
-	virtual bool Intersects(const BoundingBox&) const;
-	virtual bool Intersects(const BoundingCircle&) const;
-	virtual bool Intersects(const BoundingPolygon&) const;
+	virtual bool Intersects(const BoundingBox&) const override;
+	virtual bool Intersects(const BoundingCircle&) const override;
+	virtual bool Intersects(const BoundingPolygon&) const override;
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
@@ -41,9 +40,9 @@ private:
 public:
 	BoundingCircle(unsigned, unsigned, unsigned);
 
-	virtual bool Intersects(const BoundingBox&) const;
-	virtual bool Intersects(const BoundingCircle&) const;
-	virtual bool Intersects(const BoundingPolygon&) const;
+	virtual bool Intersects(const BoundingBox&) const override;
+	virtual bool Intersects(const BoundingCircle&) const override;
+	virtual bool Intersects(const BoundingPolygon&) const override;
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
@@ -63,9 +62,9 @@ protected:
 public:
 	BoundingPolygon(const Polygon&);
 
-	virtual bool Intersects(const BoundingBox&) const;
-	virtual bool Intersects(const BoundingCircle&) const;
-	virtual bool Intersects(const BoundingPolygon&) const;
+	virtual bool Intersects(const BoundingBox&) const override;
+	virtual bool Intersects(const BoundingCircle&) const override;
+	virtual bool Intersects(const BoundingPolygon&) const override;
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;

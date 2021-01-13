@@ -85,6 +85,26 @@ BoundingArea* BoundingCircle::Clone(void) const {
 }
 
 // BoundingPolygon
+bool BoundingPolygon::Intersects(const BoundingPolygon& poly) const {
+	// TODO
+	return false;
+}
+
+bool BoundingPolygon::Intersects(const BoundingCircle& circle) const {
+	// TODO
+	return false;
+}
+
+bool BoundingPolygon::Intersects(const BoundingBox& box) const {
+	// TODO
+	return false;
+}
+
+bool BoundingPolygon::In(unsigned _x, unsigned _y) const {
+	// TODO
+	return false;
+}
+
 BoundingPolygon::BoundingPolygon(const Polygon &_points) :
 	points(_points) {}
 
