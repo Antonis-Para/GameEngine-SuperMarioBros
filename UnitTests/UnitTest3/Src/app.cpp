@@ -17,7 +17,6 @@ Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
 unsigned int total_tiles;
 bool closeWindowClicked = false;
-app::Character player1;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 bool gridOn = true;
@@ -30,14 +29,12 @@ int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
 
-std::map<string, app::Character> prefix_character;
 class BitmapLoader* bitmaploader;
 
 class Sprite* mario;
 class MovingAnimator* walk;
 bool lasttime_movedright = true;
 bool not_moved = true;
-//class MovingAnimation walk_right("walk_right", 1, CHARACTER_MOVE_SPEED, 0, 30);
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -89,23 +86,6 @@ app::Game& app::App::GetGame(void) {
 }
 
 const app::Game& app::App::GetGame(void) const { return game; }
-
-/*
-bool app::TileColorsHolder::In(Color c) const {
-	return colors.find(c) != colors.end();
-}*/
-
-/*
-void app::TileColorsHolder::Insert(Bitmap bmp, Index index) {
-	if (indices.find(index) == indices.end()) {
-		indices.insert(index);
-		BitmapAccessPixels(
-			bmp,
-			[this](PixelMemory mem)
-			{ colors.insert(GetPixel32(mem)); }
-		);
-	}
-}*/
 
 bool done() {
 	return !closeWindowClicked;
@@ -282,7 +262,7 @@ void app::MainApp::Load(void) {
 	action_layer->ComputeTileGridBlocks1();
 
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
-	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
+	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario_small");
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
 		Rect posOnGrid{
 			pos.x + action_layer->GetViewWindow().x,
@@ -294,10 +274,6 @@ void app::MainApp::Load(void) {
 			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
 	});
-
-	initialize_prefix_character(config, "Mario_small");
-
-	player1 = prefix_character["Mario_small"];
 }
 
 void app::App::Run(void) {
@@ -375,15 +351,6 @@ Index GetRow(Index index)
 	return index & 0xF0;
 }
 
-
-//Dim TileX3(Index index) {
-//	return MUL_TILE_WIDTH(index) % BitmapGetWidth(tiles);
-//}
-//
-//Dim TileY3(Index index) {
-//	return MUL_TILE_HEIGHT(MUL_TILE_HEIGHT(index) / BitmapGetWidth(tiles));
-//}
-
 int app::GetMapPixelWidth(void) {
 	return widthInTiles * TILE_WIDTH > displayArea.w ? widthInTiles * TILE_WIDTH : displayArea.w;
 }
@@ -392,75 +359,6 @@ int app::GetMapPixelHeight(void) {
 	return heightInTiles * TILE_HEIGHT > displayArea.h ? heightInTiles * TILE_HEIGHT : displayArea.h;
 }
 
-
-void app::moveCharacter(Character *character, int dx, int dy) {
-	character->potition.x += dx;
-	character->potition.y += dy;
-}
-
-void app::moveCharacterWithFilter(Character* character, int dx, int dy) {
-	if(gridOn)
-		action_layer->GetGrid()->FilterGridMotion(character->potition, &dx, &dy);
-	character->potition.x += dx;
-	character->potition.y += dy;
-}
-
-bool app::characterStaysInFrame(Character *character, int *dx, int *dy) {
-	return !(character->potition.x - *dx < 0
-			|| character->potition.x + character->potition.w - *dx > displayArea.w
-			|| character->potition.y - *dy < 0
-			|| character->potition.y + character->potition.h - *dy > displayArea.h);
-}
-
 bool app::characterStaysInCenter(Rect pos, int* dx) {
 	return pos.x + pos.w/2 - *dx > displayArea.w/2;
-}
-
-
-void app::initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name) {
-
-	Character character;
-	string text;
-	vector<string> tokens;
-	vector<string> coordinates;
-
-	character.potition = { 60, 430, 16, 16 };
-
-	text = al_get_config_value(config, char_name.c_str(), "stand_right");
-	coordinates = splitString(text, " ");
-	character.stand_right = SubBitmapCreate(characters, Rect{atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) });
-
-	text = al_get_config_value(config, char_name.c_str(), "stand_left");
-	coordinates = splitString(text, " ");
-	character.stand_left = SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) });
-
-	text = al_get_config_value(config, char_name.c_str(), "walk_right");
-	tokens = splitString(text, ",");
-	for (auto token : tokens) {
-		coordinates = splitString(token, " ");
-		character.walk_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
-	}
-
-	text = al_get_config_value(config, char_name.c_str(), "walk_left");
-	tokens = splitString(text, ",");
-	for (auto token : tokens) {
-		coordinates = splitString(token, " ");
-		character.walk_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
-	}
-
-	text = al_get_config_value(config, char_name.c_str(), "jump_right");
-	tokens = splitString(text, ",");
-	for (auto token : tokens) {
-		coordinates = splitString(token, " ");
-		character.jump_right.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
-	}
-
-	text = al_get_config_value(config, char_name.c_str(), "jump_left");
-	tokens = splitString(text, ",");
-	for (auto token : tokens) {
-		coordinates = splitString(token, " ");
-		character.jump_left.push_back(SubBitmapCreate(characters, Rect{ atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), atoi(coordinates[2].c_str()), atoi(coordinates[3].c_str()) }));
-	}
-
-	prefix_character[char_name] = character;
 }

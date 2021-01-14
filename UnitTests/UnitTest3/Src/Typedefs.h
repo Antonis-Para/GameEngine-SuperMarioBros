@@ -21,3 +21,6 @@ typedef unsigned char* PixelMemory;
 
 //Sprites
 typedef int BoundingArea; //???????????
+
+//animator
+typedef uint64_t timestamp_t;

@@ -23,24 +23,6 @@ namespace app {
 
 	extern unsigned long currTime;
 
-	//struct ViewData {
-	//	Bitmap dpyBuffer = nullptr;
-	//	bool dpyChanged = true;
-	//	Dim dpyX = 0, dpyY = 0;
-	//	Rect viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
-	//	Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
-	//};
-
-	struct Character {
-		Rect potition;
-		Bitmap stand_right;
-		Bitmap stand_left;
-		vector<Bitmap> walk_right;
-		vector<Bitmap> walk_left;
-		vector<Bitmap> jump_right;
-		vector<Bitmap> jump_left;
-	};
-
 	//--------------------TYPEDEFS 2------------------------
 	typedef RGB Palette[256];
 
@@ -120,19 +102,10 @@ namespace app {
 
 	bool ReadTextMap(class TileLayer* layer, string filename);
 
-	//void TileTerrainDisplay(TileMap* map, Bitmap dest, ViewData& view);
-
 	int GetMapPixelWidth(void);
 	int GetMapPixelHeight(void);
 
-
-	void moveCharacter(Character *character, int dx, int dy);
-	void moveCharacterWithFilter(Character* character, int dx, int dy);
-
-	bool characterStaysInFrame(Character *character, int *dx, int *dy);
 	bool characterStaysInCenter(Rect pos, int* dx);
-
-	void initialize_prefix_character(ALLEGRO_CONFIG* config, string char_name);
 }
 
 //--------------------OVERLOADED OPS--------------------
