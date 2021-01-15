@@ -9,8 +9,8 @@ public:
 	using OnStopFalling = std::function<void(void)>;
 
 protected:
-	bool gravityAddicted = false;
-	bool isFalling = false;
+	bool gravityAddicted = true;
+	bool is_Falling = false;
 	OnSolidGround onSolidGround;
 	OnStartFalling onStartFalling;
 	OnStopFalling onStopFalling;
@@ -24,4 +24,5 @@ public:
 	void SetOnSolidGround(const T& f) { onSolidGround = f; }
 	void Reset(void);
 	void Check(const Rect& r);
+	bool isFalling();
 };

@@ -168,6 +168,14 @@ void progress_animations() {
 	walk->Progress(GetGameTime());
 }
 
+void physics() {
+	mario->GetGravityHandler().Check(mario->GetBox());
+	
+	if (mario->GetGravityHandler().isFalling()) {
+		mario->Move(0, GRAVITY);
+	}
+}
+
 void loadMap(string path) {
 	app::ReadTextMap(action_layer, path);
 }
@@ -256,6 +264,7 @@ void app::MainApp::Load(void) {
 	game.SetDone(done);
 	game.SetRender(render);
 	game.SetInput(input);
+	game.SetPhysics(physics);
 	game.SetProgressAnimations(progress_animations);
 
 	loadSolidTiles(config, action_layer);
@@ -273,6 +282,22 @@ void app::MainApp::Load(void) {
 		if (gridOn)
 			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
+	});
+
+	mario->GetGravityHandler().SetOnSolidGround([](const Rect& pos) {
+		int leg_pos = pos.y + pos.h - 1;
+		auto newRow = DIV_GRID_ELEMENT_HEIGHT(leg_pos + GRAVITY);
+
+		auto startCol = DIV_GRID_ELEMENT_WIDTH(pos.x);
+		auto endCol = DIV_GRID_ELEMENT_WIDTH(pos.x + pos.w - 1);
+
+		
+		for (auto col = startCol; col <= endCol; ++col) {
+			if (!CanPassGridTile(action_layer->GetGrid()->GetBuffer(), col, newRow, GRID_BOTTOM_SOLID_MASK)) {
+				return true;
+			}
+		}
+		return false;
 	});
 }
 
