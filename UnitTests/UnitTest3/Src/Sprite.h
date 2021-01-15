@@ -150,3 +150,4 @@ bool clip_rect(T x, T y, T w, T h, T wx, T wy, T ww, T wh, T* cx, T* cy, T* cw, 
 }
 
 bool clip_rect(const Rect& r, const Rect& area, Rect* result);
+void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite);

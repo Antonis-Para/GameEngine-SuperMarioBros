@@ -66,7 +66,7 @@ void MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
 	lastTime = t;
 	state = ANIMATOR_RUNNING;
 	currRep = 0;
-	//NotifyStarted();
+	NotifyStarted();
 }
 
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {

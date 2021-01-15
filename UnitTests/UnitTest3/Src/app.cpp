@@ -33,6 +33,7 @@ class BitmapLoader* bitmaploader;
 
 class Sprite* mario;
 class MovingAnimator* walk;
+class FrameRangeAnimator* jump;
 bool lasttime_movedright = true;
 bool not_moved = true;
 /*--------------------CLASSES---------------------------*/
@@ -85,7 +86,9 @@ app::Game& app::App::GetGame(void) {
 	return game;
 }
 
-const app::Game& app::App::GetGame(void) const { return game; }
+const app::Game& app::App::GetGame(void) const { 
+	return game; 
+}
 
 bool done() {
 	return !closeWindowClicked;
@@ -118,6 +121,7 @@ void input() {
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
+				//jump->Start(new FrameRangeAnimation("jump", 0, 1, 1, 0, 0, 300), GetGameTime()); //start, end, reps, dx, dy, delay
 				if (mario->GetBox().y > 0) {
 					mario->Move(0, -CHARACTER_MOVE_SPEED);
 				}
@@ -165,11 +169,13 @@ void input() {
 }
 
 void progress_animations() {
-	walk->Progress(GetGameTime());
+	AnimatorManager::GetSingleton().Progress(GetGameTime());
+	//walk->Progress(GetGameTime());
+	//jump->Progress(GetGameTime());
 }
 
 void physics() {
-	mario->GetGravityHandler().Check(mario->GetBox());
+	//mario->GetGravityHandler().Check(mario->GetBox());
 	
 	if (mario->GetGravityHandler().isFalling()) {
 		mario->Move(0, 1); //gravity move down
@@ -222,12 +228,15 @@ void app::MainApp::Initialise(void) {
 
 	//TODO delete this later we dont need it. Animation has one bitmaploader
 	bitmaploader = new BitmapLoader();
-	walk = new MovingAnimator();
 
+	walk = new MovingAnimator();
+	jump = new FrameRangeAnimator();
+
+	AnimatorManager::GetSingleton().Register(walk);
 	walk->SetOnAction([](Animator* animator, const Animation& anim) {
 		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
 	});
-
+	
 	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());
 }
 
@@ -237,6 +246,7 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$'
 		 + "Mario_small.stand_right:" + string(al_get_config_value(config, "Mario_small", "stand_right")) + '$'
 		 + "Mario_small.stand_left:" + string(al_get_config_value(config, "Mario_small", "stand_left")) + '$'
+		 + "Mario_small.jump_right:" + string(al_get_config_value(config, "Mario_small", "jump_right")) + '$'
 		;
 }
 
@@ -284,21 +294,19 @@ void app::MainApp::Load(void) {
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
 	});
 
-	mario->GetGravityHandler().SetOnSolidGround([](const Rect& pos) {
-		int leg_pos = pos.y + pos.h - 1;
-		auto newRow = DIV_GRID_ELEMENT_HEIGHT(leg_pos + 1);
+	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
-		auto startCol = DIV_GRID_ELEMENT_WIDTH(pos.x);
-		auto endCol = DIV_GRID_ELEMENT_WIDTH(pos.x + pos.w - 1);
-
-		
-		for (auto col = startCol; col <= endCol; ++col) {
-			if (!CanPassGridTile(action_layer->GetGrid()->GetBuffer(), col, newRow, GRID_BOTTOM_SOLID_MASK)) {
-				return true;
-			}
-		}
-		return false;
-	});
+	/*mario->GetGravityHandler().SetOnStartFalling([]() {
+		Rect posOnGrid{
+			pos.x + action_layer->GetViewWindow().x,
+			pos.y + action_layer->GetViewWindow().y,
+			pos.w,
+			pos.h,
+		};
+		if (gridOn)
+			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
+		mario->SetPos(pos.x + *dx, pos.y + *dy);
+	});*/
 }
 
 void app::App::Run(void) {
