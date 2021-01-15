@@ -23,7 +23,7 @@
 
 #define MAX_VIEWS 4
 #define CHARACTER_MOVE_SPEED 4
-#define GRAVITY 4
+#define GRAVITY_G 8
 
 #define GRID_ELEMENT_WIDTH 4
 #define GRID_ELEMENT_HEIGHT 4

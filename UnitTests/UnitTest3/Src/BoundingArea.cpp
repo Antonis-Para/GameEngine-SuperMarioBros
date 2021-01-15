@@ -51,17 +51,20 @@ void BoundingBox::getCenter(unsigned &cx, unsigned &cy) const {
 bool BoundingCircle::Intersects(const BoundingBox& box) const {
 	unsigned box_cx, box_cy;
 	box.getCenter(box_cx, box_cy);
-	unsigned distance = sqrt((x - box_cx) * (x - box_cx) + (y - box_cy) * (y - box_cy));
-	if (distance > (r + box.getMaxDiagonal() / 2))
+	double distance = sqrt(((double)x - box_cx) * (x - box_cx) + ((double)y - box_cy) * (y - box_cy));
+	if (distance > (r + (box.getMaxDiagonal() / 2)))
 		return false;
 	else {
 		// TODO: Lecture 7, Slide 26
+		if (distance < 0 && abs(distance) > r) {
+			return false;
+		}
 		return true;
 	}
 }
 
 bool BoundingCircle::Intersects(const BoundingCircle& circle) const {
-	return circle.Intersects(*this);
+	return sqrt(((double)(x - circle.x) * (x - circle.x)) + ((double)(y - circle.y) * (y - circle.y))) < ((double)r + circle.r);
 }
 
 bool BoundingCircle::Intersects(const BoundingPolygon& poly) const {
@@ -91,13 +94,11 @@ bool BoundingPolygon::Intersects(const BoundingPolygon& poly) const {
 }
 
 bool BoundingPolygon::Intersects(const BoundingCircle& circle) const {
-	// TODO
-	return false;
+	return circle.Intersects(*this);
 }
 
 bool BoundingPolygon::Intersects(const BoundingBox& box) const {
-	// TODO
-	return false;
+	return box.Intersects(*this);
 }
 
 bool BoundingPolygon::In(unsigned _x, unsigned _y) const {

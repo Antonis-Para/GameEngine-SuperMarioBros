@@ -172,7 +172,7 @@ void physics() {
 	mario->GetGravityHandler().Check(mario->GetBox());
 	
 	if (mario->GetGravityHandler().isFalling()) {
-		mario->Move(0, GRAVITY);
+		mario->Move(0, 1); //gravity move down
 	}
 }
 
@@ -286,7 +286,7 @@ void app::MainApp::Load(void) {
 
 	mario->GetGravityHandler().SetOnSolidGround([](const Rect& pos) {
 		int leg_pos = pos.y + pos.h - 1;
-		auto newRow = DIV_GRID_ELEMENT_HEIGHT(leg_pos + GRAVITY);
+		auto newRow = DIV_GRID_ELEMENT_HEIGHT(leg_pos + 1);
 
 		auto startCol = DIV_GRID_ELEMENT_WIDTH(pos.x);
 		auto endCol = DIV_GRID_ELEMENT_WIDTH(pos.x + pos.w - 1);
