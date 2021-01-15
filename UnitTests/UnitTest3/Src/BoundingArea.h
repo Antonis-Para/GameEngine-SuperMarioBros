@@ -30,8 +30,14 @@ public:
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
 
+	unsigned getX1() const;
+	unsigned getX2() const;
+	unsigned getY1() const;
+	unsigned getY2() const;
 	unsigned getMaxDiagonal(void) const;
 	void getCenter(unsigned&, unsigned&) const;
+	unsigned getWidth() const;
+	unsigned getHeight() const;
 };
 
 class BoundingCircle : public BoundingArea {
@@ -46,6 +52,10 @@ public:
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
+
+	unsigned getX() const;
+	unsigned getY() const;
+	unsigned getR() const;
 };
 
 class BoundingPolygon : public BoundingArea {
@@ -68,4 +78,6 @@ public:
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
+
+	Polygon getPoints() const;
 };
