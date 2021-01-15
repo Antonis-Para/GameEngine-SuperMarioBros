@@ -87,8 +87,10 @@ protected:
 	FrameRangeAnimation* anim = nullptr;
 	unsigned currFrame = 0; // animation state
 	unsigned currRep = 0; // animation state
+	//using ChangeSpeed = std::function<void(int &dx, int &dy)>;
 public:
 	FrameRangeAnimator(void) = default;
+	//template<typename Tfunc> void SetChangeSpeed(const Tfunc& f) { ChangeSpeed = f; };
 
 	void Progress(timestamp_t currTime);
 	unsigned GetCurrFrame(void) const;
@@ -96,17 +98,6 @@ public:
 	void Start(FrameRangeAnimation* a, timestamp_t t);
 };
 
-/*void FrameRange_Action(Sprite* sprite, Animator* animator, const FrameRangeAnimation& anim) {
-	auto *frameRangeAnimator = (FrameRangeAnimator*)animator;
-	if (frameRangeAnimator->GetCurrFrame() != anim.GetStartFrame() || frameRangeAnimator->GetCurrRep())
-		sprite->Move(anim.GetDx(), anim.GetDy());
-	sprite->SetFrame(frameRangeAnimator->GetCurrFrame());
-}
-
-animator->SetOnAction([sprite](Animator* animator, const Animation& anim) {
-	FrameRange_Action(sprite, animator, (constFrameRangeAnimation&)anim);
-	}
-);*/
 
 class TickAnimator: public Animator {
 protected:

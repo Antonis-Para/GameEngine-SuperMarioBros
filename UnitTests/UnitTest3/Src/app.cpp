@@ -124,7 +124,8 @@ void input() {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (jump_anim == nullptr) {
-					jump_anim = new FrameRangeAnimation("jump", 0, 20, 1, 0, -4, 30); //start, end, reps, dx, dy, delay
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+					jump_anim = new FrameRangeAnimation("jump", 0, 9, 1, 0, -4, 30); //start, end, reps, dx, dy, delay
 					jump->Start(jump_anim, GetGameTime());
 				}
 
@@ -143,7 +144,10 @@ void input() {
 				if (mario->GetBox().x > 0) {
 					mario->Move(-CHARACTER_MOVE_SPEED, 0);
 				}
-				mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left"));
+
+				if (jump_anim == nullptr) {
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left"));
+				}
 				lasttime_movedright = false;
 				not_moved = false;
 			}
@@ -157,13 +161,15 @@ void input() {
 						circular_background->Scroll(move_x);
 						mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 					}
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"));
+					if (jump_anim == nullptr) {
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"));
+					}
 					lasttime_movedright = true;
 					not_moved = false;
 				}
 			}
 
-			if (not_moved) { //im not moving
+			if (not_moved && jump_anim == nullptr) { //im not moving
 				mario->SetFrame(0);
 				if (lasttime_movedright)
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
@@ -210,6 +216,13 @@ void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->NextFrame();
 }
 
+void FrameRange_Action(Sprite* sprite, Animator* animator, const FrameRangeAnimation& anim) {
+	auto* frameRangeAnimator = (FrameRangeAnimator*)animator;
+	if (frameRangeAnimator->GetCurrFrame() != anim.GetStartFrame() || frameRangeAnimator->GetCurrRep())
+		sprite->Move(anim.GetDx(), anim.GetDy());
+	sprite->SetFrame(frameRangeAnimator->GetCurrFrame());
+}
+
 void app::MainApp::Initialise(void) {
 	SetGameTime();
 	if (!al_init()) {
@@ -244,8 +257,9 @@ void app::MainApp::Initialise(void) {
 	});
 
 	jump->SetOnAction([](Animator* animator, const Animation& anim) {
-		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+		FrameRange_Action(mario, animator, (const FrameRangeAnimation&)anim);
 	});
+
 	jump->SetOnStart([](Animator* animator) {
 		mario->GetGravityHandler().setGravityAddicted(false);
 	});
@@ -255,6 +269,7 @@ void app::MainApp::Initialise(void) {
 		jump->Stop();
 		AnimatorManager::GetSingleton().MarkAsSuspended(jump);
 		mario->GetGravityHandler().setGravityAddicted(true);
+		mario->SetFrame(0);
 	});
 	
 	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());
