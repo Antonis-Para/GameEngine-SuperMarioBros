@@ -104,6 +104,8 @@ public:
 	Me& SetStartFrame(unsigned v);
 	unsigned GetEndFrame(void) const;
 	Me& SetEndFrame(unsigned v);
+	ExtraAction GetChangeSpeed(void) const;
+	Me& SetChangeSpeed(ExtraAction action);
 	Animation* Clone(void) const override;
 
 	template<typename Tfunc> void SetChangeSpeed(const Tfunc& f) { changeSpeed = f;};

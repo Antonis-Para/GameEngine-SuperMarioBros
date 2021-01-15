@@ -227,6 +227,15 @@ FrameRangeAnimation::Me& FrameRangeAnimation::SetEndFrame(unsigned v) {
 	return *this;
 }
 
+FrameRangeAnimation::ExtraAction FrameRangeAnimation::GetChangeSpeed(void) const {
+	return changeSpeed;
+}
+
+FrameRangeAnimation::Me& FrameRangeAnimation::SetChangeSpeed(FrameRangeAnimation::ExtraAction action) {
+	changeSpeed = action;
+	return *this;
+}
+
 Animation* FrameRangeAnimation::Clone(void) const {
 	return new FrameRangeAnimation(id, start, end, GetReps(), GetDx(), GetDy(), GetDelay());
 }

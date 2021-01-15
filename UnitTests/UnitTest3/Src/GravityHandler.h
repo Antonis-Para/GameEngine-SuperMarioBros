@@ -14,6 +14,7 @@ protected:
 	OnSolidGround onSolidGround;
 	OnStartFalling onStartFalling;
 	OnStopFalling onStopFalling;
+	int fallingTimer = 0;
 
 public:
 	template<typename T>
@@ -26,4 +27,7 @@ public:
 	void Check(const Rect& r);
 	bool isFalling();
 	void setGravityAddicted(bool val);
+	int getFallingTimer(void);
+	void increaseFallingTimer(void);
+	void checkFallingDistance(int& dy, const Rect r);
 };

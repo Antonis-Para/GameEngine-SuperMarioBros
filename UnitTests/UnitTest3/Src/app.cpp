@@ -19,15 +19,18 @@ unsigned int total_tiles;
 bool closeWindowClicked = false;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
+ALLEGRO_TIMER* fallingTimer;
 bool gridOn = true;
 Bitmap characters = nullptr;
 
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
+ALLEGRO_EVENT_QUEUE* fallingQueue;
 bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
+ALLEGRO_EVENT fallingEvent;
 
 class BitmapLoader* bitmaploader;
 
@@ -139,11 +142,6 @@ void input() {
 					});
 					jump->Start(jump_anim, GetGameTime());
 				}
-
-				//AnimatorManager::GetSingleton().MarkAsSuspended(walk);
-				/*if (mario->GetBox().y > 0) {
-					mario->Move(0, -CHARACTER_MOVE_SPEED);
-				}*/
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
 				if (mario->GetBox().y + mario->GetBox().h < action_layer->GetViewWindow().h) {
@@ -197,10 +195,16 @@ void progress_animations() {
 }
 
 void physics() {
-	//mario->GetGravityHandler().Check(mario->GetBox());
-	
-	if (mario->GetGravityHandler().isFalling()) {
-		mario->Move(0, 1); //gravity move down
+	int falling_dy;
+
+	if (!al_is_event_queue_empty(fallingQueue)) {
+		al_wait_for_event(fallingQueue, &fallingEvent);
+		if (mario->GetGravityHandler().isFalling()) {
+			mario->GetGravityHandler().increaseFallingTimer();
+			falling_dy = (int)(mario->GetGravityHandler().getFallingTimer() / 4) * GRAVITY_G;
+			mario->GetGravityHandler().checkFallingDistance(falling_dy, mario->GetBox());
+			mario->Move(0, falling_dy); //gravity move down
+		}
 	}
 }
 
@@ -256,6 +260,11 @@ void app::MainApp::Initialise(void) {
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
+
+	fallingQueue = al_create_event_queue();
+	fallingTimer = al_create_timer(1.0 / 60);
+	al_register_event_source(fallingQueue, al_get_timer_event_source(fallingTimer));
+	al_start_timer(fallingTimer);
 
 	//TODO delete this later we dont need it. Animation has one bitmaploader
 	bitmaploader = new BitmapLoader();

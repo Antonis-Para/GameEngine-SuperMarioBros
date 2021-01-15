@@ -94,6 +94,17 @@ static bool pointCircle(float px, float py, const BoundingCircle& circle) {
 	return distance <= circle.getR();
 }
 
+static bool linePoint(float x1, float y1, float x2, float y2, const BoundingPolygon::Point& p) {
+	float d1 = sqrt((p.x - x1) * (p.x - x1) + (p.y - y1) * (p.y - y1));
+	float d2 = sqrt((p.x - x2) * (p.x - x2) + (p.y - y2) * (p.y - y2));
+
+	float lineLen = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+	float buffer = 0.1;
+
+	return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
+}
+
 static bool lineCircle(float x1, float y1, float x2, float y2, const BoundingCircle& circle) {
 	bool inside1 = pointCircle(x1, y1, circle);
 	bool inside2 = pointCircle(x2, y2, circle);
@@ -108,7 +119,7 @@ static bool lineCircle(float x1, float y1, float x2, float y2, const BoundingCir
 	float closestX = x1 + (dot * (x2 - x1));
 	float closestY = y1 + (dot * (y2 - y1));
 
-	bool onSegment = linePoint(x1, y1, x2, y2, { closestX, closestY });
+	bool onSegment = linePoint(x1, y1, x2, y2, { (unsigned int)closestX, (unsigned int)closestY });
 	if (!onSegment) return false;
 
 	distX = closestX - circle.getX();
@@ -116,17 +127,6 @@ static bool lineCircle(float x1, float y1, float x2, float y2, const BoundingCir
 	float distance = sqrt((distX * distX) + (distY * distY));
 
 	return distance <= circle.getR();
-}
-
-static bool linePoint(float x1, float y1, float x2, float y2, const BoundingPolygon::Point& p) {
-	float d1 = sqrt((p.x - x1) * (p.x - x1) + (p.y - y1) * (p.y - y1));
-	float d2 = sqrt((p.x - x2) * (p.x - x2) + (p.y - y2) * (p.y - y2));
-
-	float lineLen = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-
-	float buffer = 0.1;
-
-	return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
 }
 
 static bool polygonPoint(const BoundingPolygon::Polygon& points, const BoundingPolygon::Point& p) {
