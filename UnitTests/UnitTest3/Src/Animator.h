@@ -87,10 +87,8 @@ protected:
 	FrameRangeAnimation* anim = nullptr;
 	unsigned currFrame = 0; // animation state
 	unsigned currRep = 0; // animation state
-	//using ChangeSpeed = std::function<void(int &dx, int &dy)>;
 public:
 	FrameRangeAnimator(void) = default;
-	//template<typename Tfunc> void SetChangeSpeed(const Tfunc& f) { ChangeSpeed = f; };
 
 	void Progress(timestamp_t currTime);
 	unsigned GetCurrFrame(void) const;

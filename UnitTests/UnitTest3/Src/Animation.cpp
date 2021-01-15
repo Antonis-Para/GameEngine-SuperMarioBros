@@ -231,6 +231,17 @@ Animation* FrameRangeAnimation::Clone(void) const {
 	return new FrameRangeAnimation(id, start, end, GetReps(), GetDx(), GetDy(), GetDelay());
 }
 
+void FrameRangeAnimation::ChangeSpeed(int frameNo) {
+	if (changeSpeed) {
+		int new_dx, new_dy;
+		new_dx = GetDx();
+		new_dy = GetDy();
+		changeSpeed(new_dx, new_dy, frameNo);
+		SetDx(new_dx);
+		SetDy(new_dy);
+	}
+}
+
 // FrameListAnimation
 FrameListAnimation::FrameListAnimation(const std::string& _id, const Frames& _frames, unsigned r, int dx, int dy, unsigned d, bool c) :
 	frames(_frames), MovingAnimation(id, r, dx, dy, d) {}

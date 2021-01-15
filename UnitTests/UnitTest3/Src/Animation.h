@@ -93,6 +93,9 @@ public:
 class FrameRangeAnimation : public MovingAnimation {
 protected:
 	unsigned start = 0, end = 0;
+	using ExtraAction = std::function<void(int &dx, int &dy, int frameNo)>;
+
+	ExtraAction changeSpeed = nullptr;
 public:
 	FrameRangeAnimation(const std::string& _id, unsigned s, unsigned e, unsigned r, int dx, int dy, int d);
 
@@ -102,6 +105,9 @@ public:
 	unsigned GetEndFrame(void) const;
 	Me& SetEndFrame(unsigned v);
 	Animation* Clone(void) const override;
+
+	template<typename Tfunc> void SetChangeSpeed(const Tfunc& f) { changeSpeed = f;};
+	void ChangeSpeed(int frameNo);
 };
 
 class FrameListAnimation : public MovingAnimation {

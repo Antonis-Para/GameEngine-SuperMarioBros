@@ -125,7 +125,18 @@ void input() {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (jump_anim == nullptr) {
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
-					jump_anim = new FrameRangeAnimation("jump", 0, 9, 1, 0, -4, 30); //start, end, reps, dx, dy, delay
+					jump_anim = new FrameRangeAnimation("jump", 0, 9, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
+
+					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
+						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
+						if (frameNo < 3) {
+						
+						}
+						else if (frameNo < 6) {
+							dy = -8;
+						}else
+							dy = -4;
+					});
 					jump->Start(jump_anim, GetGameTime());
 				}
 
@@ -216,11 +227,13 @@ void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->NextFrame();
 }
 
-void FrameRange_Action(Sprite* sprite, Animator* animator, const FrameRangeAnimation& anim) {
+void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& anim) {
 	auto* frameRangeAnimator = (FrameRangeAnimator*)animator;
 	if (frameRangeAnimator->GetCurrFrame() != anim.GetStartFrame() || frameRangeAnimator->GetCurrRep())
 		sprite->Move(anim.GetDx(), anim.GetDy());
 	sprite->SetFrame(frameRangeAnimator->GetCurrFrame());
+
+	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
 }
 
 void app::MainApp::Initialise(void) {
@@ -257,7 +270,7 @@ void app::MainApp::Initialise(void) {
 	});
 
 	jump->SetOnAction([](Animator* animator, const Animation& anim) {
-		FrameRange_Action(mario, animator, (const FrameRangeAnimation&)anim);
+		FrameRange_Action(mario, animator, (FrameRangeAnimation&)anim);
 	});
 
 	jump->SetOnStart([](Animator* animator) {
