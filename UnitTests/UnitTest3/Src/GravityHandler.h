@@ -9,7 +9,7 @@ public:
 	using OnStopFalling = std::function<void(void)>;
 
 protected:
-	bool gravityAddicted = false;
+	bool gravityAddicted = true;
 	bool is_Falling = false;
 	OnSolidGround onSolidGround;
 	OnStartFalling onStartFalling;

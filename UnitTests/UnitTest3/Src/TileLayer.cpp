@@ -177,6 +177,8 @@ bool TileLayer::IsTileIndexAssumedEmpty(Index index) {
 	return true;
 }
 
+
+//views the map (in the csv) and adds in the Grid map if we are allowed to go through it
 void TileLayer::ComputeTileGridBlocks1() {
 
 	GridIndex* grid_start = grid->GetBuffer()[0][0];
