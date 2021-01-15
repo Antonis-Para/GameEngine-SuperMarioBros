@@ -25,4 +25,5 @@ public:
 	void Reset(void);
 	void Check(const Rect& r);
 	bool isFalling();
+	void setGravityAddicted(bool val);
 };

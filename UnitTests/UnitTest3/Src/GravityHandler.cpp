@@ -23,4 +23,9 @@ void GravityHandler::Check(const Rect& r) {
 
 bool GravityHandler::isFalling() {
 	return is_Falling;
+
+}
+
+void GravityHandler::setGravityAddicted(bool val) {
+	gravityAddicted = val;
 }

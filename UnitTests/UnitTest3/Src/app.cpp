@@ -36,6 +36,8 @@ class MovingAnimator* walk;
 class FrameRangeAnimator* jump;
 bool lasttime_movedright = true;
 bool not_moved = true;
+bool jumped = false;
+class FrameRangeAnimation *jump_anim = nullptr;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -121,10 +123,15 @@ void input() {
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				//jump->Start(new FrameRangeAnimation("jump", 0, 1, 1, 0, 0, 300), GetGameTime()); //start, end, reps, dx, dy, delay
-				if (mario->GetBox().y > 0) {
-					mario->Move(0, -CHARACTER_MOVE_SPEED);
+				if (jump_anim == nullptr) {
+					jump_anim = new FrameRangeAnimation("jump", 0, 20, 1, 0, -4, 30); //start, end, reps, dx, dy, delay
+					jump->Start(jump_anim, GetGameTime());
 				}
+
+				//AnimatorManager::GetSingleton().MarkAsSuspended(walk);
+				/*if (mario->GetBox().y > 0) {
+					mario->Move(0, -CHARACTER_MOVE_SPEED);
+				}*/
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
 				if (mario->GetBox().y + mario->GetBox().h < action_layer->GetViewWindow().h) {
@@ -170,8 +177,6 @@ void input() {
 
 void progress_animations() {
 	AnimatorManager::GetSingleton().Progress(GetGameTime());
-	//walk->Progress(GetGameTime());
-	//jump->Progress(GetGameTime());
 }
 
 void physics() {
@@ -233,8 +238,23 @@ void app::MainApp::Initialise(void) {
 	jump = new FrameRangeAnimator();
 
 	AnimatorManager::GetSingleton().Register(walk);
+	AnimatorManager::GetSingleton().Register(jump);
 	walk->SetOnAction([](Animator* animator, const Animation& anim) {
 		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+	});
+
+	jump->SetOnAction([](Animator* animator, const Animation& anim) {
+		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+	});
+	jump->SetOnStart([](Animator* animator) {
+		mario->GetGravityHandler().setGravityAddicted(false);
+	});
+	jump->SetOnFinish([](Animator* animator) {
+		delete jump_anim;
+		jump_anim = nullptr;
+		jump->Stop();
+		AnimatorManager::GetSingleton().MarkAsSuspended(jump);
+		mario->GetGravityHandler().setGravityAddicted(true);
 	});
 	
 	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());

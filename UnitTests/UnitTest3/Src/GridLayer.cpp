@@ -57,7 +57,7 @@ bool CanPassGridTile(GridMap* m, Dim col, Dim row, GridIndex flags) {
 }
 
 void GridLayer::FilterGridMotion(const Rect& r, int* dx, int* dy){
-	assert(abs(*dx) <= GRID_ELEMENT_WIDTH && abs(*dy) <= GRID_ELEMENT_HEIGHT);
+	//assert(abs(*dx) <= GRID_ELEMENT_WIDTH && abs(*dy) <= GRID_ELEMENT_HEIGHT);
 
 	// try horizontal move
 	if (*dx < 0)
@@ -80,7 +80,7 @@ void GridLayer::FilterGridMotionLeft(const Rect& r, int* dx){
 		auto newCol = DIV_GRID_ELEMENT_WIDTH(x1_next);
 		auto currCol = DIV_GRID_ELEMENT_WIDTH(r.x);
 		if (newCol != currCol) {
-			assert(newCol + 1 == currCol); // we really move left
+			assert(newCol < currCol); // we really move left
 			auto startRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
 			auto endRow = DIV_GRID_ELEMENT_HEIGHT(r.y + r.h - 1);
 			for (auto row = startRow; row <= endRow; ++row) {
@@ -102,7 +102,7 @@ void GridLayer::FilterGridMotionRight(const Rect& r, int* dx) {
 		auto newCol = DIV_GRID_ELEMENT_WIDTH(x2_next);
 		auto currCol = DIV_GRID_ELEMENT_WIDTH(x2);
 		if (newCol != currCol) {
-			assert(newCol - 1 == currCol); // we really move right
+			assert(newCol > currCol); // we really move right
 			auto startRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
 			auto endRow = DIV_GRID_ELEMENT_HEIGHT(r.y + r.h - 1);
 			for (auto row = startRow; row <= endRow; ++row)
@@ -122,7 +122,7 @@ void GridLayer::FilterGridMotionUp(const Rect& r, int* dy) {
 		auto newRow = DIV_GRID_ELEMENT_HEIGHT(y1_next);
 		auto currRow = DIV_GRID_ELEMENT_HEIGHT(r.y);
 		if (newRow != currRow) {
-			assert(newRow + 1 == currRow); // we really move up
+			assert(newRow < currRow); // we really move up
 			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
 			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
 			for (auto col = startCol; col <= endCol; ++col)
@@ -143,7 +143,7 @@ void GridLayer::FilterGridMotionDown(const Rect& r, int* dy) {
 		auto newRow = DIV_GRID_ELEMENT_HEIGHT(y2_next);
 		auto currRow = DIV_GRID_ELEMENT_HEIGHT(y2);
 		if (newRow != currRow) {
-			assert(newRow - 1 == currRow); // we really move down
+			assert(newRow > currRow); // we really move down
 			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
 			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
 			for (auto col = startCol; col <= endCol; ++col)
