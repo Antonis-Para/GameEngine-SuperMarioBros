@@ -128,17 +128,19 @@ void input() {
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
-					jump_anim = new FrameRangeAnimation("jump", 0, 9, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
+					jump_anim = new FrameRangeAnimation("jump", 0, 8, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
 
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
 						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
-						if (frameNo < 3) {
+						if (frameNo < 2) {
 
 						}
-						else if (frameNo < 6)
+						else if (frameNo < 4)
 							dy = -8;
-						else if (frameNo < 9)
+						else if (frameNo < 7)
 							dy = -4;
+						else if (frameNo < 9)
+							dy = -2;
 						/*else if (frameNo < 12)
 							dy = 4;
 						else if (frameNo < 15)
