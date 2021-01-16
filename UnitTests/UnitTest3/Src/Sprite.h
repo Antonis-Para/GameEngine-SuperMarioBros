@@ -68,6 +68,7 @@ protected:
 	char speed = 0;
 	unsigned long lastSpeedUpdate = 0;
 	int speedDelay = 150;
+	short int speedUpdatedTimes = 0;
 
 public:
 	Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId = "");

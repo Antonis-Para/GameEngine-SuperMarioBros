@@ -132,8 +132,16 @@ void input() {
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
 						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
 						int sumOfNumbers = 0;
+						char maxTiles;
+
+						if (mario->GetStateId() == RUNNING_STATE) {
+							maxTiles = 5;
+						}else {
+							maxTiles = 4;
+						}
+
 						for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
-						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * 5 * TILE_HEIGHT) / sumOfNumbers);
+						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
 					});
 					jump->Start(jump_anim, GetGameTime());
 					mario->SetStateId(JUMPING_STATE);
