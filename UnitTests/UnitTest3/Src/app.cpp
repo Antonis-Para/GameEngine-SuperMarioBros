@@ -141,10 +141,14 @@ void input() {
 						}
 
 						for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
-						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+
+						if (keys[ALLEGRO_KEY_W])
+							dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+						else
+							jump->Stop();
 					});
 					jump->Start(jump_anim, GetGameTime());
-					mario->SetStateId(JUMPING_STATE);
+					//mario->SetStateId(JUMPING_STATE);
 					if (lasttime_movedright)
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 					else
@@ -363,6 +367,7 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
 	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario_small");
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
+		int old_dx = *dx;
 		Rect posOnGrid{
 			pos.x + action_layer->GetViewWindow().x,
 			pos.y + action_layer->GetViewWindow().y,
@@ -372,8 +377,9 @@ void app::MainApp::Load(void) {
 		if (gridOn)
 			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
-		if (*dx == 0) {
-			mario->SetStateId(WALKING_STATE);
+
+		if (*dx == 0 && old_dx != 0) {
+			mario->SetStateId(IDLE_STATE);
 		}
 	});
 

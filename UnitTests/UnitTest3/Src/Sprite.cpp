@@ -271,6 +271,7 @@ void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite) {
 			r.w,
 			r.h,
 		};
+		
 		return gridLayer->IsOnSolidGround(posOnGrid, sprite->GetStateId());
 	});
 }

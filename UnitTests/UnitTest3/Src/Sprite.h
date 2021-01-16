@@ -58,7 +58,7 @@ protected:
 	unsigned zorder = 0;
 	std::string typeId;
 
-	spritestate_t stateId = WALKING_STATE;
+	spritestate_t stateId = IDLE_STATE;
 
 	Mover mover;
 	MotionQuantizer quantizer;
