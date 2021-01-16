@@ -179,15 +179,12 @@ char Sprite::GetSpeed() {
 }
 
 void Sprite::incSpeed(unsigned long time) {
-	if (speed == 0) {
-		speed = CHARACTER_MAX_SPEED/4;
+	if (time - lastSpeedUpdate >= speedDelay && speedUpdatedTimes < CHARACTER_MAX_SPEED) {
+		speed = ((speedUpdatedTimes + 1) * CHARACTER_MAX_SPEED) / CHARACTER_MAX_SPEED;
 		lastSpeedUpdate = time;
+		speedUpdatedTimes++;
 	}
-	else if (speed == CHARACTER_MAX_SPEED / 4 && time - lastSpeedUpdate >= speedDelay/2) {
-		speed = CHARACTER_MAX_SPEED / 2;
-		lastSpeedUpdate = time;
-	}
-	else if (time - lastSpeedUpdate >= speedDelay) {
+	else if (speedUpdatedTimes == CHARACTER_MAX_SPEED) {
 		speed = CHARACTER_MAX_SPEED;
 		SetStateId(RUNNING_STATE);
 	}
@@ -195,6 +192,7 @@ void Sprite::incSpeed(unsigned long time) {
 
 void Sprite::resetSpeed() {
 	speed = 0;
+	speedUpdatedTimes = 0;
 }
 
 void Sprite::SetLastSpeedUpdate(unsigned long time) {
