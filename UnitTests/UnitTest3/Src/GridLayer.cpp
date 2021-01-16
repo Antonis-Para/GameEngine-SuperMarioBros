@@ -15,9 +15,15 @@ void GridLayer::Allocate(void) {
 	memset(grid, GRID_EMPTY_TILE, GRID_MAX_HEIGHT * GRID_MAX_WIDTH);
 }
 
-bool GridLayer::IsOnSolidGround(const Rect& r) { // will need later for gravity
+bool GridLayer::IsOnSolidGround(const Rect& r, spritestate_t state) { // will need later for gravity
 	int dy = 1; // down 1 pixel
-	FilterGridMotionDown(r, &dy);
+	if (state == RUNNING_STATE)
+		FilterGridMotionDown(Rect{r.x + 1, r.y, r.w + 2, r.h}, &dy); //if running, then if i can stand a pixle left or right dont fall
+	else
+		FilterGridMotionDown(r, &dy);
+
+
+
 	return dy == 0; // if true IS attached to solid ground
 }
 

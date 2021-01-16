@@ -239,14 +239,14 @@ const Clipper MakeTileLayerClipper(TileLayer* layer) {
 
 extern class TileLayer* action_layer;
 void PrepareSpriteGravityHandler(GridLayer* gridLayer, Sprite* sprite) {
-	sprite->GetGravityHandler().SetOnSolidGround([gridLayer](const Rect& r) {
+	sprite->GetGravityHandler().SetOnSolidGround([gridLayer, sprite](const Rect& r) {
 		Rect posOnGrid{
 			r.x + action_layer->GetViewWindow().x,
 			r.y + action_layer->GetViewWindow().y,
 			r.w,
 			r.h,
 		};
-		return gridLayer->IsOnSolidGround(posOnGrid);
+		return gridLayer->IsOnSolidGround(posOnGrid, sprite->GetStateId());
 	});
 }
 

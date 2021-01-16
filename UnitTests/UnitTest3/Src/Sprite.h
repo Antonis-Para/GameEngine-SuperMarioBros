@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "GravityHandler.h"
+#include "States.h"
 #include <list>
 
 class MotionQuantizer {
@@ -44,10 +45,6 @@ public:
 		
 };
 
-enum spritestate_t {
-	SPRITE_STILL = 0, SPRITE_WALKKING = 1, SPRITE_RUNNING = 2
-};
-
 class Sprite {
 public:
 	using Mover = std::function<void(const Rect&, int* dx, int* dy)>;
@@ -61,7 +58,7 @@ protected:
 	unsigned zorder = 0;
 	std::string typeId;
 
-	spritestate_t stateId = SPRITE_STILL;
+	spritestate_t stateId = WALKING_STATE;
 
 	Mover mover;
 	MotionQuantizer quantizer;

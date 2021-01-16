@@ -2,6 +2,7 @@
 #include "Defines.h"
 #include "Typedefs.h"
 #include "Shapes.h"
+#include "States.h"
 
 
 struct RGB {
@@ -26,7 +27,7 @@ private:
 public:
 	GridLayer();
 	void FilterGridMotion(const Rect& r, int* dx, int* dy);
-	bool IsOnSolidGround(const Rect& r);
+	bool IsOnSolidGround(const Rect& r, spritestate_t state);
 	GridMap* GetBuffer(void);
 	const GridMap* GetBuffer(void) const;
 	//GridLayer(unsigned rows, unsigned cols);
