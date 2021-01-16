@@ -127,7 +127,6 @@ void input() {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 					jump_anim = new FrameRangeAnimation("jump", 0, 8, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
 
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
@@ -137,6 +136,10 @@ void input() {
 						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * 5 * TILE_HEIGHT) / sumOfNumbers);
 					});
 					jump->Start(jump_anim, GetGameTime());
+					if (lasttime_movedright)
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+					else
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 				}
 			}
 			if (keys[ALLEGRO_KEY_S] || keys[ALLEGRO_KEY_DOWN]) {
@@ -303,6 +306,7 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		 + "Mario_small.stand_right:" + string(al_get_config_value(config, "Mario_small", "stand_right")) + '$'
 		 + "Mario_small.stand_left:" + string(al_get_config_value(config, "Mario_small", "stand_left")) + '$'
 		 + "Mario_small.jump_right:" + string(al_get_config_value(config, "Mario_small", "jump_right")) + '$'
+		 + "Mario_small.jump_left:" + string(al_get_config_value(config, "Mario_small", "jump_left")) + '$'
 		;
 }
 
