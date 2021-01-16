@@ -364,6 +364,9 @@ void app::MainApp::Load(void) {
 		if (gridOn)
 			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
+		if (*dx == 0) {
+			mario->SetStateId(WALKING_STATE);
+		}
 	});
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
