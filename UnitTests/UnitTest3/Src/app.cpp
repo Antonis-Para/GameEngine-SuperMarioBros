@@ -132,21 +132,9 @@ void input() {
 
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
 						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
-						if (frameNo < 2) {
-
-						}
-						else if (frameNo < 4)
-							dy = -8;
-						else if (frameNo < 7)
-							dy = -4;
-						else if (frameNo < 9)
-							dy = -2;
-						/*else if (frameNo < 12)
-							dy = 4;
-						else if (frameNo < 15)
-							dy = 8;
-						else
-							dy = 16;*/
+						int sumOfNumbers = 0;
+						for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
+						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * 5 * TILE_HEIGHT) / sumOfNumbers);
 					});
 					jump->Start(jump_anim, GetGameTime());
 				}

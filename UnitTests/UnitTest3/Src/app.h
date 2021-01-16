@@ -7,6 +7,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <math.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
