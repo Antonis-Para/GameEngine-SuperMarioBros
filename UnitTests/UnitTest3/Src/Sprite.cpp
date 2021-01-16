@@ -174,6 +174,33 @@ bool Sprite::GetHasDirectMotion(void) const {
 	return directMotion;
 }
 
+char Sprite::GetSpeed() {
+	return speed;
+}
+
+void Sprite::incSpeed(unsigned long time) {
+	if (speed == 0) {
+		speed = CHARACTER_MAX_SPEED/4;
+		lastSpeedUpdate = time;
+	}
+	else if (speed == CHARACTER_MAX_SPEED / 4 && time - lastSpeedUpdate >= speedDelay/2) {
+		speed = CHARACTER_MAX_SPEED / 2;
+		lastSpeedUpdate = time;
+	}
+	else if (time - lastSpeedUpdate >= speedDelay) {
+		speed = CHARACTER_MAX_SPEED;
+		SetStateId(RUNNING_STATE);
+	}
+}
+
+void Sprite::resetSpeed() {
+	speed = 0;
+}
+
+void Sprite::SetLastSpeedUpdate(unsigned long time) {
+	lastSpeedUpdate = time;
+}
+
 // CollisionChecker
 /*CollisionChecker CollisionChecker::singleton;
 

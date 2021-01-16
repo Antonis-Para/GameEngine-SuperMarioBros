@@ -65,6 +65,10 @@ protected:
 
 	bool directMotion = false;
 	GravityHandler gravity;
+	char speed = 0;
+	unsigned long lastSpeedUpdate = 0;
+	int speedDelay = 150;
+
 public:
 	Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId = "");
 
@@ -76,7 +80,7 @@ public:
 	void SetZorder(unsigned z);
 	unsigned GetZorder(void);
 	const AnimationFilm* GetCurrFilm();
-	void SetCurrFilm(const AnimationFilm* newFilm);  //savidis doesn't do this
+	void SetCurrFilm(const AnimationFilm* newFilm);  //slides doesn't do this
 	void NextFrame();
 	void SetFrame(unsigned char i);
 	unsigned char GetFrame(void) const;
@@ -96,6 +100,11 @@ public:
 	GravityHandler& GetGravityHandler(void);
 	void SetHasDirectMotion(bool v);
 	bool GetHasDirectMotion(void) const;
+
+	char GetSpeed();
+	void incSpeed(unsigned long time);
+	void resetSpeed();
+	void SetLastSpeedUpdate(unsigned long time);
 };
 
 template<typename Tfunc>

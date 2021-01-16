@@ -136,6 +136,7 @@ void input() {
 						dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * 5 * TILE_HEIGHT) / sumOfNumbers);
 					});
 					jump->Start(jump_anim, GetGameTime());
+					mario->SetStateId(JUMPING_STATE);
 					if (lasttime_movedright)
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 					else
@@ -149,8 +150,13 @@ void input() {
 			}
 
 			if (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT]) {
+				if (lasttime_movedright) 
+					mario->resetSpeed();
+				else
+					mario->incSpeed(GetGameTime());
+
 				if (mario->GetBox().x > 0) {
-					mario->Move(-CHARACTER_MOVE_SPEED, 0);
+					mario->Move(-mario->GetSpeed(), 0);
 				}
 
 				if (jump_anim == nullptr) {
@@ -161,8 +167,12 @@ void input() {
 			}
 			if (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT]) {
 				if (mario->GetBox().x + mario->GetBox().w < action_layer->GetViewWindow().w) {
-					mario->Move(CHARACTER_MOVE_SPEED, 0);
-					int move_x = CHARACTER_MOVE_SPEED;
+					if (lasttime_movedright)
+						mario->incSpeed(GetGameTime());
+					else
+						mario->resetSpeed();
+					mario->Move(mario->GetSpeed(), 0);
+					int move_x = mario->GetSpeed();
 					int move_y = 0;
 					if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
 						action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
@@ -179,6 +189,8 @@ void input() {
 
 			if (not_moved && jump_anim == nullptr) { //im not moving
 				mario->SetFrame(0);
+				mario->SetStateId(WALKING_STATE);
+				mario->resetSpeed();
 				if (lasttime_movedright)
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
 				else
