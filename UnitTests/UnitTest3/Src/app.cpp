@@ -127,7 +127,7 @@ void input() {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 				if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
-					jump_anim = new FrameRangeAnimation("jump", 0, 8, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
+					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
 						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
