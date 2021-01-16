@@ -45,7 +45,7 @@ public:
 };
 
 enum spritestate_t {
-	SPRITE_WALKKING = 0, SPRITE_RUNNING = 1
+	SPRITE_STILL = 0, SPRITE_WALKKING = 1, SPRITE_RUNNING = 2
 };
 
 class Sprite {
@@ -61,7 +61,7 @@ protected:
 	unsigned zorder = 0;
 	std::string typeId;
 
-	spritestate_t stateId = SPRITE_WALKKING;
+	spritestate_t stateId = SPRITE_STILL;
 
 	Mover mover;
 	MotionQuantizer quantizer;
