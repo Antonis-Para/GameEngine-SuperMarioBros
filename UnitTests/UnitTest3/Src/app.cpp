@@ -126,19 +126,25 @@ void input() {
 		if (event.type == ALLEGRO_EVENT_TIMER) {
 			not_moved = true;
 			if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-				if (jump_anim == nullptr) {
+				if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 					jump_anim = new FrameRangeAnimation("jump", 0, 9, 1, 0, -16, 30); //start, end, reps, dx, dy, delay
 
 					jump_anim->SetChangeSpeed([](int &dx, int &dy, int frameNo) {
 						//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
 						if (frameNo < 3) {
-						
+
 						}
-						else if (frameNo < 6) {
+						else if (frameNo < 6)
 							dy = -8;
-						}else
+						else if (frameNo < 9)
 							dy = -4;
+						/*else if (frameNo < 12)
+							dy = 4;
+						else if (frameNo < 15)
+							dy = 8;
+						else
+							dy = 16;*/
 					});
 					jump->Start(jump_anim, GetGameTime());
 				}
@@ -233,8 +239,10 @@ void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 
 void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& anim) {
 	auto* frameRangeAnimator = (FrameRangeAnimator*)animator;
+	sprite->GetBox();
 	if (frameRangeAnimator->GetCurrFrame() != anim.GetStartFrame() || frameRangeAnimator->GetCurrRep())
 		sprite->Move(anim.GetDx(), anim.GetDy());
+
 	sprite->SetFrame(frameRangeAnimator->GetCurrFrame());
 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
@@ -291,6 +299,7 @@ void app::MainApp::Initialise(void) {
 		jump->Stop();
 		AnimatorManager::GetSingleton().MarkAsSuspended(jump);
 		mario->GetGravityHandler().setGravityAddicted(true);
+		mario->GetGravityHandler().Check(mario->GetBox());
 		mario->SetFrame(0);
 	});
 	
@@ -352,18 +361,6 @@ void app::MainApp::Load(void) {
 	});
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
-
-	/*mario->GetGravityHandler().SetOnStartFalling([]() {
-		Rect posOnGrid{
-			pos.x + action_layer->GetViewWindow().x,
-			pos.y + action_layer->GetViewWindow().y,
-			pos.w,
-			pos.h,
-		};
-		if (gridOn)
-			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
-		mario->SetPos(pos.x + *dx, pos.y + *dy);
-	});*/
 }
 
 void app::App::Run(void) {

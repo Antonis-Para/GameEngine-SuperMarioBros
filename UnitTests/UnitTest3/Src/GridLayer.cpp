@@ -125,11 +125,15 @@ void GridLayer::FilterGridMotionUp(const Rect& r, int* dy) {
 			assert(newRow < currRow); // we really move up
 			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
 			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
-			for (auto col = startCol; col <= endCol; ++col)
-				if (!CanPassGridTile(&grid, col, newRow, GRID_TOP_SOLID_MASK)) {
-					*dy = MUL_GRID_ELEMENT_WIDTH(currRow) - r.y;
-					break;
+			for (auto col = startCol; col <= endCol; ++col) {
+				for (auto row = currRow; row >= newRow; --row) {
+					if (!CanPassGridTile(&grid, col, row, GRID_TOP_SOLID_MASK)) {
+						*dy = MUL_GRID_ELEMENT_WIDTH(currRow) - r.y;
+						break;
+					}
 				}
+				
+			}
 		}
 	}
 }
@@ -147,9 +151,11 @@ void GridLayer::FilterGridMotionDown(const Rect& r, int* dy) {
 			auto startCol = DIV_GRID_ELEMENT_WIDTH(r.x);
 			auto endCol = DIV_GRID_ELEMENT_WIDTH(r.x + r.w - 1);
 			for (auto col = startCol; col <= endCol; ++col)
-				if (!CanPassGridTile(&grid, col, newRow, GRID_BOTTOM_SOLID_MASK)) {
-					*dy = MUL_GRID_ELEMENT_HEIGHT(newRow) - (y2 + 1);
-					break;
+				for (auto row = currRow; row <= newRow; ++row) {
+					if (!CanPassGridTile(&grid, col, row, GRID_BOTTOM_SOLID_MASK)) {
+						*dy = MUL_GRID_ELEMENT_HEIGHT(row) - (y2 + 1);
+						break;
+					}
 				}
 		}
 	}
