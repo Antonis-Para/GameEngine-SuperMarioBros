@@ -131,6 +131,14 @@ auto Sprite::GetTypeId(void) -> const std::string& {
 	return typeId;
 }
 
+spritestate_t Sprite::GetStateId(void){
+	return stateId;
+}
+
+void Sprite::SetStateId(spritestate_t id){
+	stateId = id;
+}
+
 void Sprite::SetVisibility(bool v) {
 	isVisible = v;
 }

@@ -44,6 +44,10 @@ public:
 		
 };
 
+enum spritestate_t {
+	SPRITE_WALKKING = 0, SPRITE_RUNNING = 1
+};
+
 class Sprite {
 public:
 	using Mover = std::function<void(const Rect&, int* dx, int* dy)>;
@@ -55,7 +59,10 @@ protected:
 	const AnimationFilm* currFilm = nullptr;
 	BoundingArea* boundingArea = nullptr;
 	unsigned zorder = 0;
-	std::string typeId, stateId;
+	std::string typeId;
+
+	spritestate_t stateId = SPRITE_WALKKING;
+
 	Mover mover;
 	MotionQuantizer quantizer;
 
@@ -79,7 +86,11 @@ public:
 	void SetBoundingArea(const BoundingArea& area);
 	void SetBoundingArea(BoundingArea* area);
 	auto GetBoundingArea(void) const -> const BoundingArea*;
+	
 	auto GetTypeId(void) -> const std::string&;
+	spritestate_t GetStateId(void);
+	void SetStateId(spritestate_t);
+
 	void SetVisibility(bool v);
 	bool IsVisible(void) const;
 	bool CollisionCheck(const Sprite* s) const;
