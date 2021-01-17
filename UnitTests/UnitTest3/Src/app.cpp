@@ -34,7 +34,7 @@ ALLEGRO_EVENT fallingEvent;
 
 class BitmapLoader* bitmaploader;
 
-class Sprite* mario;
+class Sprite* mario; //replace mario with SpriteManager::GetSingleton().GetTypeList("mario").front()
 class MovingAnimator* walk;
 class FrameRangeAnimator* jump;
 bool lasttime_movedright = true;
@@ -103,7 +103,9 @@ void render() {
 	circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
-	mario->GetCurrFilm()->DisplayFrame(BitmapGetScreen(), Point{ mario->GetBox().x, mario->GetBox().y }, mario->GetFrame());
+	for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
+		sprite->GetCurrFilm()->DisplayFrame(BitmapGetScreen(), Point{ sprite->GetBox().x, sprite->GetBox().y }, sprite->GetFrame());
+	}
 	al_flip_display();
 }
 
@@ -365,7 +367,8 @@ void app::MainApp::Load(void) {
 	action_layer->ComputeTileGridBlocks1();
 
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
-	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario_small");
+	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
+	SpriteManager::GetSingleton().Add(mario);
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
 		int old_dx = *dx;
 		Rect posOnGrid{

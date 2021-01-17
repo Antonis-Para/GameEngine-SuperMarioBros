@@ -234,7 +234,9 @@ SpriteManager SpriteManager::singleton;
 
 void SpriteManager::Add(Sprite* s) {
 	dpyList.push_back(s);
-	dpyList.sort([](Sprite* s1, Sprite* s2) -> bool { return s1->GetFrame() < s2->GetFrame(); });
+	dpyList.sort([](Sprite* s1, Sprite* s2) -> bool { return s1->GetZorder() < s2->GetZorder(); });
+	
+	types[s->GetTypeId()].push_back(s);
 }
 
 void SpriteManager::Remove(Sprite* s) {
