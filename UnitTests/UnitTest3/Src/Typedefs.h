@@ -20,7 +20,7 @@ typedef GridIndex GridMap[GRID_MAX_HEIGHT][GRID_MAX_WIDTH];
 typedef unsigned char* PixelMemory;
 
 //Sprites
-typedef int BoundingArea; //???????????
+//typedef int BoundingArea; //???????????
 
 //animator
 typedef uint64_t timestamp_t;

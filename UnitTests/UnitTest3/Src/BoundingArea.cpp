@@ -1,5 +1,5 @@
 #include "BoundingArea.h"
-#include <vector>
+#include "app.h"
 
 // BoundingBox
 bool BoundingBox::Intersects(const BoundingBox &box) const {
@@ -37,6 +37,13 @@ bool BoundingBox::Intersects(const BoundingArea &area) const {
 
 BoundingArea* BoundingBox::Clone(void) const {
 	return new BoundingBox(x1, y1, x2, y2);
+}
+
+void BoundingBox::move(int& dx, int& dy){
+	x1 += dx;
+	x2 += dx;
+	y1 += dy;
+	y2 += dy;
 }
 
 unsigned BoundingBox::getX1() const {
@@ -184,6 +191,11 @@ BoundingArea* BoundingCircle::Clone(void) const {
 	return new BoundingCircle(x, y, r);
 }
 
+void BoundingCircle::move(int& dx, int& dy) {
+	x += dx;
+	y += dy;
+}
+
 unsigned BoundingCircle::getX() const {
 	return x;
 }
@@ -239,6 +251,13 @@ bool BoundingPolygon::Intersects(const BoundingArea& area) const {
 
 BoundingArea* BoundingPolygon::Clone(void) const {
 	return new BoundingPolygon(points);
+}
+
+void BoundingPolygon::move(int& dx, int& dy) {
+	for (auto onePoint : points) {
+		onePoint.x += dx;
+		onePoint.y += dy;
+	}
 }
 
 BoundingPolygon::Polygon BoundingPolygon::getPoints() const {

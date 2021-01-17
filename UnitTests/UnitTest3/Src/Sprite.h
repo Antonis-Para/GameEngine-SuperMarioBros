@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "GravityHandler.h"
 #include "States.h"
+#include "BoundingArea.h"
 #include <list>
 
 class MotionQuantizer {
@@ -87,7 +88,7 @@ public:
 	unsigned char GetFrame(void) const;
 	void SetBoundingArea(const BoundingArea& area);
 	void SetBoundingArea(BoundingArea* area);
-	auto GetBoundingArea(void) const -> const BoundingArea*;
+	const BoundingArea* GetBoundingArea(void);
 	
 	auto GetTypeId(void) -> const std::string&;
 	spritestate_t GetStateId(void);
@@ -95,7 +96,7 @@ public:
 
 	void SetVisibility(bool v);
 	bool IsVisible(void) const;
-	bool CollisionCheck(const Sprite* s) const;
+	bool CollisionCheck(Sprite* s) const;
 	void Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const;
 
 	GravityHandler& GetGravityHandler(void);
@@ -113,23 +114,23 @@ void Sprite::SetMover(const Tfunc& f) {
 	quantizer.SetMover(f);
 }
 
-/*class CollisionChecker final{
-public:
-	using Action = std::function<void(Sprite* s1, Sprite* s2)>;
-	static CollisionChecker singleton;
+class CollisionChecker final{
+	public:
+		using Action = std::function<void(Sprite* s1, Sprite* s2)>;
+		static CollisionChecker singleton;
 	
-protected:
-	using Entry = std::tuple<Sprite*, Sprite*, Action>;
-	std::list<Entry> entries;
+	protected:
+		using Entry = std::tuple<Sprite*, Sprite*, Action>;
+		std::list<Entry> entries;
 	
-public:
-	template<typename T>
-	void Register(Sprite* s1, Sprite* s2, const T& f);
-	void Cancel(Sprite* s1, Sprite* s2);
-	void Check(void) const;
-	static auto GetSingleton(void)->CollisionChecker&;
-	static auto GetSingletonConst(void) -> const CollisionChecker&;
-};*/
+	public:
+		template<typename T>
+		void Register(Sprite* s1, Sprite* s2, const T& f);
+		void Cancel(Sprite* s1, Sprite* s2);
+		void Check(void) const;
+		static auto GetSingleton(void)->CollisionChecker&;
+		static auto GetSingletonConst(void) -> const CollisionChecker&;
+};
 
 class SpriteManager final {
 	public:

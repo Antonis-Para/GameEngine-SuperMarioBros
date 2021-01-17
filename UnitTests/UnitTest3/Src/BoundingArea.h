@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 class BoundingBox;
 class BoundingCircle;
@@ -14,12 +15,13 @@ public:
 	virtual bool In(unsigned, unsigned) const = 0;
 	virtual bool Intersects(const BoundingArea&) const = 0;
 	virtual BoundingArea* Clone(void) const = 0;
+	virtual void move(int& dx, int& dy) = 0;
 	~BoundingArea() {}
 };
 
 class BoundingBox: public BoundingArea {
 private:
-	unsigned x1, y1, x2, y2;
+	int x1, y1, x2, y2;
 public:
 	BoundingBox(unsigned, unsigned, unsigned, unsigned);
 
@@ -29,6 +31,7 @@ public:
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
+	virtual void move(int& dx, int& dy);
 
 	unsigned getX1() const;
 	unsigned getX2() const;
@@ -52,6 +55,7 @@ public:
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
+	virtual void move(int& dx, int& dy);
 
 	unsigned getX() const;
 	unsigned getY() const;
@@ -78,6 +82,7 @@ public:
 	virtual bool In(unsigned, unsigned) const;
 	virtual bool Intersects(const BoundingArea&) const;
 	virtual BoundingArea* Clone(void) const;
+	virtual void move(int& dx, int& dy);
 
 	Polygon getPoints() const;
 };

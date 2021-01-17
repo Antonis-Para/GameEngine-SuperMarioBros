@@ -7,12 +7,6 @@ MotionQuantizer& MotionQuantizer::SetRange(int h, int v) {
 	return *this;
 }
 
-//template<typename Tfunc>
-//MotionQuantizer& MotionQuantizer::SetMover(const Tfunc& f) {
-//	mover = f;
-//	return *this;
-//}
-
 void MotionQuantizer::Move(const Rect& r, int* dx, int* dy) {
 	if (!used)
 		mover(r, dx, dy);
@@ -73,6 +67,8 @@ Sprite& Sprite::Move(int dx, int dy) {
 		quantizer.Move(GetBox(), &dx, &dy);
 		gravity.Check(GetBox());
 	}
+	if(boundingArea)
+		boundingArea->move(dx, dy);
 	return *this;
 }
 
@@ -115,7 +111,7 @@ unsigned char Sprite::GetFrame(void) const {
 
 void Sprite::SetBoundingArea(const BoundingArea& area) {
 	assert(!boundingArea);
-	//boundingArea = area.Clone();
+	boundingArea = area.Clone();
 }
 
 void Sprite::SetBoundingArea(BoundingArea* area) {
@@ -123,7 +119,7 @@ void Sprite::SetBoundingArea(BoundingArea* area) {
 	boundingArea = area;
 }
 
-auto Sprite::GetBoundingArea(void) const -> const BoundingArea* {
+const BoundingArea* Sprite::GetBoundingArea(void) {
 	return boundingArea;
 }
 
@@ -199,8 +195,12 @@ void Sprite::SetLastSpeedUpdate(unsigned long time) {
 	lastSpeedUpdate = time;
 }
 
+bool Sprite::CollisionCheck(Sprite* s) const {
+	return boundingArea->Intersects(*s->GetBoundingArea());
+}
+
 // CollisionChecker
-/*CollisionChecker CollisionChecker::singleton;
+CollisionChecker CollisionChecker::singleton;
 
 template<typename T>
 void CollisionChecker::Register(Sprite* s1, Sprite* s2, const T& f) {
@@ -227,7 +227,6 @@ auto CollisionChecker::GetSingleton(void) -> CollisionChecker& {
 auto CollisionChecker::GetSingletonConst(void) -> const CollisionChecker& {
 	return singleton;
 }
-*/
 
 // SpriteManager
 SpriteManager SpriteManager::singleton;
