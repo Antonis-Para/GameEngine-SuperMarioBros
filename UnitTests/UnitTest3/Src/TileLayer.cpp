@@ -275,11 +275,16 @@ void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int wi
 
 void CircularBackground::Scroll(int dx) {
 	viewWin.x += dx;
-	if (viewWin.x < 0)
-		viewWin.x = BitmapGetWidth(bg) + viewWin.x;
+	if (viewWin.x < 0) {
+		while (viewWin.x < 0)
+			viewWin.x = BitmapGetWidth(bg) + viewWin.x;
+	}
 	else
-		if (viewWin.x >= BitmapGetWidth(bg))
-			viewWin.x = viewWin.x - BitmapGetWidth(bg);
+		if (viewWin.x >= BitmapGetWidth(bg)) {
+			while(viewWin.x >= BitmapGetWidth(bg))
+				viewWin.x = viewWin.x - BitmapGetWidth(bg);
+		}
+			
 }
 
 
@@ -292,6 +297,3 @@ void CircularBackground::Display(Bitmap dest, int x, int y) const {
 		BitmapBlit(bg, { 0, viewWin.y, w2, viewWin.h }, dest, { x + w1, y });
 	}
 }
-
-
-

@@ -262,9 +262,9 @@ void InitialiseGame(Game& game) {
 								circular_background->Scroll(move_x);
 								auto sprites = SpriteManager::GetSingleton().GetTypeList("pipe");
 								for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
-									sprite->Move(-mario->GetSpeed(), 0);
-									if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
-										SpriteManager::GetSingleton().Remove(sprite);
+									sprite->Move(-move_x, 0);
+									//if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
+									//	SpriteManager::GetSingleton().Remove(sprite);
 								}
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
@@ -318,6 +318,20 @@ void InitialiseGame(Game& game) {
 			AnimatorManager::GetSingleton().Progress(GetGameTime());
 		}
 	);
+}
+
+void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mario_y) {
+	Sprite* mario = SpriteManager::GetSingleton().GetTypeList("mario").front();
+	//mario->Move(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);
+	mario->UnconditionalMove(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);
+
+	auto sprites = SpriteManager::GetSingleton().GetTypeList("pipe");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+	}
+
+	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
+	action_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, action_layer->GetViewWindow().w, action_layer->GetViewWindow().h });
 }
 
 void app::MainApp::Initialise(void) {
@@ -404,57 +418,61 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 	vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
 	int x = atoi(coordinates[0].c_str());
 	int y = atoi(coordinates[1].c_str());
-	int teleport_x = atoi(coordinates[2].c_str());
-	int teleport_y = atoi(coordinates[3].c_str());
+	int new_screen_x = atoi(coordinates[2].c_str());
+	int new_screen_y = atoi(coordinates[3].c_str());
+	int new_mario_x = atoi(coordinates[4].c_str());
+	int new_mario_y = atoi(coordinates[5].c_str());
+
 
 	Sprite* tmp = nullptr;
 	switch (pipes.at(0)) {
 	case 'u':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [teleport_x, teleport_y](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
 			if (!(s2_y2 < s1_y1) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
-				cout << "TOUCH\n";
-				s1->Move(-100, -100);
-				//s1->SetPos(teleport_x, teleport_y);
+				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
 			}
 		});
 		break;
 	case 'd':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.down"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 
 			if (!(s1_y2 < s2_y1) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
+				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
 				cout << "TOUCH\n";
 			}
 		});
 		break;
 	case 'l':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 
 			if (!(s2_x2 < s1_x1) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
+				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
 				cout << "TOUCH\n";
 			}
 		});
 		break;
 	case 'r':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 
 			if (!(s1_y1 < s2_y2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
+				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
 				cout << "TOUCH\n";
 			}
 		});
