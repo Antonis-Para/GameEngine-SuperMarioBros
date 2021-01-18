@@ -36,8 +36,13 @@ namespace app {
 			Action render, anim, input, ai, physics, destruct, collisions, user;
 			Pred done;
 
+			Action pauseResume;
+			bool isPaused = false;
+			uint64_t pauseTime = 0;
+
 			void Invoke(const Action& f);
 		public:
+			void SetOnPauseResume(const Action& f) { pauseResume = f; }
 			template <typename Tfunc> void SetDone(const Tfunc& f) { done = f; }
 			template <typename Tfunc> void SetRender(const Tfunc& f) { render = f; }
 			template <typename Tfunc> void SetInput(const Tfunc& f) { input = f; }
@@ -56,6 +61,12 @@ namespace app {
 			bool IsFinished(void) const;
 			void MainLoop(void);
 			void MainLoopIteration(void);
+
+			void Pause(uint64_t t);
+			void Resume(void);
+			bool IsPaused(void) const;
+			uint64_t GetPauseTime(void) const;
+
 	};
 
 

@@ -193,3 +193,8 @@ auto AnimatorManager::GetSingleton(void) -> AnimatorManager& {
 auto AnimatorManager::GetSingletonConst(void) -> const AnimatorManager& {
 	return singleton;
 }
+
+void AnimatorManager::TimeShift(unsigned dt) {
+	for (auto* a : running)
+		a->TimeShift(dt);
+}

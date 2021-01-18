@@ -53,7 +53,7 @@ protected:
 	unsigned char frameNo = 0;
 	Rect frameBox;
 	int x = 0, y = 0;
-	bool isVisible = false;
+	bool isVisible = true;
 	const AnimationFilm* currFilm = nullptr;
 	BoundingArea* boundingArea = nullptr;
 	unsigned zorder = 0;
@@ -97,7 +97,7 @@ public:
 	void SetVisibility(bool v);
 	bool IsVisible(void) const;
 	bool CollisionCheck(Sprite* s) const;
-	void Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const;
+	void Display(Bitmap dest);
 
 	GravityHandler& GetGravityHandler(void);
 	void SetHasDirectMotion(bool v);
