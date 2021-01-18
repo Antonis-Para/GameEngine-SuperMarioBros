@@ -416,6 +416,7 @@ void app::MainApp::Load(void) {
 	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
 
+	//create all pipe sprites
 	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
 		vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
 		int x = atoi(coordinates[0].c_str());
@@ -439,6 +440,7 @@ void app::MainApp::Load(void) {
 		assert(tmp);
 		tmp->SetHasDirectMotion(true);
 		tmp->SetZorder(1);
+		tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
 		SpriteManager::GetSingleton().Add(tmp);
 	}
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
