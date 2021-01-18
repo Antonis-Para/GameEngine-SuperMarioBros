@@ -240,6 +240,8 @@ void SpriteManager::Add(Sprite* s) {
 
 void SpriteManager::Remove(Sprite* s) {
 	dpyList.remove(s);
+	types[s->GetTypeId()].remove(s);
+	delete s;
 }
 
 auto SpriteManager::GetDisplayList(void) -> const SpriteList& {
