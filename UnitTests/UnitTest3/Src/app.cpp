@@ -72,8 +72,8 @@ unsigned long GetGameTime() {
 void app::Game::MainLoopIteration(void) {
 	SetGameTime();
 	Render();
-	if (!IsPaused()){
-		Input();
+	Input();
+	if (!IsPaused()) {
 		ProgressAnimations();
 		AI();
 		Physics();
@@ -100,10 +100,12 @@ const app::Game& app::App::GetGame(void) const {
 void InstallPauseResumeHandler(Game& game) {
 	game.SetOnPauseResume(
 		[&game](void) {
-			if (!game.IsPaused()) // just resumed
+			if (!game.IsPaused()) { // just resumed
 				AnimatorManager::GetSingleton().TimeShift(
 					GetGameTime() - game.GetPauseTime()
 				);
+				al_flush_event_queue(fallingQueue);
+			}
 		}
 	);
 }
@@ -173,10 +175,12 @@ void InitialiseGame(Game& game) {
 					gridOn = !gridOn;
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_P) {
+					cout << game.IsPaused() << endl;
 					if (game.IsPaused())
 						game.Resume();
 					else
 						game.Pause(GetGameTime());
+					cout << game.IsPaused() << endl;
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 					keys[event.keyboard.keycode] = true;
@@ -188,6 +192,8 @@ void InitialiseGame(Game& game) {
 					closeWindowClicked = true;
 				}
 				if (event.type == ALLEGRO_EVENT_TIMER) {
+					if (game.IsPaused())
+						return;
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 						if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
@@ -208,7 +214,7 @@ void InitialiseGame(Game& game) {
 								for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
 
 								if (keys[ALLEGRO_KEY_W])
-									dy = -round((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+									dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
 								else
 									jump->Stop();
 								});
@@ -309,6 +315,7 @@ void app::MainApp::Initialise(void) {
 	}
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(displayArea.w, displayArea.h);
+	al_set_window_title(display, "Super Mario... CSD");
 	queue = al_create_event_queue();
 	al_install_keyboard();
 	al_install_mouse();

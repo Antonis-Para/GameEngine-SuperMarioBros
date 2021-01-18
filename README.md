@@ -15,8 +15,10 @@
 - [x] INI file
 - [x] Mario character load (small)
 - [ ] Rest of characters load
-- [ ] Make sprites
-- [ ] Graviry and jump
+- [x] Make sprites
+- [x] Graviry and jump
+- [x] Pause
+- [x] Display pause text
 
 ---
 

@@ -16,3 +16,12 @@ vector <string> splitString(string text, string delimiter) {
 
 	return results;
 }
+
+int customRound(double number) {
+	int base = floor(number);
+
+	if (number - base >= 0.4f)
+		return ceil(number);
+	else
+		return floor(number);
+}
