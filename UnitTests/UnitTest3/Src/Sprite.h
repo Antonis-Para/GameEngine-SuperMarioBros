@@ -132,6 +132,12 @@ class CollisionChecker final{
 		static auto GetSingletonConst(void) -> const CollisionChecker&;
 };
 
+template<typename T>
+void CollisionChecker::Register(Sprite* s1, Sprite* s2, const T& f) {
+	entries.push_back(std::make_tuple(s1, s2, f));
+}
+
+
 class SpriteManager final {
 	public:
 		using SpriteList = std::list<Sprite*>;

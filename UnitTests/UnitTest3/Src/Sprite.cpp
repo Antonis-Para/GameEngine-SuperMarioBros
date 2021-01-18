@@ -198,11 +198,6 @@ bool Sprite::CollisionCheck(Sprite* s) const {
 // CollisionChecker
 CollisionChecker CollisionChecker::singleton;
 
-template<typename T>
-void CollisionChecker::Register(Sprite* s1, Sprite* s2, const T& f) {
-	entries.push_back(std::make_tuple(s1, s2, f));
-}
-
 void CollisionChecker::Cancel(Sprite* s1, Sprite* s2) {
 	auto i = std::find_if(entries.begin(), entries.end(), [s1, s2](const Entry& e) {
 		return std::get<0>(e) == s1 && std::get<1>(e) == s2 || std::get<0>(e) == s2 && std::get<1>(e) == s1;

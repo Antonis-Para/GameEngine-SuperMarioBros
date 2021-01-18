@@ -71,9 +71,9 @@ unsigned long GetGameTime() {
 
 void app::Game::MainLoopIteration(void) {
 	SetGameTime();
-	Render();
 	Input();
 	if (!IsPaused()) {
+		Render();
 		ProgressAnimations();
 		AI();
 		Physics();
@@ -266,7 +266,8 @@ void InitialiseGame(Game& game) {
 									if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
 										SpriteManager::GetSingleton().Remove(sprite);
 								}
-								mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
+								mario->Move(-move_x, -move_y);
+								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 							}
 							if (jump_anim == nullptr) {
 								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"));
@@ -303,6 +304,12 @@ void InitialiseGame(Game& game) {
 					mario->Move(0, falling_dy); //gravity move down
 				}
 			}
+		}
+	);
+
+	game.SetCollisionCheck(
+		[](void) {
+			CollisionChecker::GetSingletonConst().Check();
 		}
 	);
 
@@ -449,6 +456,9 @@ void app::MainApp::Load(void) {
 		tmp->SetZorder(1);
 		tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
 		SpriteManager::GetSingleton().Add(tmp);
+		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+			cout << "TOUCH\n";
+		});
 	}
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
 		int old_dx = *dx;
