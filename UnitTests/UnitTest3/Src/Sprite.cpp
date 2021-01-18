@@ -143,13 +143,9 @@ bool Sprite::IsVisible(void) const {
 	return isVisible;
 }
 
-void Sprite::Display(Bitmap dest, const Rect& dpyArea, const Clipper& clipper) const {
-	Rect clippedBox;
-	Point  dpyPos;
-	if (clipper.Clip(GetBox(), dpyArea, &dpyPos, &clippedBox)) {
-		Rect clippedFrame { frameBox.x + clippedBox.x, frameBox.y + clippedBox.y, clippedBox.w, clippedBox.h };
-		BitmapBlit(currFilm->GetBitmap(), clippedFrame, dest, dpyPos); // MaskedBlit
-	}
+void Sprite::Display(Bitmap dest) {
+	if(isVisible)
+		GetCurrFilm()->DisplayFrame(dest, Point{GetBox().x, GetBox().y }, GetFrame());
 }
 
 const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprite) {

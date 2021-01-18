@@ -72,13 +72,15 @@ unsigned long GetGameTime() {
 void app::Game::MainLoopIteration(void) {
 	SetGameTime();
 	Render();
-	Input();
-	ProgressAnimations();
-	AI();
-	Physics();
-	CollisionChecking();
-	CommitDestructions();
-	UserCode(); // hook for custom code at end
+	if (!IsPaused()){
+		Input();
+		ProgressAnimations();
+		AI();
+		Physics();
+		CollisionChecking();
+		CommitDestructions();
+		UserCode(); // hook for custom code at end
+	}
 }
 
 //-------------Class APP----------------
@@ -95,6 +97,18 @@ const app::Game& app::App::GetGame(void) const {
 	return game; 
 }
 
+void InstallPauseResumeHandler(Game& game) {
+	game.SetOnPauseResume(
+		[&game](void) {
+			if (!game.IsPaused()) // just resumed
+				AnimatorManager::GetSingleton().TimeShift(
+					GetGameTime() - game.GetPauseTime()
+				);
+		}
+	);
+}
+
+
 bool done() {
 	return !closeWindowClicked;
 }
@@ -104,7 +118,7 @@ void render() {
 	action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 	for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
-		sprite->GetCurrFilm()->DisplayFrame(BitmapGetScreen(), Point{ sprite->GetBox().x, sprite->GetBox().y }, sprite->GetFrame());
+		sprite->Display(BitmapGetScreen());
 	}
 	al_flip_display();
 }
@@ -115,6 +129,12 @@ void input() {
 
 		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_TILDE) {
 			gridOn = !gridOn;
+		}
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_P) {
+			if (game.IsPaused())
+				game.Resume();
+			else
+				game.Pause(GetGameTime());
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 			keys[event.keyboard.keycode] = true;
@@ -267,6 +287,10 @@ void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
 }
 
+void InitialiseGame() {
+
+}
+
 void app::MainApp::Initialise(void) {
 	SetGameTime();
 	if (!al_init()) {
@@ -292,6 +316,18 @@ void app::MainApp::Initialise(void) {
 	fallingTimer = al_create_timer(1.0 / 60);
 	al_register_event_source(fallingQueue, al_get_timer_event_source(fallingTimer));
 	al_start_timer(fallingTimer);
+
+	//game Initialization
+	game.SetDone([]() {
+			return !closeWindowClicked;
+		}
+	);
+	game.SetRender(render);
+	game.SetInput(input);
+	game.SetPhysics(physics);
+	game.SetProgressAnimations(progress_animations);
+	
+	InstallPauseResumeHandler(game);
 
 	//TODO delete this later we dont need it. Animation has one bitmaploader
 	bitmaploader = new BitmapLoader();
@@ -356,12 +392,6 @@ void app::MainApp::Load(void) {
 	loadMap(al_get_config_value(config, "paths", "action_layer_path"));
 
 	circular_background = new CircularBackground(tiles, al_get_config_value(config, "paths", "circular_backround_path"));
-
-	game.SetDone(done);
-	game.SetRender(render);
-	game.SetInput(input);
-	game.SetPhysics(physics);
-	game.SetProgressAnimations(progress_animations);
 
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
@@ -476,4 +506,20 @@ int app::GetMapPixelHeight(void) {
 
 bool app::characterStaysInCenter(Rect pos, int* dx) {
 	return pos.x + pos.w/2 - *dx > displayArea.w/2;
+}
+
+void app::Game::Pause(uint64_t t) {
+	isPaused = true; pauseTime = t; Invoke(pauseResume);
+}
+
+void app::Game::Resume(void) {
+	isPaused = false; Invoke(pauseResume); pauseTime = 0;
+}
+
+bool app::Game::IsPaused(void) const {
+	return isPaused;
+}
+
+uint64_t app::Game::GetPauseTime(void) const {
+	return pauseTime;
 }

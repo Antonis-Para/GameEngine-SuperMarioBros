@@ -127,4 +127,5 @@ public:
 	void Progress(timestamp_t currTime);
 	static auto GetSingleton(void)->AnimatorManager&;
 	static auto GetSingletonConst(void) -> const AnimatorManager&;
+	void TimeShift(unsigned dt);
 };
