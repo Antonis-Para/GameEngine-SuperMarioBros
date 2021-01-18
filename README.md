@@ -16,7 +16,8 @@
 - [x] Mario character load (small)
 - [ ] Rest of characters load
 - [ ] Make sprites
-- [ ] Graviry and jump
+- [x] Graviry and jump
+- [ ] Stop jump animation when mario hits a block on the way up
 
 ---
 

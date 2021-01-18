@@ -191,7 +191,7 @@ void InitialiseGame(Game& game) {
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
 						if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
-							jump_anim = new FrameRangeAnimation("jump", 0, 18, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+							jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
 							jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
 								//HERE CHAGNE DX AND DY DEPENDING ON FRAMENO
@@ -254,6 +254,12 @@ void InitialiseGame(Game& game) {
 							if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
 								action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 								circular_background->Scroll(move_x);
+								auto sprites = SpriteManager::GetSingleton().GetTypeList("pipe");
+								for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+									sprite->Move(-mario->GetSpeed(), 0);
+									if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
+										SpriteManager::GetSingleton().Remove(sprite);
+								}
 								mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 							}
 							if (jump_anim == nullptr) {
@@ -372,6 +378,14 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		;
 }
 
+string loadAllPipes(const ALLEGRO_CONFIG* config) {
+
+	return "Pipe.up:" + string(al_get_config_value(config, "pipes", "pipe_up")) + '$'
+		+ "Pipe.right:" + string(al_get_config_value(config, "pipes", "pipe_right")) + '$'
+		+ "Pipe.left:" + string(al_get_config_value(config, "pipes", "pipe_left")) + '$'
+		;
+}
+
 void app::MainApp::Load(void) {
 
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
@@ -397,8 +411,36 @@ void app::MainApp::Load(void) {
 	action_layer->ComputeTileGridBlocks1();
 
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
+	AnimationFilmHolder::GetInstance().LoadAll(loadAllPipes(config), al_get_config_value(config, "paths", "tiles_path"));
+
 	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
+
+	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
+		vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
+		int x = atoi(coordinates[0].c_str());
+		int y = atoi(coordinates[1].c_str());
+
+		Sprite* tmp = nullptr;
+		switch (pipes.at(0)) {
+		case 'u':
+			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
+			break;
+		case 'd':
+			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.down"), "pipe");
+			break;
+		case 'l':
+			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
+			break;
+		case 'r':
+			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
+			break;
+		}
+		assert(tmp);
+		tmp->SetHasDirectMotion(true);
+		tmp->SetZorder(1);
+		SpriteManager::GetSingleton().Add(tmp);
+	}
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
 		int old_dx = *dx;
 		Rect posOnGrid{
@@ -415,7 +457,7 @@ void app::MainApp::Load(void) {
 			mario->SetStateId(IDLE_STATE);
 		}
 	});
-	mario->SetZorder(1);
+
 	mario->SetBoundingArea(new BoundingBox(mario->GetBox().x, mario->GetBox().y, mario->GetBox().x + mario->GetBox().w, mario->GetBox().y + mario->GetBox().h));
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
