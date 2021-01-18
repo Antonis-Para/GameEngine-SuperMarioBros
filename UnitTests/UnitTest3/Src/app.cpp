@@ -400,6 +400,71 @@ string loadAllPipes(const ALLEGRO_CONFIG* config) {
 		;
 }
 
+Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
+	vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
+	int x = atoi(coordinates[0].c_str());
+	int y = atoi(coordinates[1].c_str());
+
+	Sprite* tmp = nullptr;
+	switch (pipes.at(0)) {
+	case 'u':
+		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
+		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+
+			if (!(s2_y2 < s1_y1) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
+				cout << "TOUCH\n";
+			}
+		});
+		break;
+	case 'd':
+		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.down"), "pipe");
+		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+
+			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+
+			if (!(s1_y2 < s2_y1) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
+				cout << "TOUCH\n";
+			}
+		});
+		break;
+	case 'l':
+		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
+		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+
+			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+
+			if (!(s2_x2 < s1_x1) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
+				cout << "TOUCH\n";
+			}
+		});
+		break;
+	case 'r':
+		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
+		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+
+			if (!(s1_y1 < s2_y2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
+				cout << "TOUCH\n";
+			}
+		});
+		break;
+	}
+
+	assert(tmp);
+	tmp->SetHasDirectMotion(true);
+	tmp->SetZorder(1);
+	tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
+
+	return tmp;
+}
+
 void app::MainApp::Load(void) {
 
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\UnitTests\\UnitTest3\\config.ini");
@@ -432,33 +497,10 @@ void app::MainApp::Load(void) {
 
 	//create all pipe sprites
 	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
-		vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
-		int x = atoi(coordinates[0].c_str());
-		int y = atoi(coordinates[1].c_str());
 
-		Sprite* tmp = nullptr;
-		switch (pipes.at(0)) {
-		case 'u':
-			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
-			break;
-		case 'd':
-			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.down"), "pipe");
-			break;
-		case 'l':
-			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
-			break;
-		case 'r':
-			tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
-			break;
-		}
-		assert(tmp);
-		tmp->SetHasDirectMotion(true);
-		tmp->SetZorder(1);
-		tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
-		SpriteManager::GetSingleton().Add(tmp);
-		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
-			cout << "TOUCH\n";
-		});
+		Sprite *pipe = LoadPipeCollision(mario, pipes);
+		SpriteManager::GetSingleton().Add(pipe);
+		
 	}
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
 		int old_dx = *dx;

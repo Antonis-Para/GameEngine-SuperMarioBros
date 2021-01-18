@@ -41,6 +41,8 @@ public:
 	void getCenter(unsigned&, unsigned&) const;
 	unsigned getWidth() const;
 	unsigned getHeight() const;
+
+	bool onTop(const BoundingBox&) const;
 };
 
 class BoundingCircle : public BoundingArea {

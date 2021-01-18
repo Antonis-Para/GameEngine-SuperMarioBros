@@ -4,10 +4,16 @@
 // BoundingBox
 bool BoundingBox::Intersects(const BoundingBox &box) const {
 	return !(
-		box.x2 < x1 ||
-		x2 < box.x1 ||
-		box.y2 < y1 ||
-		y2 < box.y1
+		box.x2 < x1 || //at left
+		x2 < box.x1 || //at right
+		box.y2 < y1 || //above
+		y2 < box.y1    //bellow
+		);
+}
+
+bool BoundingBox::onTop(const BoundingBox& box) const {
+	return !(
+		box.y2 < y1  //above
 		);
 }
 
