@@ -15,10 +15,12 @@
 - [x] INI file
 - [x] Mario character load (small)
 - [ ] Rest of characters load
+<<<<<<< HEAD
 - [x] Make sprites
 - [x] Graviry and jump
 - [x] Pause
 - [x] Display pause text
+- [ ] Stop jump animation when mario hits a block on the way up
 
 ---
 
