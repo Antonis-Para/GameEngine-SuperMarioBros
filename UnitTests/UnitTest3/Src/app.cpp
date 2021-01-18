@@ -287,10 +287,6 @@ void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
 }
 
-void InitialiseGame() {
-
-}
-
 void app::MainApp::Initialise(void) {
 	SetGameTime();
 	if (!al_init()) {
@@ -318,7 +314,7 @@ void app::MainApp::Initialise(void) {
 	al_start_timer(fallingTimer);
 
 	//game Initialization
-	game.SetDone([]() {
+	game.SetDone([](void) {
 			return !closeWindowClicked;
 		}
 	);
