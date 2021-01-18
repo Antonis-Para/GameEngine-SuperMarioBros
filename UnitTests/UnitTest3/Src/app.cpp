@@ -404,18 +404,22 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 	vector<string> coordinates = splitString(pipes.substr(1, pipes.length()), " ");
 	int x = atoi(coordinates[0].c_str());
 	int y = atoi(coordinates[1].c_str());
+	int teleport_x = atoi(coordinates[2].c_str());
+	int teleport_y = atoi(coordinates[3].c_str());
 
 	Sprite* tmp = nullptr;
 	switch (pipes.at(0)) {
 	case 'u':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [teleport_x, teleport_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
 			if (!(s2_y2 < s1_y1) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
 				cout << "TOUCH\n";
+				s1->Move(-100, -100);
+				//s1->SetPos(teleport_x, teleport_y);
 			}
 		});
 		break;
@@ -495,7 +499,7 @@ void app::MainApp::Load(void) {
 	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
 
-	//create all pipe sprites
+	//create all pipe sprites and add collisions
 	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
 
 		Sprite *pipe = LoadPipeCollision(mario, pipes);
