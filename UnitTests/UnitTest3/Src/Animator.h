@@ -71,6 +71,7 @@ public:
 	void Progress(timestamp_t currTime);
 	auto GetAnim(void) const -> const MovingAnimation&;
 	void Start(MovingAnimation* a, timestamp_t t);
+	void deleteCurrAnimation();
 };
 
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {

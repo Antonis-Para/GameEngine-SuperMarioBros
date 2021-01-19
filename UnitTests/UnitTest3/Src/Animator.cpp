@@ -69,6 +69,11 @@ void MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
 	NotifyStarted();
 }
 
+void MovingAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+}
+
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->Move(anim.GetDx(), anim.GetDy());
 }
@@ -114,6 +119,7 @@ void FrameRangeAnimator::Start(FrameRangeAnimation* a, timestamp_t t) {
 	NotifyStarted();
 	NotifyAction(*anim);
 }
+
 
 // TickAnimator
 void TickAnimator::Progress(timestamp_t currTime) {
@@ -175,7 +181,7 @@ void AnimatorManager::MarkAsRunning(Animator* a) {
 }
 
 void AnimatorManager::MarkAsSuspended(Animator* a) {
-	assert(a->HasFinished());
+	//assert(a->HasFinished());
 	running.erase(a);
 	suspended.insert(a);
 }

@@ -21,7 +21,6 @@ public:
 	template<typename Tfunc>
 	MotionQuantizer& SetMover(const Tfunc& f);
 	void Move (const Rect& r, int* dx, int* dy);
-		
 };
 
 template<typename Tfunc>
