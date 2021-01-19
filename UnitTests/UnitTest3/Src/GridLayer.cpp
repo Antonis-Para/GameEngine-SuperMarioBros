@@ -1,5 +1,6 @@
 #include "GridLayer.h"
 #include <set>
+#include <iostream>
 
 //using namespace app;
 //GridMap grid;
@@ -13,6 +14,22 @@ GridLayer::GridLayer() {
 void GridLayer::Allocate(void) {
 	//grid = new GridIndex[total = totalRows * totalColumns];
 	memset(grid, GRID_EMPTY_TILE, GRID_MAX_HEIGHT * GRID_MAX_WIDTH);
+}
+
+
+bool GridLayer::SolidOnRight(const Rect& r) {
+	int dx = 1; // right 1 pixel
+
+	FilterGridMotionRight(r, &dx);
+
+	return dx == 0; 
+}
+
+bool GridLayer::SolidOnLeft(const Rect& r) {
+	int dx = -1; // left 1 pixel
+	FilterGridMotionLeft(r, &dx);
+
+	return dx == 0;
 }
 
 bool GridLayer::IsOnSolidGround(const Rect& r,spritestate_t state) { // will need later for gravity

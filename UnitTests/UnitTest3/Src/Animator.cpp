@@ -72,6 +72,7 @@ void MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
 void MovingAnimator::deleteCurrAnimation() {
 	assert(anim);
 	delete anim;
+	anim = nullptr;
 }
 
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {

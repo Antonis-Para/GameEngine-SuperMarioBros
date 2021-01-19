@@ -26,6 +26,7 @@ public:
 	void Reset(void);
 	void Check(const Rect& r);
 	bool isFalling();
+	void SetFalling(bool v);
 	void setGravityAddicted(bool val);
 	int getFallingTimer(void);
 	void increaseFallingTimer(void);

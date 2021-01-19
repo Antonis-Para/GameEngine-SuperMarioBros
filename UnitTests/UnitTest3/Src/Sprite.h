@@ -77,7 +77,6 @@ public:
 	void SetMover(const Tfunc& f);
 	const Rect GetBox(void) const;
 	Sprite& Move(int dx, int dy);
-	Sprite& UnconditionalMove(int dx, int dy);
 	void SetPos(int _x, int _y);
 	void SetZorder(unsigned z);
 	unsigned GetZorder(void);

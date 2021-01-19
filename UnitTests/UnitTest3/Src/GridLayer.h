@@ -28,6 +28,9 @@ public:
 	GridLayer();
 	void FilterGridMotion(const Rect& r, int* dx, int* dy);
 	bool IsOnSolidGround(const Rect& r, spritestate_t state);
+	bool SolidOnRight(const Rect& r);
+	bool SolidOnLeft(const Rect& r);
+
 	GridMap* GetBuffer(void);
 	const GridMap* GetBuffer(void) const;
 	//GridLayer(unsigned rows, unsigned cols);
