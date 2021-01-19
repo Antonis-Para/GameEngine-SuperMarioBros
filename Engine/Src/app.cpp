@@ -21,6 +21,7 @@ bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 ALLEGRO_TIMER* fallingTimer;
 bool gridOn = true;
+bool disable_input = false;
 Bitmap characters = nullptr;
 
 ALLEGRO_DISPLAY* display;
@@ -133,11 +134,6 @@ void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->NextFrame();
 }
 
-void Sprite_MoveActionUnconditional(Sprite* sprite, const MovingAnimation& anim) {
-	sprite->UnconditionalMove(anim.GetDx(), anim.GetDy());
-	sprite->NextFrame();
-}
-
 void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& anim) {
 	auto* frameRangeAnimator = (FrameRangeAnimator*)animator;
 	sprite->GetBox();
@@ -197,7 +193,7 @@ void InitialiseGame(Game& game) {
 					closeWindowClicked = true;
 				}
 				if (event.type == ALLEGRO_EVENT_TIMER) {
-					if (game.IsPaused())
+					if (game.IsPaused() || disable_input)
 						return;
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
@@ -322,8 +318,9 @@ void InitialiseGame(Game& game) {
 
 void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mario_y) {
 	Sprite* mario = SpriteManager::GetSingleton().GetTypeList("mario").front();
-	//mario->Move(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);
-	mario->UnconditionalMove(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);
+	mario->SetHasDirectMotion(true);
+	mario->Move(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);
+	mario->SetHasDirectMotion(false);
 
 	auto sprites = SpriteManager::GetSingleton().GetTypeList("pipe");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
@@ -399,7 +396,20 @@ void app::MainApp::Initialise(void) {
 	});
 	pipe_movement->SetOnStart([](Animator* animator) {
 		mario->SetHasDirectMotion(true);
+		mario->GetGravityHandler().setGravityAddicted(false);
+		mario->GetGravityHandler().SetFalling(false);
+		mario->SetFrame(0);
+		if (lasttime_movedright)
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
+		else
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_left"));
 		AnimatorManager::GetSingleton().MarkAsSuspended(walk);
+
+		if (jump->IsAlive()) {
+			jump->Stop();
+			AnimatorManager::GetSingleton().MarkAsSuspended(jump);
+		}
+		disable_input = true;
 	});
 	
 	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());
@@ -450,20 +460,20 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			if (!(s2_y2 < s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
 				//PLAY ANIMATION HERE
 
-				//if (lasttime_movedright)
-				//	mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
-				//else
-				//	mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_left"));
+				if (&pipe_movement->GetAnim() != nullptr)
+					return;
 				pipe_movement->Start(new MovingAnimation("pipe.up", 32, 0, 1, 30), GetGameTime());
-				//s1->SetCurrFilm()
+
 				pipe_movement->SetOnFinish([mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Animator* animator) {
 					pipe_movement->deleteCurrAnimation();
 					mario->SetHasDirectMotion(false);
 					animator->Stop();
 					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
 					mario->SetFrame(0);
+					mario->GetGravityHandler().setGravityAddicted(true);
 					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
 					AnimatorManager::GetSingleton().MarkAsRunning(walk);
+					disable_input = false;
 				});
 				
 			}
@@ -471,37 +481,79 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 		break;
 	case 'd':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.down"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 
 			if (!(s1_y2 < s2_y1) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
-				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+				if (&pipe_movement->GetAnim() != nullptr)
+					return;
+				pipe_movement->Start(new MovingAnimation("pipe.down", 32, 0, -1, 30), GetGameTime());
+
+				pipe_movement->SetOnFinish([mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Animator* animator) {
+					pipe_movement->deleteCurrAnimation();
+					mario->SetHasDirectMotion(false);
+					animator->Stop();
+					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
+					mario->SetFrame(0);
+					mario->GetGravityHandler().setGravityAddicted(true);
+					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+					AnimatorManager::GetSingleton().MarkAsRunning(walk);
+					disable_input = false;
+				});
 			}
 		});
 		break;
 	case 'l':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 
 			if (!(s2_x2 < s1_x1) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
-				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+				if (&pipe_movement->GetAnim() != nullptr)
+					return;
+				pipe_movement->Start(new MovingAnimation("pipe.left", 32, 1, 0, 30), GetGameTime());
+
+				pipe_movement->SetOnFinish([mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Animator* animator) {
+					pipe_movement->deleteCurrAnimation();
+					mario->SetHasDirectMotion(false);
+					animator->Stop();
+					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
+					mario->SetFrame(0);
+					mario->GetGravityHandler().setGravityAddicted(true);
+					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+					AnimatorManager::GetSingleton().MarkAsRunning(walk);
+					disable_input = false;
+				});
 			}
 		});
 		break;
 	case 'r':
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
-		CollisionChecker::GetSingleton().Register(mario, tmp, [new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, tmp, [mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
 			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 
 			if (!(s1_y1 < s2_y2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
-				MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+				if (&pipe_movement->GetAnim() != nullptr)
+					return;
+				pipe_movement->Start(new MovingAnimation("pipe.right", 32, -1, 0, 30), GetGameTime());
+
+				pipe_movement->SetOnFinish([mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Animator* animator) {
+					pipe_movement->deleteCurrAnimation();
+					mario->SetHasDirectMotion(false);
+					animator->Stop();
+					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
+					mario->SetFrame(0);
+					mario->GetGravityHandler().setGravityAddicted(true);
+					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
+					AnimatorManager::GetSingleton().MarkAsRunning(walk);
+					disable_input = false;
+				});
 			}
 		});
 		break;
@@ -509,6 +561,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 
 	assert(tmp);
 	tmp->SetHasDirectMotion(true);
+	tmp->GetGravityHandler().setGravityAddicted(false);
 	tmp->SetZorder(1);
 	tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
 
@@ -564,7 +617,7 @@ void app::MainApp::Load(void) {
 			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
 		mario->SetPos(pos.x + *dx, pos.y + *dy);
 
-		if (*dx == 0 && old_dx != 0) {
+		if (old_dx > *dx && old_dx > 0 || old_dx < *dx && old_dx < 0) {
 			mario->SetStateId(IDLE_STATE);
 		}
 	});

@@ -71,18 +71,6 @@ Sprite& Sprite::Move(int dx, int dy) {
 		boundingArea->move(dx, dy);
 	return *this;
 }
-Sprite& Sprite::UnconditionalMove(int dx, int dy) {
-	SetPos(GetBox().x + dx, GetBox().y + dy);
-	gravity.Check(GetBox());
-
-	if (boundingArea)
-		boundingArea->move(dx, dy);
-
-	if (dx == 0)
-		SetStateId(IDLE_STATE);
-	
-	return *this;
-}
 
 
 void Sprite::SetPos(int _x, int _y) {

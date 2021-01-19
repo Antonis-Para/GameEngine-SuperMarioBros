@@ -31,6 +31,10 @@ void GravityHandler::setGravityAddicted(bool val) {
 	gravityAddicted = val;
 }
 
+void GravityHandler::SetFalling(bool v) {
+	is_Falling = v;
+}
+
 int GravityHandler::getFallingTimer(void) {
 	return fallingTimer;
 }
