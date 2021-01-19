@@ -1,15 +1,12 @@
-#include "allegro5/allegro.h"
+#include "app.h"
 
 int main() {
-	al_init();
 
-	al_create_display(640, 480);
+    app::MainApp *app = new app::MainApp();
 
-	al_clear_to_color(al_map_rgb(255, 0, 255));
+    app->Main();
+    
+    delete app;
 
-	al_flip_display();
-
-	al_rest(5.0f);
-
-	return EXIT_SUCCESS;
+    return 0;
 }
