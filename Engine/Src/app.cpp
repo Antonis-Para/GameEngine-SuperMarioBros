@@ -519,7 +519,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (!(s2_y2 < s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
+			if ((s2_y2 >= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
 				//PLAY ANIMATION HERE
 
 				if (&pipe_movement->GetAnim() != nullptr)
@@ -552,7 +552,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (!(s2_y2 < s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
+			if ((s2_y2 <= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.down", 32, 0, -1, 30), GetGameTime());
@@ -575,14 +575,14 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.left"), "pipe");
 		CollisionChecker::GetSingleton().Register(mario, tmp, [mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
-			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
-			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
-			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
-			if (!(s2_y2 < s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
+			if ((s2_x2 >= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.left", 32, 1, 0, 30), GetGameTime());
@@ -605,14 +605,14 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 		tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.right"), "pipe");
 		CollisionChecker::GetSingleton().Register(mario, tmp, [mario, new_screen_x, new_screen_y, new_mario_x, new_mario_y](Sprite* s1, Sprite* s2) {
 
-			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
-			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
-			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
-			if (!(s2_y2 < s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
+			if ((s2_x2 <= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.right", 32, -1, 0, 30), GetGameTime());

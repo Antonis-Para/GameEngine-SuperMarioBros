@@ -20,6 +20,7 @@
 - [x] Pause
 - [ ] Display pause text
 - [ ] Stop jump animation when mario hits a block on the way up
+- [ ] Smoother jump
 
 ---
 
