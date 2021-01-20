@@ -761,6 +761,7 @@ void app::MainApp::Load(void) {
 					CollisionChecker::GetSingleton().Cancel(s1, s2);
 					delete goomba_walking_animation;
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+					mario->GetGravityHandler().SetFalling(false);
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
 						int sumOfNumbers = 0;
 						char maxTiles = 3;
