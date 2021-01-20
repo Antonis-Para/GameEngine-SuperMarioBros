@@ -370,6 +370,13 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
+	sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->SetHasDirectMotion(true);
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+		sprite->SetHasDirectMotion(false);
+	}
+
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
 	action_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, action_layer->GetViewWindow().w, action_layer->GetViewWindow().h });
 }
