@@ -59,6 +59,7 @@ protected:
 	std::string typeId;
 
 	spritestate_t stateId = IDLE_STATE;
+	spriteFormState_t formStateId;
 
 	Mover mover;
 	MotionQuantizer quantizer;
@@ -69,8 +70,9 @@ protected:
 	unsigned long lastSpeedUpdate = 0;
 	int speedDelay = 150;
 	short int speedUpdatedTimes = 0;
-
 public:
+	bool lastMovedRight = false;
+
 	Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId = "");
 
 	template<typename Tfunc>
@@ -106,6 +108,9 @@ public:
 	void incSpeed(unsigned long time);
 	void resetSpeed();
 	void SetLastSpeedUpdate(unsigned long time);
+
+	spriteFormState_t GetFormStateId(void);
+	void SetFormStateId(spriteFormState_t);
 };
 
 template<typename Tfunc>

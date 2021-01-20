@@ -50,6 +50,7 @@ namespace app {
 			template <typename Tfunc> void SetProgressAnimations(const Tfunc& f) { anim = f; }
 			template <typename Tfunc> void SetPhysics(const Tfunc& f) { physics = f; }
 			template <typename Tfunc> void SetCollisionCheck(const Tfunc& f) { collisions = f; }
+			template <typename Tfunc> void SetAI(const Tfunc& f) { ai = f; }
 			// rest of setters are similary defined
 
 			void Render(void);

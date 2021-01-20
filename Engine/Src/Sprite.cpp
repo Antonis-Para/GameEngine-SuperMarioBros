@@ -145,7 +145,7 @@ bool Sprite::IsVisible(void) const {
 }
 
 void Sprite::Display(Bitmap dest) {
-	if(isVisible)
+	if (isVisible)
 		GetCurrFilm()->DisplayFrame(dest, Point{GetBox().x, GetBox().y }, GetFrame());
 }
 
@@ -196,6 +196,14 @@ bool Sprite::CollisionCheck(Sprite* s) const {
 	return boundingArea->Intersects(*s->GetBoundingArea());
 }
 
+spriteFormState_t Sprite::GetFormStateId(void) {
+	return formStateId;
+}
+
+void Sprite::SetFormStateId(spriteFormState_t state) {
+	formStateId = state;
+}
+
 // CollisionChecker
 CollisionChecker CollisionChecker::singleton;
 
@@ -233,7 +241,7 @@ void SpriteManager::Add(Sprite* s) {
 void SpriteManager::Remove(Sprite* s) {
 	dpyList.remove(s);
 	types[s->GetTypeId()].remove(s);
-	//delete s;
+	delete s;
 }
 
 auto SpriteManager::GetDisplayList(void) -> const SpriteList& {

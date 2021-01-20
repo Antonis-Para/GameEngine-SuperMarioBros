@@ -3,3 +3,7 @@
 enum spritestate_t {
 	IDLE_STATE = 0, WALKING_STATE = 1, RUNNING_STATE = 2
 };
+
+enum spriteFormState_t {
+	SMALL_MARIO = 0, SUPER_MARIO = 1, ENEMY = 2, SMASHED = 3, PIPE = 4, DELETE = 5
+};
