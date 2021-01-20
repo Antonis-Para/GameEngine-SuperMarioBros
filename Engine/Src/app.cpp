@@ -265,8 +265,10 @@ void InitialiseGame(Game& game) {
 									//if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
 									//	SpriteManager::GetSingleton().Remove(sprite);
 								}
-								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("goomba")) { // move the sprites the opposite directions (f.e. pipes)
-									sprite->Move(-move_x, 0);
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("goomba")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
 								}
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
