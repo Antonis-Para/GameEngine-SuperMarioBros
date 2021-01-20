@@ -215,7 +215,8 @@ void CollisionChecker::Cancel(Sprite* s1, Sprite* s2) {
 }
 
 void CollisionChecker::Check(void) const {
-	for (auto& e : entries)
+	std::list<Entry> entries_tmp = entries;
+	for (auto& e : entries_tmp)
 		if (std::get<0>(e)->CollisionCheck(std::get<1>(e)))
 			std::get<2>(e)(std::get<0>(e), std::get<1>(e));
 }

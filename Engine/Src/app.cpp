@@ -337,7 +337,6 @@ void InitialiseGame(Game& game) {
 						}
 					}
 					for (auto sprite : toBeDestroyed) {
-						CollisionChecker::GetSingleton().Cancel(mario, sprite);
 						SpriteManager::GetSingleton().Remove(sprite);
 					}
 					toBeDestroyed.clear();
@@ -440,7 +439,6 @@ void app::MainApp::Initialise(void) {
 		delete jump_anim;
 		jump_anim = nullptr;
 		jump->Stop();
-		AnimatorManager::GetSingleton().MarkAsSuspended(jump);
 		mario->GetGravityHandler().setGravityAddicted(true);
 		mario->GetGravityHandler().Check(mario->GetBox());
 		mario->SetFrame(0);
@@ -462,7 +460,6 @@ void app::MainApp::Initialise(void) {
 
 		if (jump->IsAlive()) {
 			jump->Stop();
-			AnimatorManager::GetSingleton().MarkAsSuspended(jump);
 		}
 		disable_input = true;
 	});
@@ -530,7 +527,6 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 					pipe_movement->deleteCurrAnimation();
 					mario->SetHasDirectMotion(false);
 					animator->Stop();
-					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
 					mario->SetFrame(0);
 					mario->GetGravityHandler().setGravityAddicted(true);
 					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
@@ -561,7 +557,6 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 					pipe_movement->deleteCurrAnimation();
 					mario->SetHasDirectMotion(false);
 					animator->Stop();
-					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
 					mario->SetFrame(0);
 					mario->GetGravityHandler().setGravityAddicted(true);
 					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
@@ -591,7 +586,6 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 					pipe_movement->deleteCurrAnimation();
 					mario->SetHasDirectMotion(false);
 					animator->Stop();
-					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
 					mario->SetFrame(0);
 					mario->GetGravityHandler().setGravityAddicted(true);
 					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
@@ -621,7 +615,6 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 					pipe_movement->deleteCurrAnimation();
 					mario->SetHasDirectMotion(false);
 					animator->Stop();
-					AnimatorManager::GetSingleton().MarkAsSuspended(pipe_movement);
 					mario->SetFrame(0);
 					mario->GetGravityHandler().setGravityAddicted(true);
 					MoveScene(new_screen_x, new_screen_y, new_mario_x, new_mario_y);
@@ -699,6 +692,19 @@ void app::MainApp::Load(void) {
 	SpriteManager::GetSingleton().Add(tmp);
 
 	for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+		class MovingAnimator* goomba_walk = new MovingAnimator();
+		AnimatorManager::GetSingleton().Register(goomba_walk);
+		//goomba_walk->
+		goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
+			goomba->NextFrame();
+		});
+		goomba_walk->SetOnFinish([goomba](Animator* animator) {
+			AnimatorManager::GetSingleton().Cancel(animator);
+		});
+
+
+		class MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
+		goomba_walk->Start(goomba_walking_animation, GetGameTime());
 		goomba->SetStateId(WALKING_STATE);
 		goomba->SetZorder(1);
 		goomba->SetBoundingArea(new BoundingBox(goomba->GetBox().x, goomba->GetBox().y, goomba->GetBox().x + goomba->GetBox().w, goomba->GetBox().y + goomba->GetBox().h));
@@ -731,7 +737,7 @@ void app::MainApp::Load(void) {
 		});
 
 		CollisionChecker::GetSingleton().Register(mario, goomba,
-			[](Sprite *s1, Sprite* s2) {
+			[goomba_walk, goomba_walking_animation](Sprite *s1, Sprite* s2) {
 				
 				int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
 				int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
@@ -746,8 +752,14 @@ void app::MainApp::Load(void) {
 					//do animation of smashed
 
 					//jumping animation
-					jump->Stop();
-					delete jump_anim;
+					if (jump_anim != nullptr) {
+						jump->Stop();
+						delete jump_anim;
+					}
+					goomba_walk->Stop();
+					goomba_walk->Destroy();
+					CollisionChecker::GetSingleton().Cancel(s1, s2);
+					delete goomba_walking_animation;
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
 						int sumOfNumbers = 0;
