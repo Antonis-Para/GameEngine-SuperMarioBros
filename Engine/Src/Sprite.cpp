@@ -60,6 +60,11 @@ const Rect Sprite::GetBox(void) const {
 	return { x, y, frameBox.w, frameBox.h };
 }
 
+void Sprite::SetBoxDimentions(int w = 16, int h = 16) {
+	frameBox.w = w;
+	frameBox.h = h;
+}
+
 Sprite& Sprite::Move(int dx, int dy) {
 	if (directMotion) // apply unconditionally offsets!
 		x += dx, y += dy;

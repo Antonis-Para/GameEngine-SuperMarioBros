@@ -78,6 +78,7 @@ public:
 	template<typename Tfunc>
 	void SetMover(const Tfunc& f);
 	const Rect GetBox(void) const;
+	void SetBoxDimentions(int w, int h);
 	Sprite& Move(int dx, int dy);
 	void SetPos(int _x, int _y);
 	void SetZorder(unsigned z);
