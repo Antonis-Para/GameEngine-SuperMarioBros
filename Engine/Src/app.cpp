@@ -265,8 +265,10 @@ void InitialiseGame(Game& game) {
 									//if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
 									//	SpriteManager::GetSingleton().Remove(sprite);
 								}
-								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("goomba")) { // move the sprites the opposite directions (f.e. pipes)
-									sprite->Move(-move_x, 0);
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("goomba")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
 								}
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
@@ -366,6 +368,13 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 	auto sprites = SpriteManager::GetSingleton().GetTypeList("pipe");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->SetHasDirectMotion(true);
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+		sprite->SetHasDirectMotion(false);
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
