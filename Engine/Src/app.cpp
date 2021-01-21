@@ -789,8 +789,7 @@ void app::MainApp::Load(void) {
 						jump->Stop();
 						delete jump_anim;
 					}
-					//goomba_walk->Stop();
-					//goomba_walk->Destroy();
+
 					CollisionChecker::GetSingleton().Cancel(s1, s2);
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
@@ -844,7 +843,7 @@ void app::MainApp::Load(void) {
 			koopa_troopa->NextFrame();
 			});
 		koopa_troopa_walk->SetOnFinish([koopa_troopa](Animator* animator) {
-			AnimatorManager::GetSingleton().Cancel(animator);
+			//AnimatorManager::GetSingleton().Cancel(animator);
 			});
 
 
@@ -891,43 +890,98 @@ void app::MainApp::Load(void) {
 		CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 			[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
 
-				int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-				int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+				int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+				int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 				int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
 				int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
-				int middleOfMario = (s1_x1 + s1_x2) / 2;
 
-				if (!(s2_y2 < s1_y1) && (s1_x1 + 3 >= s2_x1) && (s1_x2 - 3 <= s2_x2)) {
-					if (s2->GetFormStateId() == SMASHED) {
+				//cout << s2_y1 - s1_y2 << endl;
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) {
+					/*if (s2->GetFormStateId() == SMASHED) {
 						if (s2->GetStateId() == IDLE_STATE) {
 							s2->SetStateId(WALKING_STATE);
 						}
 						else {
 							s2->SetStateId(IDLE_STATE);
 						}
-					}
-					else {
-						s2->SetFormStateId(SMASHED);
-						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_shell"));
-						s2->SetBoxDimentions(16, 10);
+					}*/
+					if (s2->GetFormStateId() == ENEMY) {
 						s2->SetFrame(0);
-						//do animation of smashed
+						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_shell"));
+						s2->SetFormStateId(SMASHED);
+						s2->SetStateId(IDLE_STATE);
+						s2->SetBoxDimentions(16, 10);
+						s2->Move(0, 4);
+
+						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000) , GetGameTime());
+						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
+							if (s2->lastMovedRight)
+								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"));
+							else
+								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
+
+							s2->SetBoxDimentions(16, 16);
+							s2->SetHasDirectMotion(true);
+							s2->Move(0, -10);
+							s2->SetHasDirectMotion(false);
+							koopa_troopa_walk->deleteCurrAnimation();
+							koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
+							s2->SetFormStateId(ENEMY);
+							s2->SetStateId(WALKING_STATE);
+						});
+
+					}
+					else { //mario hits the shell from the top
+						mario->Move(0, -4); //move him just a little away from the shell so they don't collide again
+						if (s2->GetStateId() == IDLE_STATE) {
+							//-->shell start moving
+							koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
+							koopa_troopa_walk->Stop();
+							koopa_troopa_walk->deleteCurrAnimation();
+							AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+							s2->SetStateId(WALKING_STATE);
+						}
+						else { // shell is already moving. Stop it
+						
+							koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+							koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
+								if (s2->lastMovedRight)
+									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"));
+								else
+									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
+
+								s2->SetBoxDimentions(16, 16);
+								s2->SetHasDirectMotion(true);
+								s2->Move(0, -10);
+								s2->SetHasDirectMotion(false);
+								koopa_troopa_walk->deleteCurrAnimation();
+								koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
+								s2->SetFormStateId(ENEMY);
+								s2->SetStateId(WALKING_STATE);
+							});
+							s2->SetFrame(0);
+							s2->SetStateId(IDLE_STATE);
+						}
 					}
 
-					//jumping animation
+					//memory cleaning
 					if (jump_anim != nullptr) {
 						jump->Stop();
 						delete jump_anim;
 					}
-					if (s2->GetFormStateId() != SMASHED) {
+					/*if (s2->GetFormStateId() != SMASHED) {
 						koopa_troopa_walk->Stop();
 						koopa_troopa_walk->Destroy();
 						delete koopa_troopa_walking_animation;
-					}
+					}*/
+
+					/*mario jumping animation after hitting koopa*/
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+					
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
+						cout << dy << endl;
 						int sumOfNumbers = 0;
 						char maxTiles = 3;
 
@@ -942,7 +996,7 @@ void app::MainApp::Load(void) {
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 				}
 				else {
-					s2->lastMovedRight = !s2->lastMovedRight;
+					//s2->lastMovedRight = !s2->lastMovedRight;
 					if (s2->GetFormStateId() != SMASHED) {
 						if (s2->lastMovedRight)
 							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"));
