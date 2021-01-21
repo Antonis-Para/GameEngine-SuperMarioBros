@@ -897,17 +897,9 @@ void app::MainApp::Load(void) {
 				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-				//cout << s2_y1 - s1_y2 << endl;
-				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) {
-					/*if (s2->GetFormStateId() == SMASHED) {
-						if (s2->GetStateId() == IDLE_STATE) {
-							s2->SetStateId(WALKING_STATE);
-						}
-						else {
-							s2->SetStateId(IDLE_STATE);
-						}
-					}*/
-					if (s2->GetFormStateId() == ENEMY) {
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits  coopa/shell from top
+
+					if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
 						s2->SetFrame(0);
 						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_shell"));
 						s2->SetFormStateId(SMASHED);
@@ -935,13 +927,18 @@ void app::MainApp::Load(void) {
 					}
 					else { //mario hits the shell from the top
 						mario->Move(0, -4); //move him just a little away from the shell so they don't collide again
-						if (s2->GetStateId() == IDLE_STATE) {
+
+						if (s2->GetStateId() == IDLE_STATE) { //shell is not moving. Start it moving
 							//-->shell start moving
 							koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
 							koopa_troopa_walk->Stop();
 							koopa_troopa_walk->deleteCurrAnimation();
 							AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
 							s2->SetStateId(WALKING_STATE);
+							if (s1_x1 < s2_x1)
+								s2->lastMovedRight = true;
+							else
+								s2->lastMovedRight = false;
 						}
 						else { // shell is already moving. Stop it
 						
@@ -976,7 +973,6 @@ void app::MainApp::Load(void) {
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 					
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
-						cout << dy << endl;
 						int sumOfNumbers = 0;
 						char maxTiles = 3;
 
@@ -992,19 +988,23 @@ void app::MainApp::Load(void) {
 				}
 				else { //mario hits shell from right or left
 					
-					if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) {
+					if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell starts moving
+						cout << GetGameTime() << endl;
 						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
 						koopa_troopa_walk->Stop();
 						koopa_troopa_walk->deleteCurrAnimation();
 						AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
-						if (s1_x1 < s2_x2)
+						if (s1_x1 < s2_x1)
 							s2->lastMovedRight = true;
 						else
 							s2->lastMovedRight = false;
 						s2->SetStateId(WALKING_STATE);
 					}
-
+					else {
 					//do mario penalty
+					}
+
+					
 				}
 
 			}
