@@ -350,10 +350,13 @@ void InitialiseGame(Game& game) {
 						}
 						else {
 							if (koopa_troopa->GetStateId() == WALKING_STATE) {
+								int speed = ENEMIES_MOVE_SPEED;
+								if (koopa_troopa->GetFormStateId() == SMASHED)
+									speed = SHELL_SPEED;
 								if (koopa_troopa->lastMovedRight)
-									koopa_troopa->Move(ENEMIES_MOVE_SPEED, 0);
+									koopa_troopa->Move(speed, 0);
 								else
-									koopa_troopa->Move(-ENEMIES_MOVE_SPEED, 0);
+									koopa_troopa->Move(-speed, 0);
 							}
 						}
 					}
