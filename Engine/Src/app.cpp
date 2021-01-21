@@ -180,12 +180,10 @@ void InitialiseGame(Game& game) {
 					gridOn = !gridOn;
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_P) {
-					cout << game.IsPaused() << endl;
 					if (game.IsPaused())
 						game.Resume();
 					else
 						game.Pause(GetGameTime());
-					cout << game.IsPaused() << endl;
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 					keys[event.keyboard.keycode] = true;
@@ -218,7 +216,7 @@ void InitialiseGame(Game& game) {
 
 								for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
 
-								if (keys[ALLEGRO_KEY_W])
+								if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP])
 									dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
 								else
 									jump->Stop();
@@ -272,7 +270,13 @@ void InitialiseGame(Game& game) {
 								}
 
 								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("koopa_troopa")) { // move the sprites the opposite directions (f.e. pipes)
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
+								}
+
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) { // move the sprites the opposite directions (f.e. pipes)
 										sprite->Move(-move_x, 0);
 									}
 								}
@@ -339,11 +343,31 @@ void InitialiseGame(Game& game) {
 								goomba->Move(ENEMIES_MOVE_SPEED, 0);
 							else
 								goomba->Move(-ENEMIES_MOVE_SPEED, 0);
+
 						}
 					}
 				}
-				if (!SpriteManager::GetSingleton().GetTypeList("koopa_troopa").empty()) {
-					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("koopa_troopa")) {
+				if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
+					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+						if (koopa_troopa->GetFormStateId() == DELETE) {
+							koopa_troopa->SetVisibility(false);
+							toBeDestroyed.push_back(koopa_troopa);
+						}
+						else {
+							if (koopa_troopa->GetStateId() == WALKING_STATE) {
+								int speed = ENEMIES_MOVE_SPEED;
+								if (koopa_troopa->GetFormStateId() == SMASHED)
+									speed = SHELL_SPEED;
+								if (koopa_troopa->lastMovedRight)
+									koopa_troopa->Move(speed, 0);
+								else
+									koopa_troopa->Move(-speed, 0);
+							}
+						}
+					}
+				}
+				if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
+					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
 						if (koopa_troopa->GetFormStateId() == DELETE) {
 							koopa_troopa->SetVisibility(false);
 							toBeDestroyed.push_back(koopa_troopa);
@@ -401,7 +425,14 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->SetHasDirectMotion(false);
 	}
 
-	sprites = SpriteManager::GetSingleton().GetTypeList("koopa_troopa");
+	sprites = SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->SetHasDirectMotion(true);
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+		sprite->SetHasDirectMotion(false);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
@@ -430,17 +461,17 @@ void app::MainApp::Initialise(void) {
 	al_init_image_addon();
 	al_init_primitives_addon();
 
-	timer = al_create_timer(1.0 / 60);
+	timer = al_create_timer(1.0 / 40);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
 	fallingQueue = al_create_event_queue();
-	fallingTimer = al_create_timer(1.0 / 60);
+	fallingTimer = al_create_timer(1.0 / 50);
 	al_register_event_source(fallingQueue, al_get_timer_event_source(fallingTimer));
 	al_start_timer(fallingTimer);
 
 	aiQueue= al_create_event_queue();
-	aiTimer = al_create_timer(1.0 / 60);
+	aiTimer = al_create_timer(1.0 / 40);
 	al_register_event_source(aiQueue, al_get_timer_event_source(aiTimer));
 	al_start_timer(aiTimer);
 
@@ -587,7 +618,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if ((s2_y2 <= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_W]) { //if mario bellow the pipe
+			if ((s2_y2 <= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP])) { //if mario bellow the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.down", 32, 0, -1, 30), GetGameTime());
@@ -616,7 +647,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
-			if ((s2_x2 >= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && keys[ALLEGRO_KEY_D]) { //if mario on left of the pipe
+			if ((s2_x2 >= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT])) { //if mario on left of the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.left", 32, 1, 0, 30), GetGameTime());
@@ -645,7 +676,7 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
-			if ((s2_x2 <= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && keys[ALLEGRO_KEY_A]) { //if mario on right of the pipe
+			if ((s2_x2 <= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT])) { //if mario on right of the pipe
 				if (&pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.right", 32, -1, 0, 30), GetGameTime());
@@ -726,9 +757,17 @@ void app::MainApp::Load(void) {
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
+	vector<string> locations;
+	vector<string> coordinates;
+	Sprite* tmp;
+
 	//create a demo goomba
-	Sprite* tmp = new Sprite(500, 400, AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba"), "goomba");
-	SpriteManager::GetSingleton().Add(tmp);
+	locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		tmp = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba"), "goomba");
+		SpriteManager::GetSingleton().Add(tmp);
+	}
 
 	for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
 		class MovingAnimator* goomba_walk = new MovingAnimator();
@@ -838,10 +877,14 @@ void app::MainApp::Load(void) {
 
 	//create a demo Koopa Troopa 
 
-	tmp = new Sprite(700, 400, AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"), "koopa_troopa");
-	SpriteManager::GetSingleton().Add(tmp);
+	locations = splitString(al_get_config_value(config, "emenies_positions", "green_koopa_troopa"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		tmp = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"), "green_koopa_troopa");
+		SpriteManager::GetSingleton().Add(tmp);
+	}
 
-	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("koopa_troopa")) {
+	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
 		class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
 		AnimatorManager::GetSingleton().Register(koopa_troopa_walk);
 
@@ -993,7 +1036,6 @@ void app::MainApp::Load(void) {
 				else { //mario hits shell from right or left
 					
 					if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell starts moving
-						cout << GetGameTime() << endl;
 						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
 						koopa_troopa_walk->Stop();
 						koopa_troopa_walk->deleteCurrAnimation();
@@ -1019,12 +1061,14 @@ void app::MainApp::Load(void) {
 	/*--------------------create a demo Red Koopa Troopa --------------------------
 	* Exactly the same as the green koopa but the mover function is changed. Only this!*/
 
-	tmp = new Sprite(360, 368, AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"), "koopa_troopa");
-	SpriteManager::GetSingleton().Add(tmp);
-
-	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("koopa_troopa")) {
-		if (koopa_troopa->GetCurrFilm()->GetId() == "enemies.green_koopa_troopa_right")
-			continue;
+	locations = splitString(al_get_config_value(config, "emenies_positions", "red_koopa_troopa"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		tmp = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"), "red_koopa_troopa");
+		SpriteManager::GetSingleton().Add(tmp);
+	}
+	
+	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
 		class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
 		AnimatorManager::GetSingleton().Register(koopa_troopa_walk);
 
@@ -1093,57 +1137,22 @@ void app::MainApp::Load(void) {
 		CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 			[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
 
-			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
-			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
-			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
-			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
-			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
-			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+				int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+				int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+				int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+				int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits  coopa/shell from top
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits  coopa/shell from top
 
-				if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
-					s2->SetFrame(0);
-					s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_shell"));
-					s2->SetFormStateId(SMASHED);
-					s2->SetStateId(IDLE_STATE);
-					s2->SetBoxDimentions(16, 10);
-					s2->Move(0, 4);
-
-					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
-					koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
-						if (s2->lastMovedRight)
-							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"));
-						else
-							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
-
-						s2->SetBoxDimentions(16, 16);
-						s2->SetHasDirectMotion(true);
-						s2->Move(0, -10);
-						s2->SetHasDirectMotion(false);
-						koopa_troopa_walk->deleteCurrAnimation();
-						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
-						s2->SetFormStateId(ENEMY);
-						s2->SetStateId(WALKING_STATE);
-					});
-
-				}
-				else { //mario hits the shell from the top
-					mario->Move(0, -4); //move him just a little away from the shell so they don't collide again
-
-					if (s2->GetStateId() == IDLE_STATE) { //shell is not moving. Start it moving
-						//-->shell start moving
-						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
-						koopa_troopa_walk->Stop();
-						koopa_troopa_walk->deleteCurrAnimation();
-						AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
-						s2->SetStateId(WALKING_STATE);
-						if (s1_x1 < s2_x1)
-							s2->lastMovedRight = true;
-						else
-							s2->lastMovedRight = false;
-					}
-					else { // shell is already moving. Stop it
+					if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
+						s2->SetFrame(0);
+						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_shell"));
+						s2->SetFormStateId(SMASHED);
+						s2->SetStateId(IDLE_STATE);
+						s2->SetBoxDimentions(16, 10);
+						s2->Move(0, 4);
 
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
 						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
@@ -1154,67 +1163,100 @@ void app::MainApp::Load(void) {
 
 							s2->SetBoxDimentions(16, 16);
 							s2->SetHasDirectMotion(true);
-							s2->Move(0, -10);
+							s2->Move(0, -6);
 							s2->SetHasDirectMotion(false);
 							koopa_troopa_walk->deleteCurrAnimation();
 							koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
 							s2->SetFormStateId(ENEMY);
 							s2->SetStateId(WALKING_STATE);
 						});
-						s2->SetFrame(0);
-						s2->SetStateId(IDLE_STATE);
+
 					}
-				}
+					else { //mario hits the shell from the top
+						mario->Move(0, -4); //move him just a little away from the shell so they don't collide again
 
-				//memory cleaning
-				if (jump_anim != nullptr) {
-					jump->Stop();
-					delete jump_anim;
-				}
+						if (s2->GetStateId() == IDLE_STATE) { //shell is not moving. Start it moving
+							//-->shell start moving
+							koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
+							koopa_troopa_walk->Stop();
+							koopa_troopa_walk->deleteCurrAnimation();
+							AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+							s2->SetStateId(WALKING_STATE);
+							if (s1_x1 < s2_x1)
+								s2->lastMovedRight = true;
+							else
+								s2->lastMovedRight = false;
+						}
+						else { // shell is already moving. Stop it
 
-				/*mario jumping animation after hitting koopa*/
-				jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+							koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+							koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
+								if (s2->lastMovedRight)
+									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"));
+								else
+									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 
-				jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
-					int sumOfNumbers = 0;
-					char maxTiles = 3;
+								s2->SetBoxDimentions(16, 16);
+								s2->SetHasDirectMotion(true);
+								s2->Move(0, -6);
+								s2->SetHasDirectMotion(false);
+								koopa_troopa_walk->deleteCurrAnimation();
+								koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
+								s2->SetFormStateId(ENEMY);
+								s2->SetStateId(WALKING_STATE);
+							});
+							s2->SetFrame(0);
+							s2->SetStateId(IDLE_STATE);
+						}
+					}
 
-					for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
+					//memory cleaning
+					if (jump_anim != nullptr) {
+						jump->Stop();
+						delete jump_anim;
+					}
 
-					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
-				});
-				jump->Start(jump_anim, GetGameTime());
-				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
-				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
-			}
-			else { //mario hits shell from right or left
+					/*mario jumping animation after hitting koopa*/
+					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
-				if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell starts moving
-					cout << GetGameTime() << endl;
-					koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
-					koopa_troopa_walk->Stop();
-					koopa_troopa_walk->deleteCurrAnimation();
-					AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
-					if (s1_x1 < s2_x1)
-						s2->lastMovedRight = true;
+					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
+						int sumOfNumbers = 0;
+						char maxTiles = 3;
+
+						for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
+
+						dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+					});
+					jump->Start(jump_anim, GetGameTime());
+					if (mario->lastMovedRight)
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 					else
-						s2->lastMovedRight = false;
-					s2->SetStateId(WALKING_STATE);
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 				}
-				else {
-					//do mario penalty
-				}
+				else { //mario hits shell from right or left
 
+					if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell starts moving
+						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
+						koopa_troopa_walk->Stop();
+						koopa_troopa_walk->deleteCurrAnimation();
+						AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+						if (s1_x1 < s2_x1)
+							s2->lastMovedRight = true;
+						else
+							s2->lastMovedRight = false;
+						s2->SetStateId(WALKING_STATE);
+					}
+					else {
+						//do mario penalty
+					}
+
+
+				}
 
 			}
-
-		}
 		);
 	}
 	/*-----------------------------------------------------------------*/
-
 
 	//create all pipe sprites and add collisions
 	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
