@@ -328,8 +328,7 @@ void InitialiseGame(Game& game) {
 				if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
 					for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
 						if (goomba->GetFormStateId() == SMASHED) {
-							goomba->SetVisibility(false);
-							toBeDestroyed.push_back(goomba);
+							//if smashed do nothing (dont move it)
 						}
 						else if (goomba->GetFormStateId() == DELETE) {
 							goomba->SetVisibility(false);
@@ -725,7 +724,7 @@ void app::MainApp::Load(void) {
 			goomba->NextFrame();
 		});
 		goomba_walk->SetOnFinish([goomba](Animator* animator) {
-			AnimatorManager::GetSingleton().Cancel(animator);
+			//AnimatorManager::GetSingleton().Cancel(animator);
 		});
 
 
@@ -775,17 +774,17 @@ void app::MainApp::Load(void) {
 
 				if (!(s2_y2 < s1_y1) && (s1_x1 + 3 >= s2_x1) && (s1_x2 - 3 <= s2_x2)) {
 					s2->SetFormStateId(SMASHED);
-					//do animation of smashed
 
+					delete goomba_walking_animation;
+						
 					//jumping animation
 					if (jump_anim != nullptr) {
 						jump->Stop();
 						delete jump_anim;
 					}
-					goomba_walk->Stop();
-					goomba_walk->Destroy();
+					//goomba_walk->Stop();
+					//goomba_walk->Destroy();
 					CollisionChecker::GetSingleton().Cancel(s1, s2);
-					delete goomba_walking_animation;
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 					jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
 						int sumOfNumbers = 0;
@@ -795,6 +794,21 @@ void app::MainApp::Load(void) {
 
 						dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
 					});
+
+					/*play death animation of goomba*/
+					class MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
+					s2->SetFrame(0);
+					s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
+					s2->SetHasDirectMotion(true);
+					s2->Move(0, 7); //smashed is smaller so move him back to the ground
+					goomba_walk->Start(goomba_death_animation, GetGameTime());
+					goomba_walk->SetOnFinish([goomba_walk, s2](Animator* animator) {
+						AnimatorManager::GetSingleton().Cancel(animator);
+						goomba_walk->deleteCurrAnimation();
+						s2->SetFormStateId(DELETE);
+						goomba_walk->Destroy();
+					});
+
 					jump->Start(jump_anim, GetGameTime());
 					if (mario->lastMovedRight)
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
