@@ -772,15 +772,14 @@ void app::MainApp::Load(void) {
 		CollisionChecker::GetSingleton().Register(mario, goomba,
 			[goomba_walk, goomba_walking_animation](Sprite *s1, Sprite* s2) {
 				
-				int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-				int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+				int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+				int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 				int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
 				int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
-				int middleOfMario = (s1_x1 + s1_x2) / 2;
 
-				if (!(s2_y2 < s1_y1) && (s1_x1 + 3 >= s2_x1) && (s1_x2 - 3 <= s2_x2)) {
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) {
 					s2->SetFormStateId(SMASHED);
 
 					delete goomba_walking_animation;
@@ -824,7 +823,7 @@ void app::MainApp::Load(void) {
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 				}
 				else {
-					s2->lastMovedRight = !s2->lastMovedRight;
+					//s2->lastMovedRight = !s2->lastMovedRight;
 					//do mario penalty
 				}
 				
