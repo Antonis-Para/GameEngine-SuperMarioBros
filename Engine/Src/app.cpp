@@ -391,6 +391,14 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 	}
 
 	sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
+
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->SetHasDirectMotion(true);
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+		sprite->SetHasDirectMotion(false);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("koopa_troopa");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
