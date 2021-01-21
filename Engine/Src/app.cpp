@@ -971,11 +971,6 @@ void app::MainApp::Load(void) {
 						jump->Stop();
 						delete jump_anim;
 					}
-					/*if (s2->GetFormStateId() != SMASHED) {
-						koopa_troopa_walk->Stop();
-						koopa_troopa_walk->Destroy();
-						delete koopa_troopa_walking_animation;
-					}*/
 
 					/*mario jumping animation after hitting koopa*/
 					jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
@@ -995,14 +990,18 @@ void app::MainApp::Load(void) {
 					else
 						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 				}
-				else {
-					//s2->lastMovedRight = !s2->lastMovedRight;
-					if (s2->GetFormStateId() != SMASHED) {
-						if (s2->lastMovedRight)
-							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"));
+				else { //mario hits shell from right or left
+					
+					if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) {
+						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
+						koopa_troopa_walk->Stop();
+						koopa_troopa_walk->deleteCurrAnimation();
+						AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+						if (s1_x1 < s2_x2)
+							s2->lastMovedRight = true;
 						else
-							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
-
+							s2->lastMovedRight = false;
+						s2->SetStateId(WALKING_STATE);
 					}
 
 					//do mario penalty
