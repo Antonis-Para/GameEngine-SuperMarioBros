@@ -913,6 +913,7 @@ void app::MainApp::Load(void) {
 						s2->SetFormStateId(SMASHED);
 						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_shell"));
 						s2->SetBoxDimentions(16, 10);
+						s2->SetFrame(0);
 						//do animation of smashed
 					}
 
