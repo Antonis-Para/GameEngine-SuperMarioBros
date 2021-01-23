@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// lecture 5, slide 27
+// lecture 5, slide 27 mpla
 class Game { // app::Game namespace, the mother application
 public:
 	using Action = std::function<void(void)>;
