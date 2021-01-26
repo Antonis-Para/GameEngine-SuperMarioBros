@@ -12,6 +12,7 @@ using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
 class TileLayer* action_layer;
+class TileLayer* underground_layer;
 class CircularBackground* circular_background;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
@@ -117,8 +118,8 @@ void InstallPauseResumeHandler(Game& game) {
 	);
 }
 
-void loadMap(string path) {
-	app::ReadTextMap(action_layer, path);
+void loadMap(TileLayer *layer, string path) {
+	app::ReadTextMap(layer, path);
 }
 
 //--------------------------------------
@@ -165,6 +166,7 @@ void InitialiseGame(Game& game) {
 		[](void) {
 			circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 			action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
+			//underground_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 			for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
 				sprite->Display(BitmapGetScreen());
@@ -720,15 +722,18 @@ void app::MainApp::Load(void) {
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
-	TileLayer *underground_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
-	underground_layer->Allocate();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles)); //tileset width
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); //tileset height
 	total_tiles = tilesw * tilesh;
 
 	action_layer->InitCaching(tilesw, tilesh);
-	loadMap(al_get_config_value(config, "paths", "action_layer_path"));
+	loadMap(action_layer, al_get_config_value(config, "paths", "action_layer_path"));
+
+	//underground_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
+	//underground_layer->Allocate();
+	//underground_layer->InitCaching(tilesw, tilesh);
+	//loadMap(underground_layer, al_get_config_value(config, "paths", "underground_layer_path"));
 
 	circular_background = new CircularBackground(bg_tiles, al_get_config_value(config, "paths", "circular_backround_path"));
 
@@ -1390,6 +1395,7 @@ void app::MainApp::Clear(void) {
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
 	al_destroy_bitmap(action_layer->GetBitmap());
+	//al_destroy_bitmap(underground_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
 	delete bitmaploader;
