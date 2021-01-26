@@ -12,6 +12,7 @@ class TileLayer {
 		Index* map = nullptr;
 		GridLayer* grid = nullptr;
 		Dim totalRows = 0, totalColumns = 0;
+		Dim widthInTiles = 0, heightInTiles = 0;
 		Bitmap tileSet = nullptr;
 		Rect viewWin;
 		Bitmap dpyBuffer = nullptr;
@@ -54,6 +55,10 @@ class TileLayer {
 		int GetPixelHeight(void) const;
 		unsigned GetTileWidth(void) const;
 		unsigned GetTileHeight(void) const;
+
+		unsigned GetMapWidth(void);
+		unsigned GetMapHeight(void);
+		void SetMapDims(unsigned, unsigned);
 
 		void Scroll(int dx, int dy);
 		bool CanScrollHoriz(int dx) const;

@@ -5,7 +5,7 @@
 //Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 
 TileLayer::TileLayer(Dim _rows, Dim _cols, Bitmap _tileSet) {
-	grid = new class GridLayer();
+	grid = new GridLayer();
 	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 	totalRows = _rows;
 	totalColumns = _cols;
@@ -62,6 +62,19 @@ int TileLayer::GetPixelHeight(void) const { return viewWin.h; }
 unsigned TileLayer::GetTileWidth(void) const { return DIV_TILE_WIDTH(viewWin.w); }
 
 unsigned TileLayer::GetTileHeight(void) const { return DIV_TILE_HEIGHT(viewWin.h); }
+
+unsigned TileLayer::GetMapWidth(void) {
+	return widthInTiles;
+}
+
+unsigned TileLayer::GetMapHeight(void) {
+	return heightInTiles;
+}
+
+void TileLayer::SetMapDims(unsigned width, unsigned height){
+	widthInTiles = width;
+	heightInTiles = height;
+}
 
 void TileLayer::Save(const std::string& path) const
 {
@@ -156,7 +169,10 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 		dpyChanged = false;
 		for (Dim row = startRow; row <= endRow; ++row) {
 			for (Dim col = startCol; col <= endCol; ++col) {
-				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
+				if(GetTile(row, col) == 0 || GetTile(row, col) == 4)
+					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, total_tiles);
+				else
+					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
 			}
 		}
 	}

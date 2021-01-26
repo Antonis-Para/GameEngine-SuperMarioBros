@@ -217,6 +217,26 @@ void Sprite::SetFormStateId(spriteFormState_t state) {
 	formStateId = state;
 }
 
+int Sprite::getLives(void) {
+	return lives;
+}
+
+void Sprite::setLives(int lives) {
+	Sprite::lives = lives;
+}
+
+void Sprite::addLife(void) {
+	lives++;
+}
+
+void Sprite::loseLife(void) {
+	lives--;
+}
+
+bool Sprite::isDead(void) {
+	return lives == 0;
+}
+
 // CollisionChecker
 CollisionChecker CollisionChecker::singleton;
 
