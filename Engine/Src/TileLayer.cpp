@@ -5,7 +5,7 @@
 //Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 
 TileLayer::TileLayer(Dim _rows, Dim _cols, Bitmap _tileSet) {
-	grid = new class GridLayer();
+	grid = new GridLayer();
 	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 	totalRows = _rows;
 	totalColumns = _cols;

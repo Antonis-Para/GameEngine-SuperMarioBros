@@ -12,6 +12,7 @@ using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
 class TileLayer* action_layer;
+TileLayer* underground_layer;
 class CircularBackground* circular_background;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
@@ -117,8 +118,8 @@ void InstallPauseResumeHandler(Game& game) {
 	);
 }
 
-void loadMap(string path) {
-	app::ReadTextMap(action_layer, path);
+void loadMap(TileLayer *layer, string path) {
+	app::ReadTextMap(layer, path);
 }
 
 //--------------------------------------
@@ -164,6 +165,7 @@ void InitialiseGame(Game& game) {
 	game.SetRender(
 		[](void) {
 			circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
+			underground_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 			action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 			for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
@@ -257,6 +259,7 @@ void InitialiseGame(Game& game) {
 							int move_x = mario->GetSpeed();
 							int move_y = 0;
 							if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
+								underground_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 								action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 								circular_background->Scroll(move_x);
 								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("pipe")) { // move the sprites the opposite directions (f.e. pipes)
@@ -480,6 +483,7 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
+	underground_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, underground_layer->GetViewWindow().w, underground_layer->GetViewWindow().h });
 	action_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, action_layer->GetViewWindow().w, action_layer->GetViewWindow().h });
 }
 
@@ -827,7 +831,12 @@ void app::MainApp::Load(void) {
 	total_tiles = tilesw * tilesh;
 
 	action_layer->InitCaching(tilesw, tilesh);
-	loadMap(al_get_config_value(config, "paths", "action_layer_path"));
+	loadMap(action_layer, al_get_config_value(config, "paths", "action_layer_path"));
+
+	underground_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
+	underground_layer->Allocate();
+	underground_layer->InitCaching(tilesw, tilesh);
+	loadMap(underground_layer, al_get_config_value(config, "paths", "underground_layer_path"));
 
 	circular_background = new CircularBackground(bg_tiles, al_get_config_value(config, "paths", "circular_backround_path"));
 
@@ -1505,6 +1514,7 @@ void app::MainApp::Clear(void) {
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
 	al_destroy_bitmap(action_layer->GetBitmap());
+	//al_destroy_bitmap(underground_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
 	delete bitmaploader;
