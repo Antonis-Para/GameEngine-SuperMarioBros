@@ -712,6 +712,7 @@ void app::MainApp::Load(void) {
 
 	//load bitmaps, TODO we shouldnt have a bitmap loader at all. Animation film will handle this
 	Bitmap tiles = bitmaploader->Load(al_get_config_value(config, "paths", "tiles_path"));
+	Bitmap bg_tiles = bitmaploader->Load(al_get_config_value(config, "paths", "bg_tiles_path"));
 	characters = bitmaploader->Load(al_get_config_value(config, "paths", "characters_path"));
 	npcs = bitmaploader->Load(al_get_config_value(config, "paths", "npcs_path"));
 	assert(npcs);
@@ -726,7 +727,7 @@ void app::MainApp::Load(void) {
 	action_layer->InitCaching(tilesw, tilesh);
 	loadMap(al_get_config_value(config, "paths", "action_layer_path"));
 
-	circular_background = new CircularBackground(tiles, al_get_config_value(config, "paths", "circular_backround_path"));
+	circular_background = new CircularBackground(bg_tiles, al_get_config_value(config, "paths", "circular_backround_path"));
 
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
