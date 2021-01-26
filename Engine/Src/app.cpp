@@ -462,17 +462,17 @@ void app::MainApp::Initialise(void) {
 	al_init_image_addon();
 	al_init_primitives_addon();
 
-	timer = al_create_timer(1.0 / 40);
+	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);
 
 	fallingQueue = al_create_event_queue();
-	fallingTimer = al_create_timer(1.0 / 50);
+	fallingTimer = al_create_timer(1.0 / 60);
 	al_register_event_source(fallingQueue, al_get_timer_event_source(fallingTimer));
 	al_start_timer(fallingTimer);
 
 	aiQueue= al_create_event_queue();
-	aiTimer = al_create_timer(1.0 / 40);
+	aiTimer = al_create_timer(1.0 / 60);
 	al_register_event_source(aiQueue, al_get_timer_event_source(aiTimer));
 	al_start_timer(aiTimer);
 
