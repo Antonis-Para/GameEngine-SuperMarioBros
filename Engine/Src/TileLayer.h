@@ -18,7 +18,6 @@ class TileLayer {
 		bool dpyChanged = true;
 		Dim dpyX = 0, dpyY = 0;
 		std::set<Index> solids; // holds the ids of the solid tiles
-		std::set<Index> npcs; // holds the ids of the npcs tiles ('?' block, coin, brick etc)
 
 		/*Pre caching*/
 		Index* divIndex = nullptr;
@@ -40,7 +39,6 @@ class TileLayer {
 		void InitCaching(int width, int height);
 
 		void insertSolid(Index id);
-		void insertNPC(Index id);
 		void SetTile(Dim col, Dim row, Index index);
 		Index GetTile(Dim col, Dim row) const;
 		void ComputeTileGridBlocks1(void);
