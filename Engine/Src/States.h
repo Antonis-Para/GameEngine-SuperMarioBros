@@ -13,5 +13,6 @@ enum spriteFormState_t {
 	DELETE = 5, 
 	BRICK = 6, 
 	BLOCK = 7, 
-	EMPTY_BLOCK = 8
+	EMPTY_BLOCK = 8,
+	MOVED_BLOCK = 9
 };
