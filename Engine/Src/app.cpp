@@ -411,10 +411,13 @@ void InitialiseGame(Game& game) {
 					}
 				}
 				if (!SpriteManager::GetSingleton().GetTypeList("brick").empty()) {
-					for (auto block : SpriteManager::GetSingleton().GetTypeList("brick")) {
-						if (block->GetFormStateId() == MOVED_BLOCK) {
-							block->Move(0, 4);
-							block->SetFormStateId(BLOCK);
+					for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
+						if (brick->GetFormStateId() == MOVED_BLOCK) {
+							brick->Move(0, 4);
+							brick->SetFormStateId(BRICK);
+						}
+						else if (brick->GetFormStateId() == SMASHED) {
+							toBeDestroyed.push_back(brick);
 						}
 					}
 				}
@@ -779,6 +782,11 @@ void createBrickSprite(int x, int y) {
 			if (s1_x1 > s2_x1 - 7 && s1_x2 < s2_x2 + 7 && s1_y1 + 3 >= s2_y2) {
 				s2->Move(0, -4);
 				s2->SetFormStateId(MOVED_BLOCK);
+				if (s1->GetFormStateId() == SUPER_MARIO) {
+					//smash animation
+
+					s2->SetFormStateId(SMASHED);
+				}
 			}
 		}
 	);
