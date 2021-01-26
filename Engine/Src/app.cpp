@@ -494,6 +494,8 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 	sprites = SpriteManager::GetSingleton().GetTypeList("piranha_plant");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0); //they anyway have direct motion
+	}
+
 	sprites = SpriteManager::GetSingleton().GetTypeList("brick");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
