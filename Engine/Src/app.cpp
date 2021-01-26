@@ -284,6 +284,11 @@ void InitialiseGame(Game& game) {
 										sprite->Move(-move_x, 0);
 									}
 								}
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
+								}
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 							}
@@ -443,6 +448,11 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->SetHasDirectMotion(false);
 	}
 
+	sprites = SpriteManager::GetSingleton().GetTypeList("piranha_plant");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0); //they anyway have direct motion
+	}
+
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
 	action_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, action_layer->GetViewWindow().w, action_layer->GetViewWindow().h });
 }
@@ -564,6 +574,7 @@ string loadAllEnemies(const ALLEGRO_CONFIG* config) {
 		+ "enemies.red_koopa_troopa_right:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_right")) + '$'
 		+ "enemies.red_koopa_troopa_left:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_left")) + '$'
 		+ "enemies.red_koopa_troopa_shell:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_shell")) + '$'
+		+ "enemies.piranha_plant:" + string(al_get_config_value(config, "enemies", "piranha_plant")) + '$'
 		;
 }
 
@@ -1375,6 +1386,132 @@ void app::MainApp::Load(void) {
 		);
 	}
 	/*-----------------------------------------------------------------*/
+
+	/*---------------------------Create demo piranha plant------------------------*/
+	locations = splitString(al_get_config_value(config, "emenies_positions", "piranha_plant"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		tmp = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("enemies.piranha_plant"), "piranha_plant");
+		SpriteManager::GetSingleton().Add(tmp);
+	}
+
+	for (auto piranha : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) {
+		class MovingPathAnimator* piranha_move = new MovingPathAnimator();
+		piranha->SetAnimator(piranha_move);
+		AnimatorManager::GetSingleton().Register(piranha_move);
+		piranha_move->SetOnAction([piranha_move, piranha](Animator* animator, const Animation& anim) {
+			int dx = ((const MovingPathAnimation&)anim).GetPath().at(piranha_move->GetFrame()).dx;
+			int dy = ((const MovingPathAnimation&)anim).GetPath().at(piranha_move->GetFrame()).dy;
+			piranha->Move(dx, dy);
+
+			piranha_move->nextFrame(); //moves him up/down
+			if (piranha_move->GetFrame() % 4 == 0) 
+				piranha->NextFrame();	// opens/closes mouth
+		});
+
+		MovingPathAnimation::Path path;
+		for (int i = 0; i < 16; i++) {	//plant goes up
+			path.push_back(struct PathEntry());
+			path.at(i).delay = 70;
+			path.at(i).dy = -2;
+		}
+		for (int i = 16; i < 44; i++) { //plant does nothing
+			path.push_back(struct PathEntry());
+			path.at(i).delay = 80;
+		}
+		for (int i = 44; i < 60; i++) { //plant goes down
+			path.push_back(struct PathEntry());
+			path.at(i).delay = 70;
+			path.at(i).dy = 2;
+		}
+		path.push_back(struct PathEntry());
+		path.at(60).delay = 2000; //do nothing while bellow the pipe
+
+
+		class MovingPathAnimation* piranha_moving_animation = new MovingPathAnimation("piranha", path);
+		piranha_move->Start(piranha_moving_animation, GetGameTime());
+
+		piranha->SetStateId(WALKING_STATE);
+		piranha->SetZorder(1);
+		piranha->SetBoundingArea(new BoundingBox(piranha->GetBox().x, piranha->GetBox().y, piranha->GetBox().x + piranha->GetBox().w, piranha->GetBox().y + piranha->GetBox().h));
+		piranha->GetGravityHandler().setGravityAddicted(false);
+		piranha->SetFormStateId(ENEMY);
+		piranha->SetHasDirectMotion(true);
+
+		/*CollisionChecker::GetSingleton().Register(mario, goomba,
+			[goomba_walk, goomba_walking_animation](Sprite* s1, Sprite* s2) {
+
+			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits goomba from top
+				s2->SetFormStateId(SMASHED);
+
+				delete goomba_walking_animation;
+
+				//jumping animation
+				if (jump_anim != nullptr) {
+					jump->Stop();
+					delete jump_anim;
+				}
+
+				CollisionChecker::GetSingleton().Cancel(s1, s2);
+				jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+				jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
+					int sumOfNumbers = 0;
+					char maxTiles = 3;
+
+					for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
+
+					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+				});
+
+				//play death animation of goomba
+				class MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
+				s2->SetFrame(0);
+				s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
+				s2->SetHasDirectMotion(true);
+				s2->Move(0, 7); //smashed is smaller so move him back to the ground
+				goomba_walk->Start(goomba_death_animation, GetGameTime());
+				goomba_walk->SetOnFinish([goomba_walk, s2](Animator* animator) {
+					AnimatorManager::GetSingleton().Cancel(animator);
+					for (auto s1 : shells)
+						CollisionChecker::GetSingleton().Cancel(s1, s2);
+					goomba_walk->deleteCurrAnimation();
+					s2->SetFormStateId(DELETE);
+					goomba_walk->Destroy();
+				});
+
+				jump->Start(jump_anim, GetGameTime());
+				if (mario->lastMovedRight)
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+				else
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+			}
+			else {
+				//s2->lastMovedRight = !s2->lastMovedRight;
+				//do mario penalty
+			}
+
+		}
+		);*/
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	//create all pipe sprites and add collisions
 	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {

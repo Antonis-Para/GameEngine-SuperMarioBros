@@ -113,6 +113,26 @@ public:
 	void Start(const TickAnimation& a, timestamp_t t);
 };
 
+class MovingPathAnimator : public Animator {
+private:
+	MovingPathAnimation* anim = nullptr;
+	unsigned frame;
+	//unsigned currRep = 0;
+	//unsigned elapsedTime = 0;
+public:
+	MovingPathAnimator(void) = default;
+
+	void nextFrame();
+	unsigned GetFrame(void);
+
+	void Progress(timestamp_t currTime);
+	MovingPathAnimation* GetAnim(void);
+	//unsigned GetCurrRep(void) const;
+	//unsigned GetElapsedTime(void) const;
+	//float GetElapsedTimeNormalised(void) const;
+	void Start(MovingPathAnimation* a, timestamp_t t);
+};
+
 class AnimatorManager {
 private:
 	std::set<Animator*> running, suspended;

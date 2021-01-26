@@ -75,6 +75,40 @@ void MovingAnimator::deleteCurrAnimation() {
 	anim = nullptr;
 }
 
+//Moving path animator
+void MovingPathAnimator::Progress(timestamp_t currTime) {
+	while (currTime > lastTime && (currTime - lastTime) >= anim->GetPath().at(frame).delay) {
+		lastTime += anim->GetPath().at(frame).delay;
+		NotifyAction(*anim);
+		//if (!anim->IsForever() && ++currRep == anim->GetReps()) {
+		//	state = ANIMATOR_FINISHED;
+		//	NotifyStopped();
+		//}
+	}
+}
+
+MovingPathAnimation* MovingPathAnimator::GetAnim(void){
+	return anim;
+}
+
+unsigned MovingPathAnimator::GetFrame(void) {
+	return frame;
+}
+
+void MovingPathAnimator::Start(MovingPathAnimation* a, timestamp_t t) {
+	anim = a;
+	lastTime = t;
+	state = ANIMATOR_RUNNING;
+	NotifyStarted();
+}
+
+void MovingPathAnimator::nextFrame() {
+	frame++;
+	if (frame == anim->GetPath().size())
+		frame = 0;
+}
+
+
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->Move(anim.GetDx(), anim.GetDy());
 }

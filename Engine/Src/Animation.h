@@ -127,7 +127,6 @@ public:
 
 struct PathEntry {
 	int dx = 0, dy = 0;
-	unsigned frame = 0;
 	unsigned delay = 0;
 	PathEntry(void) = default;
 	PathEntry(const PathEntry&) = default;
