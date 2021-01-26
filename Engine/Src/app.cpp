@@ -24,6 +24,7 @@ ALLEGRO_TIMER* aiTimer;
 bool gridOn = true;
 bool disable_input = false;
 Bitmap characters = nullptr;
+Bitmap npcs = nullptr;
 
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
@@ -131,6 +132,17 @@ void loadSolidTiles(ALLEGRO_CONFIG* config, TileLayer *layer) {
 		layer->insertSolid(atoi(tile.c_str()));
 	}
 	
+}
+
+void loadNPCTiles(ALLEGRO_CONFIG* config, TileLayer* layer) {
+	string text = "";
+	vector<string> tiles;
+
+	text = al_get_config_value(config, "tiles", "npcs");
+	tiles = splitString(text, " ");
+	for (auto tile : tiles) {
+		layer->insertNPC(atoi(tile.c_str()));
+	}
 }
 
 void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
@@ -712,6 +724,8 @@ void app::MainApp::Load(void) {
 	//load bitmaps, TODO we shouldnt have a bitmap loader at all. Animation film will handle this
 	Bitmap tiles = bitmaploader->Load(al_get_config_value(config, "paths", "tiles_path"));
 	characters = bitmaploader->Load(al_get_config_value(config, "paths", "characters_path"));
+	npcs = bitmaploader->Load(al_get_config_value(config, "paths", "npcs_path"));
+	assert(npcs);
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
@@ -726,6 +740,7 @@ void app::MainApp::Load(void) {
 	circular_background = new CircularBackground(tiles, al_get_config_value(config, "paths", "circular_backround_path"));
 
 	loadSolidTiles(config, action_layer);
+	loadNPCTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
 
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));

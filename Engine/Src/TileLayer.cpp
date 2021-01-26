@@ -171,6 +171,10 @@ void TileLayer::insertSolid(Index id) {
 	solids.insert(id);
 }
 
+void TileLayer::insertNPC(Index id) {
+	npcs.insert(id);
+}
+
 bool TileLayer::IsTileIndexAssumedEmpty(Index index) {
 	if (solids.find(index) != solids.end()) //if it is in the list, then its solid (not empty)
 		return false;
