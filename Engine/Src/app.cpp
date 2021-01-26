@@ -1372,11 +1372,10 @@ void app::MainApp::Load(void) {
 		
 	}
 
-	// replace each npc index with sprite
-	vector<string> npcIndexes = splitString(al_get_config_value(config, "tiles", "npcs"), " ");
-	for (std::string tile : npcIndexes) {
-		Index index = std::stoi(tile);
-	}
+	// replace each brick index with sprite
+	
+
+	// replace each block index with sprite
 }
 
 void app::App::Run(void) {

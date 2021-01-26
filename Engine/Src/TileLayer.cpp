@@ -156,7 +156,10 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 		dpyChanged = false;
 		for (Dim row = startRow; row <= endRow; ++row) {
 			for (Dim col = startCol; col <= endCol; ++col) {
-				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
+				//if(GetTile(row, col) == 0 || GetTile(row, col) == 4)
+					//PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, total_tiles);
+				//else
+					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
 			}
 		}
 	}
