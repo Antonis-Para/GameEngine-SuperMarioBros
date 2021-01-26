@@ -1003,7 +1003,7 @@ void app::MainApp::Load(void) {
 					s2->SetFrame(0);
 					s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
 					s2->SetHasDirectMotion(true);
-					s2->Move(0, 7); //smashed is smaller so move him back to the ground
+					s2->Move(0, 9); //smashed is smaller so move him back to the ground
 					goomba_walk->Start(goomba_death_animation, GetGameTime());
 					goomba_walk->SetOnFinish([goomba_walk, s2](Animator* animator) {
 						AnimatorManager::GetSingleton().Cancel(animator);
