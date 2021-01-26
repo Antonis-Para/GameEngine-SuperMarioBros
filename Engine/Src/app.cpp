@@ -48,6 +48,8 @@ class FrameRangeAnimation* jump_anim = nullptr;
 
 int AI_x = 0, AI_y = 0;
 std::unordered_set <Sprite*> shells;
+
+Bitmap liveIcon = nullptr;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -168,6 +170,9 @@ void InitialiseGame(Game& game) {
 			underground_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 			action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
+			for(int i = 0; i < mario->getLives(); i++)
+				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 20 + (i * 15), 20, 14, 14, 0);
+
 			for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
 				sprite->Display(BitmapGetScreen());
 			}
@@ -188,6 +193,12 @@ void InitialiseGame(Game& game) {
 						game.Resume();
 					else
 						game.Pause(GetGameTime());
+				}
+				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_K) {
+					mario->addLife();
+				}
+				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_L) {
+					mario->loseLife();
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 					keys[event.keyboard.keycode] = true;
@@ -779,7 +790,7 @@ void createBrickSprite(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x1 > s2_x1 - 7 && s1_x2 < s2_x2 + 7 && s1_y1 + 3 >= s2_y2) {
+			if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
 				s2->Move(0, -4);
 				s2->SetFormStateId(MOVED_BLOCK);
 				if (s1->GetFormStateId() == SUPER_MARIO) {
@@ -812,7 +823,7 @@ void createBlockSprite(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x1 > s2_x1 - 7 && s1_x2 < s2_x2 + 7 && s1_y1 + 3 >= s2_y2) {
+			if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
 				s2->Move(0, -4);
 				s2->SetFormStateId(MOVED_BLOCK);
 			}
@@ -856,6 +867,8 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllEnemies(config), al_get_config_value(config, "paths", "enemies_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllBlocks(config), al_get_config_value(config, "paths", "npcs_path"));
 
+	liveIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "characters_path")), {127, 60, 16, 16});
+
 	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
 	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
@@ -879,6 +892,7 @@ void app::MainApp::Load(void) {
 
 	mario->SetBoundingArea(new BoundingBox(mario->GetBox().x, mario->GetBox().y, mario->GetBox().x + mario->GetBox().w, mario->GetBox().y + mario->GetBox().h));
 	mario->SetFormStateId(SMALL_MARIO);
+	mario->setLives(3);
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 

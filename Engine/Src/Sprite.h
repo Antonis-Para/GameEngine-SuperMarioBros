@@ -72,6 +72,8 @@ protected:
 	unsigned long lastSpeedUpdate = 0;
 	int speedDelay = 150;
 	short int speedUpdatedTimes = 0;
+
+	int lives = 0;
 public:
 	bool lastMovedRight = false;
 
@@ -117,6 +119,12 @@ public:
 
 	spriteFormState_t GetFormStateId(void);
 	void SetFormStateId(spriteFormState_t);
+
+	int getLives(void);
+	void setLives(int);
+	void addLife(void);
+	void loseLife(void);
+	bool isDead(void);
 };
 
 template<typename Tfunc>
