@@ -720,6 +720,8 @@ void app::MainApp::Load(void) {
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
+	TileLayer *underground_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
+	underground_layer->Allocate();
 
 	int tilesw = DIV_TILE_WIDTH(BitmapGetWidth(tiles)); //tileset width
 	int tilesh = DIV_TILE_HEIGHT(BitmapGetHeight(tiles)); //tileset height
