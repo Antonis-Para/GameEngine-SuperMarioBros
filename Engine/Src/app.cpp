@@ -955,7 +955,7 @@ void app::MainApp::Load(void) {
 						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_shell"));
 						s2->SetFormStateId(SMASHED);
 						s2->SetStateId(IDLE_STATE);
-						s2->SetBoxDimentions(16, 10);
+						s2->SetBoxDimentions(16, 16);
 						s2->Move(0, 4);
 
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000) , GetGameTime());
@@ -965,9 +965,9 @@ void app::MainApp::Load(void) {
 							else
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
 
-							s2->SetBoxDimentions(16, 16);
+							s2->SetBoxDimentions(16, 22);
 							s2->SetHasDirectMotion(true);
-							s2->Move(0, -10);
+							s2->Move(0, -6);
 							s2->SetHasDirectMotion(false);
 							koopa_troopa_walk->deleteCurrAnimation();
 							koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
@@ -1000,9 +1000,9 @@ void app::MainApp::Load(void) {
 								else
 									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
 
-								s2->SetBoxDimentions(16, 16);
+								s2->SetBoxDimentions(16, 22);
 								s2->SetHasDirectMotion(true);
-								s2->Move(0, -10);
+								s2->Move(0, -6);
 								s2->SetHasDirectMotion(false);
 								koopa_troopa_walk->deleteCurrAnimation();
 								koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
@@ -1155,7 +1155,7 @@ void app::MainApp::Load(void) {
 						s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_shell"));
 						s2->SetFormStateId(SMASHED);
 						s2->SetStateId(IDLE_STATE);
-						s2->SetBoxDimentions(16, 10);
+						s2->SetBoxDimentions(16, 16);
 						s2->Move(0, 4);
 
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
@@ -1165,7 +1165,7 @@ void app::MainApp::Load(void) {
 							else
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 
-							s2->SetBoxDimentions(16, 16);
+							s2->SetBoxDimentions(16, 22);
 							s2->SetHasDirectMotion(true);
 							s2->Move(0, -6);
 							s2->SetHasDirectMotion(false);
@@ -1200,7 +1200,7 @@ void app::MainApp::Load(void) {
 								else
 									s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 
-								s2->SetBoxDimentions(16, 16);
+								s2->SetBoxDimentions(16, 22);
 								s2->SetHasDirectMotion(true);
 								s2->Move(0, -6);
 								s2->SetHasDirectMotion(false);
