@@ -783,6 +783,8 @@ void app::MainApp::Load(void) {
 			goomba->NextFrame();
 		});
 		goomba_walk->SetOnFinish([goomba](Animator* animator) {
+			//for (auto s1 : shells)
+				//CollisionChecker::GetSingleton().Cancel(s1, goomba);
 			//AnimatorManager::GetSingleton().Cancel(animator);
 		});
 
@@ -978,7 +980,9 @@ void app::MainApp::Load(void) {
 									if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving do nothing
 										return;
 									s2->SetFormStateId(DELETE);
-									CollisionChecker::GetSingleton().Cancel(s1, s2);
+									for (auto shell : shells)
+										CollisionChecker::GetSingleton().Cancel(shell, s2);
+									//CollisionChecker::GetSingleton().Cancel(s1, s2);
 									CollisionChecker::GetSingleton().Cancel(mario, s2); //remove mario collision with other sprite
 									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
 									tmp->deleteCurrAnimation();
@@ -1226,7 +1230,9 @@ void app::MainApp::Load(void) {
 									if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving
 										return;
 									s2->SetFormStateId(DELETE);
-									CollisionChecker::GetSingleton().Cancel(s1, s2);
+									//CollisionChecker::GetSingleton().Cancel(s1, s2);
+									for (auto shell : shells) //deleting sprite so remove all collisions it has with the shells
+										CollisionChecker::GetSingleton().Cancel(shell, s2);
 									CollisionChecker::GetSingleton().Cancel(mario, s2);
 									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
 									tmp->deleteCurrAnimation();
