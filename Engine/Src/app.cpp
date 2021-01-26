@@ -1378,10 +1378,22 @@ void app::MainApp::Load(void) {
 		
 	}
 
-	// replace each brick index with sprite
-	
+	cout << action_layer->GetTileWidth() << " " << action_layer->GetTileHeight();
 
-	// replace each block index with sprite
+	for (unsigned int i = 0; i < action_layer->GetTileWidth(); i++) {
+		for (unsigned int j = 0; j < action_layer->GetTileHeight(); j++) {
+			// replace each brick index with sprite
+			if (action_layer->GetTile(i, j) == 0) {
+				cout << "hi" << endl;
+			}
+
+			// replace each block index with sprite
+			if (action_layer->GetTile(i, j) == 4) {
+
+			}
+
+		}
+	}
 }
 
 void app::App::Run(void) {
