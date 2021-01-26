@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Animation.h"
+#include "Animator.h"
 #include "GravityHandler.h"
 #include "States.h"
 #include "BoundingArea.h"
@@ -54,6 +55,7 @@ protected:
 	int x = 0, y = 0;
 	bool isVisible = true;
 	const AnimationFilm* currFilm = nullptr;
+	Animator* animator = nullptr;
 	BoundingArea* boundingArea = nullptr;
 	unsigned zorder = 0;
 	std::string typeId;
@@ -83,8 +85,11 @@ public:
 	void SetPos(int _x, int _y);
 	void SetZorder(unsigned z);
 	unsigned GetZorder(void);
+
 	const AnimationFilm* GetCurrFilm();
 	void SetCurrFilm(const AnimationFilm* newFilm);  //slides doesn't do this
+	Animator* GetAnimator(void);
+	void SetAnimator(Animator*);
 	void NextFrame();
 	void SetFrame(unsigned char i);
 	unsigned char GetFrame(void) const;

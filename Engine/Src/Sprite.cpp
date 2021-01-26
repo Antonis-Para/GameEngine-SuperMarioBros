@@ -90,6 +90,14 @@ unsigned Sprite::GetZorder(void) {
 	return zorder;
 }
 
+void Sprite::SetAnimator(Animator * anim) {
+	animator = anim;
+}
+
+Animator* Sprite::GetAnimator(void) {
+	return animator;
+}
+
 const AnimationFilm* Sprite::GetCurrFilm() {
 	return currFilm;
 }

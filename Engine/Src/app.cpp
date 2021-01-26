@@ -775,6 +775,7 @@ void app::MainApp::Load(void) {
 
 	for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
 		class MovingAnimator* goomba_walk = new MovingAnimator();
+		goomba->SetAnimator(goomba_walk);
 		AnimatorManager::GetSingleton().Register(goomba_walk);
 		//goomba_walk->
 		goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
@@ -828,7 +829,7 @@ void app::MainApp::Load(void) {
 				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) {
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits goomba from top
 					s2->SetFormStateId(SMASHED);
 
 					delete goomba_walking_animation;
@@ -958,8 +959,31 @@ void app::MainApp::Load(void) {
 						s2->SetBoxDimentions(16, 10);
 						s2->Move(0, 4);
 
+						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+						sprites.remove(s2); //remove my self
+						//HERE ADD MARIO COLLISION
+						for (auto sprite : sprites) { //add shell collision with all sprites
+							CollisionChecker::GetSingleton().Register(s2, sprite,
+								[](Sprite* s1, Sprite* s2) {
+									s2->SetFormStateId(DELETE);
+									CollisionChecker::GetSingleton().Cancel(s1, s2);
+									CollisionChecker::GetSingleton().Cancel(mario, s2);
+									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
+									tmp->deleteCurrAnimation();
+									tmp->Stop();
+									AnimatorManager::GetSingleton().Cancel(tmp);
+									tmp->Destroy();
+								}
+							);
+						}
+
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000) , GetGameTime());
 						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
+							for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) { //remove shell collision with sprites
+								CollisionChecker::GetSingleton().Cancel(s2, sprite);
+							}
 							if (s2->lastMovedRight)
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"));
 							else
@@ -1157,9 +1181,32 @@ void app::MainApp::Load(void) {
 						s2->SetStateId(IDLE_STATE);
 						s2->SetBoxDimentions(16, 10);
 						s2->Move(0, 4);
+						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+						sprites.remove(s2); //remove my self
+						//HERE ADD MARIO COLLISION
+						for (auto sprite : sprites) { //add shell collision with all sprites
+							CollisionChecker::GetSingleton().Register(s2, sprite,
+								[](Sprite* s1, Sprite* s2) {
+									s2->SetFormStateId(DELETE);
+									CollisionChecker::GetSingleton().Cancel(s1, s2);
+									CollisionChecker::GetSingleton().Cancel(mario, s2);
+									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
+									tmp->deleteCurrAnimation();
+									tmp->Stop();
+									AnimatorManager::GetSingleton().Cancel(tmp);
+									tmp->Destroy();
+								}
+							);
+						}
+						
 
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
 						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
+							for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) { //remove shell collision with sprites
+								CollisionChecker::GetSingleton().Cancel(s2, sprite);
+							}
 							if (s2->lastMovedRight)
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"));
 							else
