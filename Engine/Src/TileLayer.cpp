@@ -63,6 +63,19 @@ unsigned TileLayer::GetTileWidth(void) const { return DIV_TILE_WIDTH(viewWin.w);
 
 unsigned TileLayer::GetTileHeight(void) const { return DIV_TILE_HEIGHT(viewWin.h); }
 
+unsigned TileLayer::GetMapWidth(void) {
+	return widthInTiles;
+}
+
+unsigned TileLayer::GetMapHeight(void) {
+	return heightInTiles;
+}
+
+void TileLayer::SetMapDims(unsigned width, unsigned height){
+	widthInTiles = width;
+	heightInTiles = height;
+}
+
 void TileLayer::Save(const std::string& path) const
 {
 	//fclose(WriteText(fopen(path.c_str(), "wt")));
@@ -156,7 +169,10 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 		dpyChanged = false;
 		for (Dim row = startRow; row <= endRow; ++row) {
 			for (Dim col = startCol; col <= endCol; ++col) {
-				PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
+				if(GetTile(row, col) == 0 || GetTile(row, col) == 4)
+					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, total_tiles);
+				else
+					PutTile(dpyBuffer, MUL_TILE_WIDTH(col - startCol), MUL_TILE_HEIGHT(row - startRow), tileSet, GetTile(row, col));
 			}
 		}
 	}

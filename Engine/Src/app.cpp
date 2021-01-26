@@ -226,7 +226,6 @@ void InitialiseGame(Game& game) {
 									jump->Stop();
 								});
 							jump->Start(jump_anim, GetGameTime());
-							//mario->SetStateId(JUMPING_STATE);
 							if (mario->lastMovedRight)
 								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 							else
@@ -285,6 +284,19 @@ void InitialiseGame(Game& game) {
 										sprite->Move(-move_x, 0);
 									}
 								}
+
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("block")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
+								}
+
+								if (move_x != 0) {
+									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("brick")) { // move the sprites the opposite directions (f.e. pipes)
+										sprite->Move(-move_x, 0);
+									}
+								}
+
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 							}
@@ -390,6 +402,25 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
+				if (!SpriteManager::GetSingleton().GetTypeList("block").empty()) {
+					for (auto block : SpriteManager::GetSingleton().GetTypeList("block")) {
+						if (block->GetFormStateId() == MOVED_BLOCK) {
+							block->Move(0, 4);
+							block->SetFormStateId(BLOCK);
+						}
+					}
+				}
+				if (!SpriteManager::GetSingleton().GetTypeList("brick").empty()) {
+					for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
+						if (brick->GetFormStateId() == MOVED_BLOCK) {
+							brick->Move(0, 4);
+							brick->SetFormStateId(BRICK);
+						}
+						else if (brick->GetFormStateId() == SMASHED) {
+							toBeDestroyed.push_back(brick);
+						}
+					}
+				}
 				for (auto sprite : toBeDestroyed) {
 					SpriteManager::GetSingleton().Remove(sprite);
 				}
@@ -442,6 +473,16 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 		sprite->SetHasDirectMotion(false);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("brick");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("block");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
@@ -566,6 +607,13 @@ string loadAllEnemies(const ALLEGRO_CONFIG* config) {
 		+ "enemies.red_koopa_troopa_right:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_right")) + '$'
 		+ "enemies.red_koopa_troopa_left:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_left")) + '$'
 		+ "enemies.red_koopa_troopa_shell:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_shell")) + '$'
+		;
+}
+
+string loadAllBlocks(const ALLEGRO_CONFIG* config) {
+
+	return "blocks.brick:" + string(al_get_config_value(config, "blocks", "brick")) + '$'
+		+ "blocks.block:" + string(al_get_config_value(config, "blocks", "block")) + '$'
 		;
 }
 
@@ -711,6 +759,67 @@ Sprite * LoadPipeCollision(Sprite * mario, string pipes) {
 	return tmp;
 }
 
+void createBrickSprite(int x, int y) {
+	Sprite* tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.brick"), "brick");
+	SpriteManager::GetSingleton().Add(tmp);
+
+	tmp->SetHasDirectMotion(true);
+	tmp->SetStateId(IDLE_STATE);
+	tmp->SetZorder(3);
+	tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
+	tmp->GetGravityHandler().setGravityAddicted(false);
+	tmp->SetFormStateId(BRICK);
+
+	CollisionChecker::GetSingleton().Register(mario, tmp,
+		[](Sprite* s1, Sprite* s2) {
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+
+			if (s1_x1 > s2_x1 - 7 && s1_x2 < s2_x2 + 7 && s1_y1 + 3 >= s2_y2) {
+				s2->Move(0, -4);
+				s2->SetFormStateId(MOVED_BLOCK);
+				if (s1->GetFormStateId() == SUPER_MARIO) {
+					//smash animation
+
+					s2->SetFormStateId(SMASHED);
+				}
+			}
+		}
+	);
+}
+
+void createBlockSprite(int x, int y) {
+	Sprite* tmp = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.block"), "block");
+	SpriteManager::GetSingleton().Add(tmp);
+
+	tmp->SetHasDirectMotion(true);
+	tmp->SetStateId(IDLE_STATE);
+	tmp->SetZorder(3);
+	tmp->SetBoundingArea(new BoundingBox(tmp->GetBox().x, tmp->GetBox().y, tmp->GetBox().x + tmp->GetBox().w, tmp->GetBox().y + tmp->GetBox().h));
+	tmp->GetGravityHandler().setGravityAddicted(false);
+	tmp->SetFormStateId(BRICK);
+
+	CollisionChecker::GetSingleton().Register(mario, tmp,
+		[](Sprite* s1, Sprite* s2) {
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+
+			if (s1_x1 > s2_x1 - 7 && s1_x2 < s2_x2 + 7 && s1_y1 + 3 >= s2_y2) {
+				s2->Move(0, -4);
+				s2->SetFormStateId(MOVED_BLOCK);
+			}
+		}
+	);
+}
+
 void app::MainApp::Load(void) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
 	assert(config != NULL);
@@ -745,7 +854,8 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllCharacters(config), al_get_config_value(config, "paths", "characters_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllPipes(config), al_get_config_value(config, "paths", "tiles_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllEnemies(config), al_get_config_value(config, "paths", "enemies_path"));
-	
+	AnimationFilmHolder::GetInstance().LoadAll(loadAllBlocks(config), al_get_config_value(config, "paths", "npcs_path"));
+
 	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
 	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
@@ -1387,10 +1497,19 @@ void app::MainApp::Load(void) {
 		
 	}
 
-	// replace each npc index with sprite
-	vector<string> npcIndexes = splitString(al_get_config_value(config, "tiles", "npcs"), " ");
-	for (std::string tile : npcIndexes) {
-		Index index = std::stoi(tile);
+	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {
+		for (unsigned int j = 0; j < action_layer->GetMapHeight(); j++) {
+			// replace each brick index with sprite
+			if (action_layer->GetTile(j, i) == 0) {
+				createBlockSprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+			}
+
+			// replace each block index with sprite
+			if (action_layer->GetTile(j, i) == 4) {
+				createBrickSprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+			}
+
+		}
 	}
 }
 
@@ -1448,6 +1567,7 @@ bool app::ReadTextMap(class TileLayer* layer, string filename) {
 			x++;
 			y++;
 		}
+		layer->SetMapDims(x, y);
 		widthInTiles = x;
 		heightInTiles = y;
 		csvFile.close();
