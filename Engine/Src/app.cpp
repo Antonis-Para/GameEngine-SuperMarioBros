@@ -739,7 +739,8 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllPipes(config), al_get_config_value(config, "paths", "tiles_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllEnemies(config), al_get_config_value(config, "paths", "enemies_path"));
 	
-	mario = new Sprite(60, 430, AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
+	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
+	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
 
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
@@ -765,7 +766,6 @@ void app::MainApp::Load(void) {
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
 	vector<string> locations;
-	vector<string> coordinates;
 	Sprite* tmp;
 
 	//create a demo goomba
