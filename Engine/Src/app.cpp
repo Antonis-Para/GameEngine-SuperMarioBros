@@ -21,6 +21,7 @@ bool keys[ALLEGRO_KEY_MAX] = { 0 };
 ALLEGRO_TIMER* timer;
 ALLEGRO_TIMER* fallingTimer;
 ALLEGRO_TIMER* aiTimer;
+ALLEGRO_TIMER* blockTimer;
 bool gridOn = true;
 bool disable_input = false;
 Bitmap characters = nullptr;
@@ -30,6 +31,7 @@ ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* queue;
 ALLEGRO_EVENT_QUEUE* fallingQueue;
 ALLEGRO_EVENT_QUEUE* aiQueue;
+ALLEGRO_EVENT_QUEUE* blockQueue;
 bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
@@ -186,7 +188,7 @@ void InitialiseGame(Game& game) {
 			}
 			else {
 				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50, 20, 14, 14, 0);
-				al_draw_text(font, al_map_rgb(255, 255, 255), 70, 19, ALLEGRO_ALIGN_LEFT, ("x" + intToString(game.getLives())).c_str());
+				al_draw_text(font, al_map_rgb(255, 255, 255), 70, 19, ALLEGRO_ALIGN_LEFT, ("x" + to_string(game.getLives())).c_str());
 			}
 			
 			al_flip_display();
@@ -439,11 +441,21 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
+				for (auto sprite : toBeDestroyed) {
+					SpriteManager::GetSingleton().Remove(sprite);
+				}
+				toBeDestroyed.clear();
+			}
+
+			if (!al_is_event_queue_empty(blockQueue)) {
+				al_wait_for_event(blockQueue, &event);
 				if (!SpriteManager::GetSingleton().GetTypeList("block").empty()) {
 					for (auto block : SpriteManager::GetSingleton().GetTypeList("block")) {
 						if (block->GetFormStateId() == MOVED_BLOCK) {
 							block->Move(0, 4);
-							block->SetFormStateId(BLOCK);
+							block->SetFormStateId(EMPTY_BLOCK);
+							block->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("blocks.empty_block"));
+							al_stop_timer(blockTimer);
 						}
 					}
 				}
@@ -452,9 +464,11 @@ void InitialiseGame(Game& game) {
 						if (brick->GetFormStateId() == MOVED_BLOCK) {
 							brick->Move(0, 4);
 							brick->SetFormStateId(BRICK);
+							al_stop_timer(blockTimer);
 						}
 						else if (brick->GetFormStateId() == SMASHED) {
 							toBeDestroyed.push_back(brick);
+							action_layer->SetTile(DIV_TILE_WIDTH(brick->GetBox().x), DIV_TILE_HEIGHT(brick->GetBox().y), total_tiles);
 						}
 					}
 				}
@@ -513,6 +527,10 @@ void app::MainApp::Initialise(void) {
 	aiTimer = al_create_timer(1.0 / 60);
 	al_register_event_source(aiQueue, al_get_timer_event_source(aiTimer));
 	al_start_timer(aiTimer);
+
+	blockQueue = al_create_event_queue();
+	blockTimer = al_create_timer(1.0/6);
+	al_register_event_source(blockQueue, al_get_timer_event_source(blockTimer));
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
 	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
@@ -610,6 +628,7 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 
 	return "blocks.brick:" + string(al_get_config_value(config, "blocks", "brick")) + '$'
 		+ "blocks.block:" + string(al_get_config_value(config, "blocks", "block")) + '$'
+		+ "blocks.empty_block:" + string(al_get_config_value(config, "blocks", "empty_block")) + '$'
 		;
 }
 
