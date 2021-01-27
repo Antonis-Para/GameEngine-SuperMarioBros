@@ -58,7 +58,7 @@ void MovingAnimator::Progress(timestamp_t currTime) {
 		if (!anim->IsForever() && ++currRep == anim->GetReps()) {
 			state = ANIMATOR_FINISHED;
 			NotifyStopped();
-			break;
+			return;
 		}
 	}
 }
@@ -138,7 +138,7 @@ void FlashAnimator::Progress(timestamp_t currTime) {
 		if (++currRep == anim->GetRepetitions()) {
 			state = ANIMATOR_FINISHED;
 			NotifyStopped();
-			break;
+			return;
 		}
 	}
 }
@@ -179,7 +179,8 @@ void FrameRangeAnimator::Progress(timestamp_t currTime) {
 		NotifyAction(*anim);
 		if (currFrame == anim->GetEndFrame())
 			if (!anim->IsForever() && ++currRep == anim->GetReps()) {
-				state = ANIMATOR_FINISHED; NotifyStopped();
+				state = ANIMATOR_FINISHED;
+				NotifyStopped();
 				return;
 			}
 	}
