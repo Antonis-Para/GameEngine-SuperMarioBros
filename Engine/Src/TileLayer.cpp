@@ -38,8 +38,7 @@ void TileLayer::InitCaching(int width, int height) {
 
 const Point TileLayer::Pick(Dim x, Dim y) const
 {
-	return { DIV_TILE_WIDTH(x + viewWin.x),
-	DIV_TILE_HEIGHT(y + viewWin.y) };
+	return { DIV_TILE_WIDTH(x + viewWin.x), DIV_TILE_HEIGHT(y + viewWin.y) };
 }
 
 const Rect& TileLayer::GetViewWindow(void) const { 
@@ -51,7 +50,6 @@ void TileLayer::SetViewWindow(const Rect& r)
 	viewWin = r;
 	dpyChanged = true;
 }
-
 
 Bitmap TileLayer::GetBitmap(void) const { return dpyBuffer; }
 
@@ -78,10 +76,10 @@ void TileLayer::SetMapDims(unsigned width, unsigned height){
 
 void TileLayer::Save(const std::string& path) const
 {
-	//fclose(WriteText(fopen(path.c_str(), "wt")));
+	WriteText(std::ifstream(path)).close();
 }
 
-FILE* TileLayer::WriteText(FILE* fp) const
+std::ifstream TileLayer::WriteText(::ifstream fp) const
 {
 	//fprintf(fp, "%s", TileLayer::ToString().c_str());
 	return fp;
@@ -180,7 +178,6 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y });
 }
 
-
 //-----------GRID LAYER-----------------
 
 void TileLayer::insertSolid(Index id) {
@@ -192,7 +189,6 @@ bool TileLayer::IsTileIndexAssumedEmpty(Index index) {
 		return false;
 	return true;
 }
-
 
 //views the map (in the csv) and adds in the Grid map if we are allowed to go through it
 void TileLayer::ComputeTileGridBlocks1() {
@@ -207,10 +203,7 @@ void TileLayer::ComputeTileGridBlocks1() {
 				grid_start += GRID_MAX_WIDTH;
 			}
 			grid_start = tmp + GRID_ELEMENT_WIDTH;
-			//memset(grid, IsTileIndexAssumedEmpty(GetTile(map, row, col)) ? GRID_EMPTY_TILE : GRID_SOLID_TILE, GRID_ELEMENTS_PER_TILE);
-			//grid += GRID_ELEMENTS_PER_TILE;
 		}
-		//grid += GRID_MAX_WIDTH * 3;
 		grid_start = tmp2 + GRID_MAX_WIDTH * 4;
 	}
 }
@@ -219,23 +212,6 @@ GridLayer* TileLayer::GetGrid(void) const{
 	return grid;
 }
 
-//void GridLayer::Allocate(void) {
-//	grid = new GridIndex[total = totalRows * totalColumns];
-//	memset(grid, GRID_EMPTY_TILE, total);
-//}
-//
-//bool GridLayer::IsOnSolidGround(const Rect& r) const { // will need later for gravity
-//	int dy = 1; // down 1 pixel
-//	FilterGridMotionDown(r, &dy);
-//	return dy == 0; // if true IS attached to solid ground
-//}
-//
-//GridIndex*& GridLayer::GetBuffer(void) { return grid; }
-//
-//const GridIndex* GridLayer::GetBuffer(void) const { return grid; }
-
-
-
 CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {
 	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 
@@ -243,7 +219,6 @@ CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {
 
 	InitBuffer(_tileset, filename, width_in_tiles);
 }
-
 
 void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int width) {
 	string line, token, delimiter = ",";
@@ -288,7 +263,6 @@ void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int wi
 	BitmapDestroy(tmp);
 }
 
-
 void CircularBackground::Scroll(int dx) {
 	viewWin.x += dx;
 	if (viewWin.x < 0) {
@@ -302,7 +276,6 @@ void CircularBackground::Scroll(int dx) {
 		}
 			
 }
-
 
 void CircularBackground::Display(Bitmap dest, int x, int y) const {
 	auto bg_w = BitmapGetWidth(bg);
