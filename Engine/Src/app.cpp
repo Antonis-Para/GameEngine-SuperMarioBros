@@ -281,52 +281,30 @@ void InitialiseGame(Game& game) {
 								mario->incSpeed(GetGameTime());
 							else
 								mario->resetSpeed();
-							mario->Move(mario->GetSpeed(), 0);
+
 							int move_x = mario->GetSpeed();
 							int move_y = 0;
+							mario->Move(move_x, 0);
 							if (app::characterStaysInCenter(mario->GetBox(), &move_x)) {
 								underground_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 								action_layer->ScrollWithBoundsCheck(&move_x, &move_y);
 								circular_background->Scroll(move_x);
-								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("pipe")) { // move the sprites the opposite directions (f.e. pipes)
+
+								auto sprites = SpriteManager::GetSingleton().GetDisplayList();
+								sprites.remove(mario);
+
+								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) { 
+									sprite->SetHasDirectMotion(true);
 									sprite->Move(-move_x, 0);
-									//if (sprite->GetBox().x + sprite->GetBox().w < 0) // if it is off the screen delete it
-									//	SpriteManager::GetSingleton().Remove(sprite);
-								}
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("goomba")) { // move the sprites the opposite directions (f.e. pipes)
-										sprite->Move(-move_x, 0);
-									}
+									sprite->SetHasDirectMotion(false);
+									sprites.remove(sprite);
 								}
 
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) { // move the sprites the opposite directions (f.e. pipes)
+								if (move_x != 0) {	// move the sprites the opposite directions (f.e. pipes)
+									for (auto sprite : sprites) {
 										sprite->Move(-move_x, 0);
 									}
-								}
-
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) { // move the sprites the opposite directions (f.e. pipes)
-										sprite->Move(-move_x, 0);
-									}
-								}
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) { // move the sprites the opposite directions (f.e. pipes)
-										sprite->Move(-move_x, 0);
-									}
-								}
-
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("block")) { // move the sprites the opposite directions (f.e. pipes)
-										sprite->Move(-move_x, 0);
-									}
-								}
-
-								if (move_x != 0) {
-									for (auto sprite : SpriteManager::GetSingleton().GetTypeList("brick")) { // move the sprites the opposite directions (f.e. pipes)
-										sprite->Move(-move_x, 0);
-									}
-								}
+								}								
 
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
