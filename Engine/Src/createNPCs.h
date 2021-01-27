@@ -10,6 +10,8 @@ namespace app {
 
 	//create powerups
 	void create_super_mushroom(int x, int y);
+	void create_1UP_mushroom(int x, int y, Game* game);
+	void create_starman(int x, int y);
 
 	//create blocks
 	void create_brick_sprite(int x, int y);

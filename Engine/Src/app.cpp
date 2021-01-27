@@ -690,6 +690,7 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 string loadAllPowerups(const ALLEGRO_CONFIG* config) {
 
 	return "powerups.super:" + string(al_get_config_value(config, "powerups", "super")) + '$'
+		+ "powerups.1up:" + string(al_get_config_value(config, "powerups", "1up")) + '$'
 		;
 }
 
