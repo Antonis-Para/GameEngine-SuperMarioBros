@@ -853,27 +853,10 @@ void app::create_super_mushroom(int x, int y) {
 	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.super"), "powerup");
 	SpriteManager::GetSingleton().Add(powerup);
 
-	/*class MovingAnimator* powerup_walk = new MovingAnimator();
-	powerup->SetAnimator(powerup_walk);
-	AnimatorManager::GetSingleton().Register(powerup_walk);
-
-	goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
-		goomba->NextFrame();
-	});
-	goomba_walk->SetOnFinish([goomba](Animator* animator) {
-		//for (auto s1 : shells)
-			//CollisionChecker::GetSingleton().Cancel(s1, goomba);
-		//AnimatorManager::GetSingleton().Cancel(animator);
-	});
-
-
-	class MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
-	goomba_walk->Start(goomba_walking_animation, GetGameTime());*/
 	powerup->SetStateId(WALKING_STATE);
 	powerup->SetZorder(0);
 	powerup->SetBoundingArea(new BoundingBox(powerup->GetBox().x, powerup->GetBox().y, powerup->GetBox().x + powerup->GetBox().w, powerup->GetBox().y + powerup->GetBox().h));
 	powerup->GetGravityHandler().setGravityAddicted(true);
-	//goomba->SetFormStateId(ENEMY);
 
 	powerup->GetGravityHandler().SetOnSolidGround([powerup](const Rect& r) {
 		Rect posOnGrid{
