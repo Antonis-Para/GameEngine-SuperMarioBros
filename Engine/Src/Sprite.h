@@ -62,6 +62,7 @@ protected:
 	std::string typeId;
 
 	spritestate_t stateId = IDLE_STATE;
+	string str_stateId = "Mario_small";
 	spriteFormState_t formStateId;
 
 	Mover mover;
@@ -97,10 +98,13 @@ public:
 	void SetBoundingArea(const BoundingArea& area);
 	void SetBoundingArea(BoundingArea* area);
 	const BoundingArea* GetBoundingArea(void);
+	void ReplaceBoundingArea(BoundingArea* area);
 	
 	auto GetTypeId(void) -> const std::string&;
 	spritestate_t GetStateId(void);
 	void SetStateId(spritestate_t);
+	string Get_Str_StateId(void);
+	void Set_Str_StateId(string state);
 
 	void SetVisibility(bool v);
 	bool IsVisible(void) const;
