@@ -9,9 +9,9 @@
 using namespace std;
 
 //--------------------GLOBAL VARS-----------------------
-TileLayer* action_layer;
+class TileLayer* action_layer;
 TileLayer* underground_layer;
-CircularBackground* circular_background;
+class CircularBackground* circular_background;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
@@ -37,14 +37,14 @@ int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
 ALLEGRO_EVENT event;
 
-BitmapLoader* bitmaploader;
+class BitmapLoader* bitmaploader;
 
-Sprite* mario; //replace mario with SpriteManager::GetSingleton().GetTypeList("mario").front()
-MovingAnimator* walk, * pipe_movement;
-FrameRangeAnimator* jump;
+class Sprite* mario; //replace mario with SpriteManager::GetSingleton().GetTypeList("mario").front()
+class MovingAnimator* walk, * pipe_movement;
+class FrameRangeAnimator* jump;
 bool not_moved = true;
 bool jumped = false;
-FrameRangeAnimation* jump_anim = nullptr;
+class FrameRangeAnimation* jump_anim = nullptr;
 
 std::unordered_set <Sprite*> shells;
 
@@ -370,12 +370,11 @@ void InitialiseGame(Game& game) {
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
-				
 				for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
 					if (goomba->GetFormStateId() == SMASHED) {
 						//if smashed do nothing (dont move it)
 					}
-					else if (goomba->GetFormStateId() == DELETE) {
+					else if (goomba->GetFormStateId() == DELETE || goomba->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 						goomba->SetVisibility(false);
 						toBeDestroyed.push_back(goomba);
 					}
@@ -388,12 +387,10 @@ void InitialiseGame(Game& game) {
 							goomba->Move(ENEMIES_MOVE_SPEED, 0);
 						else
 							goomba->Move(-ENEMIES_MOVE_SPEED, 0);
-
 					}
 				}
-				
 				for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-					if (koopa_troopa->GetFormStateId() == DELETE) {
+					if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 						koopa_troopa->SetVisibility(false);
 						toBeDestroyed.push_back(koopa_troopa);
 					}
@@ -413,7 +410,6 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
-
 				for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
 					if (koopa_troopa->GetFormStateId() == DELETE) {
 						koopa_troopa->SetVisibility(false);
@@ -435,23 +431,20 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
-
 				for (auto plant : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) {
 					if (plant->GetFormStateId() == DELETE) {
 						plant->SetVisibility(false);
 						toBeDestroyed.push_back(plant);
 					}
 				}
-
 				for (auto coin : SpriteManager::GetSingleton().GetTypeList("coin")) {
 					if (coin->GetFormStateId() == DELETE) {
 						coin->SetVisibility(false);
 						toBeDestroyed.push_back(coin);
 					}
 				}
-
 				for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-					if (powerup->GetFormStateId() == DELETE) {
+					if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 						powerup->SetVisibility(false);
 						toBeDestroyed.push_back(powerup);
 					}
@@ -462,7 +455,6 @@ void InitialiseGame(Game& game) {
 							powerup->Move(-POWERUPS_MOVE_SPEED, 0);
 					}
 				}
-
 				for (auto sprite : toBeDestroyed) {
 					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
 						game.addPoints(100);
@@ -499,7 +491,6 @@ void InitialiseGame(Game& game) {
 						al_stop_timer(blockTimer);
 					}
 				}
-
 				for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
 					if (brick->GetFormStateId() == MOVED_BLOCK) {
 						brick->Move(0, 4);
@@ -508,10 +499,9 @@ void InitialiseGame(Game& game) {
 					}
 					else if (brick->GetFormStateId() == SMASHED) {
 						toBeDestroyed.push_back(brick);
-						action_layer->SetTile(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y), total_tiles);
+						action_layer->UnsolidTileGridBlocks(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
 					}
 				}
-
 				for (auto sprite : toBeDestroyed) {
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
@@ -570,7 +560,7 @@ void app::MainApp::Initialise(void) {
 	al_start_timer(aiTimer);
 
 	blockQueue = al_create_event_queue();
-	blockTimer = al_create_timer(1.0 / 6); // WHY 1/6??
+	blockTimer = al_create_timer(1.0/6);
 	al_register_event_source(blockQueue, al_get_timer_event_source(blockTimer));
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
@@ -633,6 +623,7 @@ void app::MainApp::Initialise(void) {
 }
 
 string loadAllCharacters(const ALLEGRO_CONFIG* config) {
+
 	return "Mario_small.walk_right:" + string(al_get_config_value(config, "Mario_small", "walk_right")) + '$'
 		 + "Mario_small.walk_left:" + string(al_get_config_value(config, "Mario_small", "walk_left")) + '$'
 		 + "Mario_small.stand_right:" + string(al_get_config_value(config, "Mario_small", "stand_right")) + '$'
@@ -644,16 +635,20 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		 + "Mario_big.stand_right:" + string(al_get_config_value(config, "Mario_big", "stand_right")) + '$'
 		 + "Mario_big.stand_left:" + string(al_get_config_value(config, "Mario_big", "stand_left")) + '$'
 		 + "Mario_big.jump_right:" + string(al_get_config_value(config, "Mario_big", "jump_right")) + '$'
-		 + "Mario_big.jump_left:" + string(al_get_config_value(config, "Mario_big", "jump_left")) + '$';
+		 + "Mario_big.jump_left:" + string(al_get_config_value(config, "Mario_big", "jump_left")) + '$'
+		;
 }
 
 string loadAllPipes(const ALLEGRO_CONFIG* config) {
+
 	return "Pipe.up:" + string(al_get_config_value(config, "pipes", "pipe_up")) + '$'
 		+ "Pipe.right:" + string(al_get_config_value(config, "pipes", "pipe_right")) + '$'
-		+ "Pipe.left:" + string(al_get_config_value(config, "pipes", "pipe_left")) + '$';
+		+ "Pipe.left:" + string(al_get_config_value(config, "pipes", "pipe_left")) + '$'
+		;
 }
 
 string loadAllEnemies(const ALLEGRO_CONFIG* config) {
+
 	return "enemies.goomba:" + string(al_get_config_value(config, "enemies", "goomba")) + '$'
 		+ "enemies.goomba_smashed:" + string(al_get_config_value(config, "enemies", "goomba_smashed")) + '$'
 		+ "enemies.green_koopa_troopa_right:" + string(al_get_config_value(config, "enemies", "green_koopa_troopa_right")) + '$'
@@ -662,20 +657,23 @@ string loadAllEnemies(const ALLEGRO_CONFIG* config) {
 		+ "enemies.red_koopa_troopa_right:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_right")) + '$'
 		+ "enemies.red_koopa_troopa_left:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_left")) + '$'
 		+ "enemies.red_koopa_troopa_shell:" + string(al_get_config_value(config, "enemies", "red_koopa_troopa_shell")) + '$'
-		+ "enemies.piranha_plant:" + string(al_get_config_value(config, "enemies", "piranha_plant")) + '$';
+		+ "enemies.piranha_plant:" + string(al_get_config_value(config, "enemies", "piranha_plant")) + '$'
+		;
 }
 
 string loadAllBlocks(const ALLEGRO_CONFIG* config) {
+
 	return "blocks.brick:" + string(al_get_config_value(config, "blocks", "brick")) + '$'
 		+ "blocks.block:" + string(al_get_config_value(config, "blocks", "block")) + '$'
 		+ "blocks.empty_block:" + string(al_get_config_value(config, "blocks", "empty_block")) + '$'
-		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$';
+		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$'
+		;
 }
 
 string loadAllPowerups(const ALLEGRO_CONFIG* config) {
+
 	return "powerups.super:" + string(al_get_config_value(config, "powerups", "super")) + '$'
 		+ "powerups.1up:" + string(al_get_config_value(config, "powerups", "1up")) + '$'
-		+ "powerups.star:" + string(al_get_config_value(config, "powerups", "star")) + '$'
 		;
 }
 
@@ -689,7 +687,7 @@ void app::MainApp::Load(void) {
 	Bitmap bg_tiles = bitmaploader->Load(al_get_config_value(config, "paths", "bg_tiles_path"));
 	characters = bitmaploader->Load(al_get_config_value(config, "paths", "characters_path"));
 	npcs = bitmaploader->Load(al_get_config_value(config, "paths", "npcs_path"));
-	assert(tiles && bg_tiles && characters && npcs);
+	assert(npcs);
 
 	action_layer = new TileLayer(MAX_HEIGHT, MAX_WIDTH, tiles);
 	action_layer->Allocate();
@@ -747,18 +745,20 @@ void app::MainApp::Load(void) {
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
+	vector<string> locations;
+
 	//create a demo goomba
-	vector<string>locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
+	locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_enemy_goomba(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
+		create_enemy_goomba(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 	//create a demo Koopa Troopa 
 	locations = splitString(al_get_config_value(config, "emenies_positions", "green_koopa_troopa"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_enemy_green_koopa_troopa(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
+		create_enemy_green_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 
@@ -768,14 +768,14 @@ void app::MainApp::Load(void) {
 	locations = splitString(al_get_config_value(config, "emenies_positions", "red_koopa_troopa"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_enemy_red_koopa_troopa(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
+		create_enemy_red_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 	/*---------------------------Create demo piranha plant------------------------*/
 	locations = splitString(al_get_config_value(config, "emenies_positions", "piranha_plant"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_enemy_piranha_plant(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
+		create_enemy_piranha_plant(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 	//create all pipe sprites and add collisions
@@ -791,28 +791,21 @@ void app::MainApp::Load(void) {
 	locations = splitString(al_get_config_value(config, "powerups_positions", "super"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_super_mushroom(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
+		create_super_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
-	//create 1up mushroom
+	//create super mushroom
 	locations = splitString(al_get_config_value(config, "powerups_positions", "1up"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_1UP_mushroom(std::stoi(coordinates[0]), std::stoi(coordinates[1]), &game);
-	}
-
-	//create star mushroom
-	locations = splitString(al_get_config_value(config, "powerups_positions", "star"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_starman(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+		create_1UP_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), &game);
 	}
 
 	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {
 		for (unsigned int j = 0; j < action_layer->GetMapHeight(); j++) {
 			// replace each brick index with sprite
 			if (action_layer->GetTile(j, i) == 0) {
-				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
 			}
 
 			// replace each block index with sprite
@@ -839,10 +832,9 @@ void app::MainApp::Clear(void) {
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
 	al_destroy_bitmap(action_layer->GetBitmap());
-	al_destroy_bitmap(underground_layer->GetBitmap());
+	//al_destroy_bitmap(underground_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
-	delete underground_layer;
 	delete bitmaploader;
 }
 

@@ -762,9 +762,15 @@ void app::create_brick_sprite(int x, int y) {
 			collisionBlockWithEnemies(brick, koopa_troopa);
 		}
 	}
+
+	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+			collisionBlockWithPowerUps(brick, powerup);
+		}
+	}
 }
 
-void app::create_block_sprite(int x, int y) {
+void app::create_block_sprite(int x, int y, Game *game) {
 	Sprite* block = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.block"), "block");
 	SpriteManager::GetSingleton().Add(block);
 
@@ -776,7 +782,7 @@ void app::create_block_sprite(int x, int y) {
 	block->SetFormStateId(BRICK);
 
 	CollisionChecker::GetSingleton().Register(mario, block,
-		[](Sprite* s1, Sprite* s2) {
+		[x, y, game](Sprite* s1, Sprite* s2) {
 			if (s2->GetFormStateId() != EMPTY_BLOCK) {
 				int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
 				int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
@@ -792,24 +798,32 @@ void app::create_block_sprite(int x, int y) {
 					if (jump_anim != nullptr)
 						jump->deleteCurrAnimation();
 					al_start_timer(blockTimer);
+
+					int giftNum = rand() % 3;
+					if (giftNum == 0)
+						create_1UP_mushroom(x, y - 16, game);
+					else if (giftNum == 1)
+						create_coin_sprite(x, y - 16, game);
+					else
+						create_super_mushroom(x, y - 16);
 				}
 			}
 		}
 	);
 
-	if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
-		for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
-			collisionBlockWithEnemies(block, goomba);
-		}
+	for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+		collisionBlockWithEnemies(block, goomba);
 	}
-	if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
-		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-			collisionBlockWithEnemies(block, koopa_troopa);
-		}
+	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+		collisionBlockWithEnemies(block, koopa_troopa);
 	}
-	if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
-		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
-			collisionBlockWithEnemies(block, koopa_troopa);
+	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
+		collisionBlockWithEnemies(block, koopa_troopa);
+	}
+
+	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+			collisionBlockWithPowerUps(block, powerup);
 		}
 	}
 }
