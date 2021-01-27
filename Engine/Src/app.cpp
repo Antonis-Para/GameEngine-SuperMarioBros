@@ -803,7 +803,7 @@ void app::MainApp::Load(void) {
 		for (unsigned int j = 0; j < action_layer->GetMapHeight(); j++) {
 			// replace each brick index with sprite
 			if (action_layer->GetTile(j, i) == 0) {
-				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
 			}
 
 			// replace each block index with sprite
