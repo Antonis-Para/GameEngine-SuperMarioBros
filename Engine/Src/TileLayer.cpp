@@ -207,10 +207,7 @@ void TileLayer::ComputeTileGridBlocks1() {
 				grid_start += GRID_MAX_WIDTH;
 			}
 			grid_start = tmp + GRID_ELEMENT_WIDTH;
-			//memset(grid, IsTileIndexAssumedEmpty(GetTile(map, row, col)) ? GRID_EMPTY_TILE : GRID_SOLID_TILE, GRID_ELEMENTS_PER_TILE);
-			//grid += GRID_ELEMENTS_PER_TILE;
 		}
-		//grid += GRID_MAX_WIDTH * 3;
 		grid_start = tmp2 + GRID_MAX_WIDTH * 4;
 	}
 }
@@ -218,22 +215,6 @@ void TileLayer::ComputeTileGridBlocks1() {
 GridLayer* TileLayer::GetGrid(void) const{
 	return grid;
 }
-
-//void GridLayer::Allocate(void) {
-//	grid = new GridIndex[total = totalRows * totalColumns];
-//	memset(grid, GRID_EMPTY_TILE, total);
-//}
-//
-//bool GridLayer::IsOnSolidGround(const Rect& r) const { // will need later for gravity
-//	int dy = 1; // down 1 pixel
-//	FilterGridMotionDown(r, &dy);
-//	return dy == 0; // if true IS attached to solid ground
-//}
-//
-//GridIndex*& GridLayer::GetBuffer(void) { return grid; }
-//
-//const GridIndex* GridLayer::GetBuffer(void) const { return grid; }
-
 
 
 CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {

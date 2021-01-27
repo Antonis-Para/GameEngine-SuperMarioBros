@@ -128,6 +128,12 @@ void Sprite::SetBoundingArea(const BoundingArea& area) {
 	boundingArea = area.Clone();
 }
 
+void Sprite::ReplaceBoundingArea(BoundingArea* area) {
+	assert(boundingArea);
+	delete boundingArea;
+	boundingArea = area;
+}
+
 void Sprite::SetBoundingArea(BoundingArea* area) {
 	assert(!boundingArea);
 	boundingArea = area;
@@ -148,6 +154,15 @@ spritestate_t Sprite::GetStateId(void){
 void Sprite::SetStateId(spritestate_t id){
 	stateId = id;
 }
+
+string Sprite::Get_Str_StateId(void) {
+	return str_stateId;
+}
+
+void Sprite::Set_Str_StateId(string id) {
+	str_stateId = id;
+}
+
 
 void Sprite::SetVisibility(bool v) {
 	isVisible = v;

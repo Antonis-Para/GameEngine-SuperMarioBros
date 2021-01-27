@@ -8,6 +8,11 @@ namespace app {
 	void create_enemy_red_koopa_troopa(int x, int y);
 	void create_enemy_piranha_plant(int x, int y);
 
+	//create powerups
+	void create_super_mushroom(int x, int y);
+	void create_1UP_mushroom(int x, int y, Game* game);
+	void create_starman(int x, int y);
+
 	//create blocks
 	void create_brick_sprite(int x, int y);
 	void create_block_sprite(int x, int y);
