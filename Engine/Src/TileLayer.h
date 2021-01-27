@@ -72,7 +72,7 @@ class TileLayer {
 		void Save(const std::string& path) const;
 		 
 		bool Load(const std::string& path);
-		FILE* WriteText(FILE* fp) const;
+		std::ifstream WriteText(std::ifstream fp) const;
 		bool ReadText(FILE* fp); // TODO: carefull generic parsing
 		TileLayer(Dim _rows, Dim _cols, Bitmap _tileSet);
 		~TileLayer(); // cleanup here with care!

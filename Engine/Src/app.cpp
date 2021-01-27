@@ -370,102 +370,89 @@ void InitialiseGame(Game& game) {
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
-				if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
-					for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
-						if (goomba->GetFormStateId() == SMASHED) {
-							//if smashed do nothing (dont move it)
-						}
-						else if (goomba->GetFormStateId() == DELETE || goomba->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
-							goomba->SetVisibility(false);
-							toBeDestroyed.push_back(goomba);
-						}
-						else if (goomba->GetFormStateId() == DELETE_BY_BLOCK){
-							goomba->SetVisibility(false);
-							toBeDestroyedByBlock.push_back(goomba);
-						}
-						else {
-							if (goomba->lastMovedRight)
-								goomba->Move(ENEMIES_MOVE_SPEED, 0);
+				for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+					if (goomba->GetFormStateId() == SMASHED) {
+						//if smashed do nothing (dont move it)
+					}
+					else if (goomba->GetFormStateId() == DELETE || goomba->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+						goomba->SetVisibility(false);
+						toBeDestroyed.push_back(goomba);
+					}
+					else if (goomba->GetFormStateId() == DELETE_BY_BLOCK){
+						goomba->SetVisibility(false);
+						toBeDestroyedByBlock.push_back(goomba);
+					}
+					else {
+						if (goomba->lastMovedRight)
+							goomba->Move(ENEMIES_MOVE_SPEED, 0);
+						else
+							goomba->Move(-ENEMIES_MOVE_SPEED, 0);
+					}
+				}
+				for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+					if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+						koopa_troopa->SetVisibility(false);
+						toBeDestroyed.push_back(koopa_troopa);
+					}
+					else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
+						koopa_troopa->SetVisibility(false);
+						toBeDestroyedByBlock.push_back(koopa_troopa);
+					}
+					else {
+						if (koopa_troopa->GetStateId() == WALKING_STATE) {
+							int speed = ENEMIES_MOVE_SPEED;
+							if (koopa_troopa->GetFormStateId() == SMASHED)
+								speed = SHELL_SPEED;
+							if (koopa_troopa->lastMovedRight)
+								koopa_troopa->Move(speed, 0);
 							else
-								goomba->Move(-ENEMIES_MOVE_SPEED, 0);
-
+								koopa_troopa->Move(-speed, 0);
 						}
 					}
 				}
-				if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
-					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-						if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
-							koopa_troopa->SetVisibility(false);
-							toBeDestroyed.push_back(koopa_troopa);
-						}
-						else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
-							koopa_troopa->SetVisibility(false);
-							toBeDestroyedByBlock.push_back(koopa_troopa);
-						}
-						else {
-							if (koopa_troopa->GetStateId() == WALKING_STATE) {
-								int speed = ENEMIES_MOVE_SPEED;
-								if (koopa_troopa->GetFormStateId() == SMASHED)
-									speed = SHELL_SPEED;
-								if (koopa_troopa->lastMovedRight)
-									koopa_troopa->Move(speed, 0);
-								else
-									koopa_troopa->Move(-speed, 0);
-							}
-						}
+				for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
+					if (koopa_troopa->GetFormStateId() == DELETE) {
+						koopa_troopa->SetVisibility(false);
+						toBeDestroyed.push_back(koopa_troopa);
 					}
-				}
-				if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
-					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
-						if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
-							koopa_troopa->SetVisibility(false);
-							toBeDestroyed.push_back(koopa_troopa);
-						}
-						else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
-							koopa_troopa->SetVisibility(false);
-							toBeDestroyedByBlock.push_back(koopa_troopa);
-						}
-						else {
-							if (koopa_troopa->GetStateId() == WALKING_STATE) {
-								int speed = ENEMIES_MOVE_SPEED;
-								if (koopa_troopa->GetFormStateId() == SMASHED)
-									speed = SHELL_SPEED;
-								if (koopa_troopa->lastMovedRight)
-									koopa_troopa->Move(speed, 0);
-								else
-									koopa_troopa->Move(-speed, 0);
-							}
-						}
+					else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
+						koopa_troopa->SetVisibility(false);
+						toBeDestroyedByBlock.push_back(koopa_troopa);
 					}
-				}
-				if (!SpriteManager::GetSingleton().GetTypeList("piranha_plant").empty()) {
-					for (auto plant : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) {
-						if (plant->GetFormStateId() == DELETE) {
-							plant->SetVisibility(false);
-							toBeDestroyed.push_back(plant);
-						}
-					}
-				}
-				if (!SpriteManager::GetSingleton().GetTypeList("coin").empty()) {
-					for (auto coin : SpriteManager::GetSingleton().GetTypeList("coin")) {
-						if (coin->GetFormStateId() == DELETE) {
-							coin->SetVisibility(false);
-							toBeDestroyed.push_back(coin);
-						}
-					}
-				}
-				if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
-					for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-						if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
-							powerup->SetVisibility(false);
-							toBeDestroyed.push_back(powerup);
-						}
-						else {
-							if (powerup->lastMovedRight)
-								powerup->Move(POWERUPS_MOVE_SPEED, 0);
+					else {
+						if (koopa_troopa->GetStateId() == WALKING_STATE) {
+							int speed = ENEMIES_MOVE_SPEED;
+							if (koopa_troopa->GetFormStateId() == SMASHED)
+								speed = SHELL_SPEED;
+							if (koopa_troopa->lastMovedRight)
+								koopa_troopa->Move(speed, 0);
 							else
-								powerup->Move(-POWERUPS_MOVE_SPEED, 0);
+								koopa_troopa->Move(-speed, 0);
 						}
+					}
+				}
+				for (auto plant : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) {
+					if (plant->GetFormStateId() == DELETE) {
+						plant->SetVisibility(false);
+						toBeDestroyed.push_back(plant);
+					}
+				}
+				for (auto coin : SpriteManager::GetSingleton().GetTypeList("coin")) {
+					if (coin->GetFormStateId() == DELETE) {
+						coin->SetVisibility(false);
+						toBeDestroyed.push_back(coin);
+					}
+				}
+				for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+					if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+						powerup->SetVisibility(false);
+						toBeDestroyed.push_back(powerup);
+					}
+					else {
+						if (powerup->lastMovedRight)
+							powerup->Move(POWERUPS_MOVE_SPEED, 0);
+						else
+							powerup->Move(-POWERUPS_MOVE_SPEED, 0);
 					}
 				}
 				for (auto sprite : toBeDestroyed) {
@@ -496,27 +483,23 @@ void InitialiseGame(Game& game) {
 
 			if (!al_is_event_queue_empty(blockQueue)) {
 				al_wait_for_event(blockQueue, &event);
-				if (!SpriteManager::GetSingleton().GetTypeList("block").empty()) {
-					for (auto block : SpriteManager::GetSingleton().GetTypeList("block")) {
-						if (block->GetFormStateId() == MOVED_BLOCK) {
-							block->Move(0, 4);
-							block->SetFormStateId(EMPTY_BLOCK);
-							block->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("blocks.empty_block"));
-							al_stop_timer(blockTimer);
-						}
+				for (auto block : SpriteManager::GetSingleton().GetTypeList("block")) {
+					if (block->GetFormStateId() == MOVED_BLOCK) {
+						block->Move(0, 4);
+						block->SetFormStateId(EMPTY_BLOCK);
+						block->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("blocks.empty_block"));
+						al_stop_timer(blockTimer);
 					}
 				}
-				if (!SpriteManager::GetSingleton().GetTypeList("brick").empty()) {
-					for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
-						if (brick->GetFormStateId() == MOVED_BLOCK) {
-							brick->Move(0, 4);
-							brick->SetFormStateId(BRICK);
-							al_stop_timer(blockTimer);
-						}
-						else if (brick->GetFormStateId() == SMASHED) {
-							toBeDestroyed.push_back(brick);
-							action_layer->UnsolidTileGridBlocks(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
-						}
+				for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
+					if (brick->GetFormStateId() == MOVED_BLOCK) {
+						brick->Move(0, 4);
+						brick->SetFormStateId(BRICK);
+						al_stop_timer(blockTimer);
+					}
+					else if (brick->GetFormStateId() == SMASHED) {
+						toBeDestroyed.push_back(brick);
+						action_layer->UnsolidTileGridBlocks(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
 					}
 				}
 				for (auto sprite : toBeDestroyed) {

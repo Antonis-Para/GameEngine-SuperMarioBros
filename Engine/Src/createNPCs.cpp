@@ -4,39 +4,37 @@
 
 using namespace std;
 
-extern class TileLayer* action_layer;
-extern class TileLayer* underground_layer;
-extern class CircularBackground* circular_background;
-extern class Sprite* mario;
-extern class FrameRangeAnimator* jump;
-extern class FrameRangeAnimation* jump_anim;
-extern std::unordered_set <Sprite*> shells;
-extern class MovingAnimator* walk, * pipe_movement;
+extern TileLayer* action_layer;
+extern TileLayer* underground_layer;
+extern CircularBackground* circular_background;
+extern Sprite* mario;
+extern FrameRangeAnimator* jump;
+extern FrameRangeAnimation* jump_anim;
+extern std::unordered_set<Sprite*> shells;
+extern MovingAnimator* walk, * pipe_movement;
 extern bool keys[ALLEGRO_KEY_MAX];
 extern bool disable_input;
 extern ALLEGRO_TIMER* blockTimer;
-extern 
 
 //create enemies
 void app::create_enemy_goomba(int x, int y) {
 	Sprite* goomba = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba"), "goomba");
 	SpriteManager::GetSingleton().Add(goomba);
 
-	class MovingAnimator* goomba_walk = new MovingAnimator();
+	MovingAnimator* goomba_walk = new MovingAnimator();
 	goomba->SetAnimator(goomba_walk);
 	AnimatorManager::GetSingleton().Register(goomba_walk);
 	//goomba_walk->
 	goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
 		goomba->NextFrame();
-		});
+	});
 	goomba_walk->SetOnFinish([goomba](Animator* animator) {
 		//for (auto s1 : shells)
 			//CollisionChecker::GetSingleton().Cancel(s1, goomba);
 		//AnimatorManager::GetSingleton().Cancel(animator);
-		});
+	});
 
-
-	class MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
+	MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
 	goomba_walk->Start(goomba_walking_animation, GetGameTime());
 	goomba->SetStateId(WALKING_STATE);
 	goomba->SetZorder(1);
@@ -53,7 +51,7 @@ void app::create_enemy_goomba(int x, int y) {
 		};
 
 		return action_layer->GetGrid()->IsOnSolidGround(posOnGrid, goomba->GetStateId());
-		});
+	});
 
 	goomba->SetMover([goomba](const Rect& pos, int* dx, int* dy) {
 		Rect posOnGrid{
@@ -67,7 +65,7 @@ void app::create_enemy_goomba(int x, int y) {
 			goomba->lastMovedRight = !goomba->lastMovedRight;
 		}
 		goomba->SetPos(pos.x + *dx, pos.y + *dy);
-		});
+	});
 
 	CollisionChecker::GetSingleton().Register(mario, goomba,
 		[goomba_walk, goomba_walking_animation](Sprite* s1, Sprite* s2) {
@@ -93,16 +91,12 @@ void app::create_enemy_goomba(int x, int y) {
 				CollisionChecker::GetSingleton().Cancel(s1, s2);
 				jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 				jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
-					int sumOfNumbers = 0;
-					char maxTiles = 3;
-
-					for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
-
-					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
-					});
+					int sumOfNumbers = jump_anim->GetEndFrame() * ((jump_anim->GetEndFrame() - 1) / 2);
+					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * 3 * TILE_HEIGHT) / sumOfNumbers);
+				});
 
 				/*play death animation of goomba*/
-				class MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
+				MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
 				s2->SetFrame(0);
 				s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
 				s2->SetHasDirectMotion(true);
@@ -115,19 +109,16 @@ void app::create_enemy_goomba(int x, int y) {
 					goomba_walk->deleteCurrAnimation();
 					s2->SetFormStateId(DELETE);
 					goomba_walk->Destroy();
-					});
+				});
 
 				jump->Start(jump_anim, GetGameTime());
-				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_right"));
-				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
+				mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() +
+					(mario->lastMovedRight ? ".jump_right" : ".jump_left")));
 			}
 			else {
 				//do mario penalty
 				mario->hit();
 			}
-
 		}
 	);
 }
@@ -136,15 +127,15 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"), "green_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
-	class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
+	MovingAnimator* koopa_troopa_walk = new MovingAnimator();
 	AnimatorManager::GetSingleton().Register(koopa_troopa_walk);
 
 	koopa_troopa_walk->SetOnAction([koopa_troopa](Animator* animator, const Animation& anim) {
 		koopa_troopa->NextFrame();
-		});
+	});
 	koopa_troopa->SetAnimator(koopa_troopa_walk);
 
-	class MovingAnimation* koopa_troopa_walking_animation = new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100);
+	MovingAnimation* koopa_troopa_walking_animation = new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100);
 	koopa_troopa_walk->Start(koopa_troopa_walking_animation, GetGameTime());
 	koopa_troopa->SetStateId(WALKING_STATE);
 	koopa_troopa->SetZorder(1);
@@ -161,7 +152,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 		};
 
 		return action_layer->GetGrid()->IsOnSolidGround(posOnGrid, koopa_troopa->GetStateId());
-		});
+	});
 
 	koopa_troopa->SetMover([koopa_troopa](const Rect& pos, int* dx, int* dy) {
 		int prev_x = *dx;
@@ -183,7 +174,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 			}
 		}
 		koopa_troopa->SetPos(pos.x + *dx, pos.y + *dy);
-		});
+	});
 
 	CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 		[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
@@ -360,10 +351,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 						mario->hit();
 					}
 				}
-
-
 			}
-
 		}
 	);
 }
@@ -372,15 +360,15 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"), "red_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
-	class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
+	MovingAnimator* koopa_troopa_walk = new MovingAnimator();
 	AnimatorManager::GetSingleton().Register(koopa_troopa_walk);
 
 	koopa_troopa_walk->SetOnAction([koopa_troopa](Animator* animator, const Animation& anim) {
 		koopa_troopa->NextFrame();
-		});
+	});
 	koopa_troopa->SetAnimator(koopa_troopa_walk);
 
-	class MovingAnimation* koopa_troopa_walking_animation = new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100);
+	MovingAnimation* koopa_troopa_walking_animation = new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100);
 	koopa_troopa_walk->Start(koopa_troopa_walking_animation, GetGameTime());
 	koopa_troopa->SetStateId(WALKING_STATE);
 	koopa_troopa->SetZorder(1);
@@ -397,7 +385,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 		};
 
 		return action_layer->GetGrid()->IsOnSolidGround(posOnGrid, koopa_troopa->GetStateId());
-		});
+	});
 
 	koopa_troopa->SetMover([koopa_troopa](const Rect& pos, int* dx, int* dy) {
 		int prev_x = *dx;
@@ -435,7 +423,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 
 		}
 		koopa_troopa->SetPos(pos.x + *dx, pos.y + *dy);
-		});
+	});
 
 	CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 		[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
@@ -839,8 +827,7 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 
 	CollisionChecker::GetSingleton().Register(mario, coin,
 		[game](Sprite* s1, Sprite* s2) {
-			if (s2->GetFormStateId() == DELETE)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addCoin();
 			game->addPoints(200);
@@ -885,17 +872,21 @@ void app::create_super_mushroom(int x, int y) {
 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[](Sprite* s1, Sprite* s2) {
-			if (s1->GetFormStateId() != SMALL_MARIO)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
+			s2->SetFormStateId(DELETE);
+			if (s1->GetFormStateId() == SUPER_MARIO || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				return; //if mario is already big, collect points
+			}
 
 			//s1 must be mario
-			s1->SetFormStateId(SUPER_MARIO);
+			if (s1->GetFormStateId() == SMALL_MARIO)
+				s1->SetFormStateId(SUPER_MARIO);
+			else
+				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
 			s1->Set_Str_StateId("Mario_big");
 			s1->SetBoxDimentions(16, 32);
 			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
 			s1->Move(0,-16);
-
-			s2->SetFormStateId(DELETE);
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
@@ -938,8 +929,7 @@ void app::create_1UP_mushroom(int x, int y, Game* game) {
 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[game](Sprite* s1, Sprite* s2) {
-			if (s2->GetFormStateId() == DELETE)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addLife();
 		}
@@ -948,7 +938,7 @@ void app::create_1UP_mushroom(int x, int y, Game* game) {
 }
 
 void app::create_starman(int x, int y) {
-	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.starman"), "powerup");
+	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.star"), "powerup");
 	SpriteManager::GetSingleton().Add(powerup);
 
 	powerup->SetStateId(WALKING_STATE);
@@ -982,9 +972,38 @@ void app::create_starman(int x, int y) {
 			powerup->SetPos(pos.x + *dx, pos.y + *dy);
 		});
 
+	//invincible mario 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[](Sprite* s1, Sprite* s2) {
-			//invincible mario
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
+			s2->SetFormStateId(DELETE); //delete the star
+
+			if (s1->GetFormStateId() == SMALL_MARIO)
+				s1->SetFormStateId(INVINCIBLE_MARIO_SMALL);
+			else if (s1->GetFormStateId() == SUPER_MARIO)
+				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
+			else { //TODO: mario is already invinsible. Do something
+				return;
+			}
+
+			FlashAnimator* animator = new FlashAnimator();
+			AnimatorManager::GetSingleton().Register(animator);
+			animator->SetOnStart([s1](Animator* animator) {
+				s1->SetHit(true);
+			});
+
+			animator->SetOnAction([s1](Animator* animator, const Animation& anim) {
+				s1->SetVisibility(!s1->IsVisible());
+			});
+
+			animator->SetOnFinish([s1](Animator* animator) {
+				((FlashAnimator*)animator)->deleteCurrAnimation();
+				s1->SetHit(false);
+				AnimatorManager::GetSingleton().Cancel(animator);
+				animator->Destroy();
+			});
+			unsigned seconds = 30;
+			animator->Start(new FlashAnimation("flash_star", seconds * 10, 100, 100), GetGameTime());
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity

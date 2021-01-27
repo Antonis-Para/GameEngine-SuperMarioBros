@@ -207,6 +207,13 @@ void Sprite::hit() {
 	animator->Start(new FlashAnimation("flash", 30, 100, 100), GetGameTime());
 }
 
+void Sprite::SetHit(bool val) {
+	isHit = val;
+}
+bool Sprite::GetHit() {
+	return isHit;
+}
+
 GravityHandler& Sprite::GetGravityHandler(void) {
 	return gravity;
 }
