@@ -38,8 +38,7 @@ void TileLayer::InitCaching(int width, int height) {
 
 const Point TileLayer::Pick(Dim x, Dim y) const
 {
-	return { DIV_TILE_WIDTH(x + viewWin.x),
-	DIV_TILE_HEIGHT(y + viewWin.y) };
+	return { DIV_TILE_WIDTH(x + viewWin.x), DIV_TILE_HEIGHT(y + viewWin.y) };
 }
 
 const Rect& TileLayer::GetViewWindow(void) const { 
@@ -51,7 +50,6 @@ void TileLayer::SetViewWindow(const Rect& r)
 	viewWin = r;
 	dpyChanged = true;
 }
-
 
 Bitmap TileLayer::GetBitmap(void) const { return dpyBuffer; }
 
@@ -78,10 +76,10 @@ void TileLayer::SetMapDims(unsigned width, unsigned height){
 
 void TileLayer::Save(const std::string& path) const
 {
-	//fclose(WriteText(fopen(path.c_str(), "wt")));
+	WriteText(std::ifstream(path)).close();
 }
 
-FILE* TileLayer::WriteText(FILE* fp) const
+std::ifstream TileLayer::WriteText(::ifstream fp) const
 {
 	//fprintf(fp, "%s", TileLayer::ToString().c_str());
 	return fp;
@@ -180,7 +178,6 @@ void TileLayer::TileTerrainDisplay(Bitmap dest, const Rect& displayArea) {
 	BitmapBlit(dpyBuffer, { dpyX, dpyY, viewWin.w, viewWin.h }, dest, { displayArea.x, displayArea.y });
 }
 
-
 //-----------GRID LAYER-----------------
 
 void TileLayer::insertSolid(Index id) {
@@ -192,7 +189,6 @@ bool TileLayer::IsTileIndexAssumedEmpty(Index index) {
 		return false;
 	return true;
 }
-
 
 //views the map (in the csv) and adds in the Grid map if we are allowed to go through it
 void TileLayer::ComputeTileGridBlocks1() {
@@ -216,7 +212,6 @@ GridLayer* TileLayer::GetGrid(void) const{
 	return grid;
 }
 
-
 CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {
 	viewWin = Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 
@@ -224,7 +219,6 @@ CircularBackground::CircularBackground(Bitmap _tileset, std::string filename) {
 
 	InitBuffer(_tileset, filename, width_in_tiles);
 }
-
 
 void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int width) {
 	string line, token, delimiter = ",";
@@ -269,7 +263,6 @@ void CircularBackground::InitBuffer(Bitmap tileset, std::string filename, int wi
 	BitmapDestroy(tmp);
 }
 
-
 void CircularBackground::Scroll(int dx) {
 	viewWin.x += dx;
 	if (viewWin.x < 0) {
@@ -283,7 +276,6 @@ void CircularBackground::Scroll(int dx) {
 		}
 			
 }
-
 
 void CircularBackground::Display(Bitmap dest, int x, int y) const {
 	auto bg_w = BitmapGetWidth(bg);
