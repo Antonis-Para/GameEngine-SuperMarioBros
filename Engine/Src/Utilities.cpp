@@ -25,3 +25,14 @@ int customRound(double number) {
 	else
 		return floor(number);
 }
+
+string standarizeSize(string text, int size) {
+	int textSize = text.size();
+	string result = text;
+
+	for (int i = 0; i < size - textSize; i++) {
+		result = "0" + result;
+	}
+
+	return result;
+}

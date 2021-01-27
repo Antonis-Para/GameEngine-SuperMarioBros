@@ -251,6 +251,18 @@ void CollisionChecker::Cancel(Sprite* s1, Sprite* s2) {
 	entries.erase(i);
 }
 
+void CollisionChecker::CancelAll(Sprite* s1) {
+	while (1) {
+		auto i = std::find_if(entries.begin(), entries.end(), [s1](const Entry& e) {
+			return std::get<0>(e) == s1 || std::get<1>(e) == s1;
+		});
+		if (i != entries.end())
+			entries.erase(i);
+		else
+			break;
+	}
+}
+
 void CollisionChecker::Check(void) const {
 	std::list<Entry> entries_tmp = entries;
 	for (auto& e : entries_tmp)

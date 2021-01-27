@@ -5,14 +5,17 @@ enum spritestate_t {
 };
 
 enum spriteFormState_t {
-	SMALL_MARIO = 0, 
-	SUPER_MARIO = 1, 
-	ENEMY = 2, 
-	SMASHED = 3, 
-	PIPE = 4, 
-	DELETE = 5, 
-	BRICK = 6, 
-	BLOCK = 7, 
-	EMPTY_BLOCK = 8,
-	MOVED_BLOCK = 9
+	SMALL_MARIO = 0,
+	SUPER_MARIO = 1,
+	INVINCIBLE_MARIO = 2,
+	ENEMY = 3,
+	SMASHED = 4,
+	PIPE = 5,
+	DELETE = 6,
+	BRICK = 7,
+	BLOCK = 8,
+	EMPTY_BLOCK = 9,
+	MOVED_BLOCK = 10,
+	DELETE_BY_BLOCK = 11,
+	COIN = 12
 };

@@ -45,6 +45,8 @@ namespace app {
 			uint64_t pauseTime = 0;
 
 			int lives = 3;
+			int coins = 0;
+			int points = 0;
 
 			void Invoke(const Action& f);
 		public:
@@ -79,6 +81,13 @@ namespace app {
 			void addLife(void);
 			void loseLife(void);
 			bool isDead(void);
+
+			int getCoins(void);
+			void addCoin(void);
+			void resetCoins(void);
+
+			int getPoints(void);
+			void addPoints(int);
 	};
 
 

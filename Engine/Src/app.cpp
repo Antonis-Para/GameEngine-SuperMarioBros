@@ -49,6 +49,7 @@ class FrameRangeAnimation* jump_anim = nullptr;
 std::unordered_set <Sprite*> shells;
 
 Bitmap liveIcon = nullptr;
+Bitmap coinIcon = nullptr;
 
 ALLEGRO_FONT* font;
 ALLEGRO_FONT* paused_font;
@@ -181,7 +182,6 @@ void InitialiseGame(Game& game) {
 			}
 			
 			al_draw_text(font, al_map_rgb(255, 255, 255), 30, 18, ALLEGRO_ALIGN_CENTER, "Lives: ");
-
 			if (game.getLives() < 6) {
 				for (int i = 0; i < game.getLives(); i++)
 					al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50 + (i * 15), 20, 14, 14, 0);
@@ -190,7 +190,14 @@ void InitialiseGame(Game& game) {
 				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50, 20, 14, 14, 0);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 70, 19, ALLEGRO_ALIGN_LEFT, ("x" + to_string(game.getLives())).c_str());
 			}
+
+			al_draw_text(font, al_map_rgb(255, 255, 255), 290, 18, ALLEGRO_ALIGN_CENTER, "Coins: ");
+			al_draw_scaled_bitmap(coinIcon, 0, 0, 16, 16, 310, 18, 16, 16, 0);
+			al_draw_text(font, al_map_rgb(255, 255, 255), 325, 19, ALLEGRO_ALIGN_LEFT, ("x" + to_string(game.getCoins())).c_str());
 			
+			al_draw_text(font, al_map_rgb(255, 255, 255), 525, 18, ALLEGRO_ALIGN_CENTER, "Score: ");
+			al_draw_text(font, al_map_rgb(255, 255, 255), 550, 19, ALLEGRO_ALIGN_LEFT, standarizeSize(to_string(game.getPoints()), 8).c_str());
+
 			al_flip_display();
 		}
 	);
@@ -214,6 +221,12 @@ void InitialiseGame(Game& game) {
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_L) {
 					game.loseLife();
+				}
+				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_M) {
+					game.addCoin();
+				}
+				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_N) {
+					game.addPoints(100);
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 					keys[event.keyboard.keycode] = true;
@@ -374,6 +387,7 @@ void InitialiseGame(Game& game) {
 	game.SetAI(
 		[](void) {
 			vector<Sprite*> toBeDestroyed;
+			vector<Sprite*> toBeDestroyedByBlock;
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
@@ -385,6 +399,10 @@ void InitialiseGame(Game& game) {
 						else if (goomba->GetFormStateId() == DELETE) {
 							goomba->SetVisibility(false);
 							toBeDestroyed.push_back(goomba);
+						}
+						else if (goomba->GetFormStateId() == DELETE_BY_BLOCK){
+							goomba->SetVisibility(false);
+							toBeDestroyedByBlock.push_back(goomba);
 						}
 						else {
 							if (goomba->lastMovedRight)
@@ -400,6 +418,10 @@ void InitialiseGame(Game& game) {
 						if (koopa_troopa->GetFormStateId() == DELETE) {
 							koopa_troopa->SetVisibility(false);
 							toBeDestroyed.push_back(koopa_troopa);
+						}
+						else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
+							koopa_troopa->SetVisibility(false);
+							toBeDestroyedByBlock.push_back(koopa_troopa);
 						}
 						else {
 							if (koopa_troopa->GetStateId() == WALKING_STATE) {
@@ -419,6 +441,10 @@ void InitialiseGame(Game& game) {
 						if (koopa_troopa->GetFormStateId() == DELETE) {
 							koopa_troopa->SetVisibility(false);
 							toBeDestroyed.push_back(koopa_troopa);
+						}
+						else if (koopa_troopa->GetFormStateId() == DELETE_BY_BLOCK) {
+							koopa_troopa->SetVisibility(false);
+							toBeDestroyedByBlock.push_back(koopa_troopa);
 						}
 						else {
 							if (koopa_troopa->GetStateId() == WALKING_STATE) {
@@ -443,8 +469,18 @@ void InitialiseGame(Game& game) {
 				}
 				for (auto sprite : toBeDestroyed) {
 					SpriteManager::GetSingleton().Remove(sprite);
+					CollisionChecker::GetSingleton().CancelAll(sprite);
+				}
+				for (auto sprite : toBeDestroyedByBlock) {
+					sprite->GetAnimator()->Stop();
+					sprite->GetAnimator()->deleteCurrAnimation();
+					sprite->GetAnimator()->Destroy();
+					AnimatorManager::GetSingleton().Cancel(sprite->GetAnimator());
+					SpriteManager::GetSingleton().Remove(sprite);
+					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				toBeDestroyed.clear();
+				toBeDestroyedByBlock.clear();
 			}
 
 			if (!al_is_event_queue_empty(blockQueue)) {
@@ -474,6 +510,7 @@ void InitialiseGame(Game& game) {
 				}
 				for (auto sprite : toBeDestroyed) {
 					SpriteManager::GetSingleton().Remove(sprite);
+					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				toBeDestroyed.clear();
 			}
@@ -629,6 +666,7 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 	return "blocks.brick:" + string(al_get_config_value(config, "blocks", "brick")) + '$'
 		+ "blocks.block:" + string(al_get_config_value(config, "blocks", "block")) + '$'
 		+ "blocks.empty_block:" + string(al_get_config_value(config, "blocks", "empty_block")) + '$'
+		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$'
 		;
 }
 
@@ -668,7 +706,8 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllEnemies(config), al_get_config_value(config, "paths", "enemies_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllBlocks(config), al_get_config_value(config, "paths", "npcs_path"));
 
-	liveIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "characters_path")), {127, 60, 16, 16});
+	liveIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "characters_path")), { 127, 60, 16, 16 });
+	coinIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "npcs_path")), {0, 16, 16, 16});
 
 	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
 	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
@@ -748,6 +787,11 @@ void app::MainApp::Load(void) {
 			// replace each block index with sprite
 			if (action_layer->GetTile(j, i) == 4) {
 				create_brick_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+			}
+
+			// replace each coin index with sprite
+			if (action_layer->GetTile(j, i) == 26) {
+				create_coin_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
 			}
 		}
 	}
@@ -872,4 +916,29 @@ void app::Game::loseLife(void) {
 
 bool app::Game::isDead(void) {
 	return lives == 0;
+}
+
+int app::Game::getCoins(void) {
+	return coins;
+}
+
+void app::Game::addCoin(void) {
+	coins += 1;
+
+	if (coins == 100) {
+		resetCoins();
+		addLife();
+	}
+}
+
+void app::Game::resetCoins(void) {
+	coins = 0;
+}
+
+int app::Game::getPoints(void) {
+	return points;
+}
+
+void app::Game::addPoints(int extra_points) {
+	points += extra_points;
 }

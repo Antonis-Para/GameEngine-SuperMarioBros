@@ -9,3 +9,4 @@ using namespace std;
 
 vector <string> splitString(string text, string delimiter);
 int customRound(double number);
+string standarizeSize(string text, int size);
