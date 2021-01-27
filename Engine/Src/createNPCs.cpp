@@ -124,8 +124,8 @@ void app::create_enemy_goomba(int x, int y) {
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
 			}
 			else {
-				//s2->lastMovedRight = !s2->lastMovedRight;
 				//do mario penalty
+				mario->hit();
 			}
 
 		}
@@ -354,6 +354,12 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 				}
 				else {
 					//do mario penalty
+					if (!(mario->lastMovedRight == true && s1_x1 < s2_x1 ||
+						mario->lastMovedRight == false && s2_x2 < s1_x2))
+					{ //do not hit mario when he is pushing the shell
+						cout << mario->lastMovedRight << " " << s2->lastMovedRight << endl;
+						mario->hit();
+					}
 				}
 
 
@@ -605,6 +611,12 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 				}
 				else {
 					//do mario penalty
+					if (!(mario->lastMovedRight  == true && s1_x1 < s2_x1 ||
+						mario->lastMovedRight == false && s2_x2 < s1_x2)) 
+					{ //do not hit mario when he is pushing the shell
+						cout << mario->lastMovedRight << " " << s2->lastMovedRight << endl;
+						mario->hit();
+					}
 				}
 			}
 		}
@@ -673,9 +685,8 @@ void app::create_enemy_piranha_plant(int x, int y) {
 					piranha_move->SetLastTime(GetGameTime());
 				}
 			}
-			else { //mario AND piranha is on top of the pipe
+			else { //mario AND piranha is on top of the pipe, mario gets hit
 				//do mario penalty
-				//cout << "HIT\n";
 				mario->hit();
 			}
 
