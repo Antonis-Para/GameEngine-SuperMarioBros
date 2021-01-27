@@ -28,11 +28,6 @@ void app::create_enemy_goomba(int x, int y) {
 	goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
 		goomba->NextFrame();
 	});
-	goomba_walk->SetOnFinish([goomba](Animator* animator) {
-		//for (auto s1 : shells)
-			//CollisionChecker::GetSingleton().Cancel(s1, goomba);
-		//AnimatorManager::GetSingleton().Cancel(animator);
-	});
 
 	MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
 	goomba_walk->Start(goomba_walking_animation, GetGameTime());
@@ -69,6 +64,17 @@ void app::create_enemy_goomba(int x, int y) {
 
 	CollisionChecker::GetSingleton().Register(mario, goomba,
 		[goomba_walk, goomba_walking_animation](Sprite* s1, Sprite* s2) {
+
+			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				//if mario is invinsible, don't think about it. Just kill him
+				delete goomba_walking_animation;
+				goomba_walk->Stop();
+				AnimatorManager::GetSingleton().Cancel(goomba_walk);
+				CollisionChecker::GetSingleton().Cancel(s1, s2);
+				s2->SetFormStateId(DELETE);
+				goomba_walk->Destroy();
+				return;
+			}
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
@@ -428,6 +434,10 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 	CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 		[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
 
+			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				//if mario is invinsible, don't think about it. Just kill him
+			}
+
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
@@ -435,7 +445,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits  coopa/shell from top
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //mario hits  coopa/shell from top
 
 				if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
 					s2->SetFrame(0);
@@ -657,6 +667,17 @@ void app::create_enemy_piranha_plant(int x, int y) {
 
 	CollisionChecker::GetSingleton().Register(mario, piranha,
 		[piranha_move](Sprite* s1, Sprite* s2) {
+
+			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				//if mario is invinsible, don't think about it. Just kill him
+				piranha_move->deleteCurrAnimation();
+				piranha_move->Stop();
+				AnimatorManager::GetSingleton().Cancel(piranha_move);
+				CollisionChecker::GetSingleton().Cancel(s1, s2);
+				s2->SetFormStateId(DELETE);
+				piranha_move->Destroy();
+				return;
+			}	
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
