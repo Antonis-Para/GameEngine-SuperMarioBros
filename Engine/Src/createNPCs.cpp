@@ -1027,17 +1027,17 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
-<<<<<<< HEAD
 	sprites = SpriteManager::GetSingleton().GetTypeList("powerup");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 		sprite->SetHasDirectMotion(false);
-=======
+	}
+
 	sprites = SpriteManager::GetSingleton().GetTypeList("coin");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
->>>>>>> b5a1a12f4cf8b8008cdc9c81c29ef855a48a81e5
+
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
