@@ -800,13 +800,16 @@ void app::create_block_sprite(int x, int y, Game *game) {
 					al_start_timer(blockTimer);
 
 					srand((unsigned) time(0));
-					int giftNum = rand() % 3;
-					if (giftNum == 0)
-						create_1UP_mushroom(x, y - 16, game);
-					else if (giftNum == 1)
-						create_coin_sprite(x, y - 16, game);
-					else
-						create_super_mushroom(x, y - 16);
+					int giftNum = rand() % 10;
+					if (giftNum == 0 || giftNum == 1 || giftNum == 2)
+						create_coin_sprite(x - action_layer->GetViewWindow().x, y - 16, game);
+					else if(giftNum == 3 || giftNum == 4 || giftNum == 5)
+						create_super_mushroom(x - action_layer->GetViewWindow().x, y - 16);
+					else if (giftNum == 6 || giftNum == 7) {}
+					else if (giftNum == 8)
+						create_1UP_mushroom(x - action_layer->GetViewWindow().x, y - 16, game);
+					else if (giftNum == 9)
+						create_starman(x - action_layer->GetViewWindow().x, y - 16);
 				}
 			}
 		}
