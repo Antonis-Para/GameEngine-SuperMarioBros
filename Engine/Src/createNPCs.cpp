@@ -988,9 +988,6 @@ void app::create_starman(int x, int y) {
 
 			FlashAnimator* animator = new FlashAnimator();
 			AnimatorManager::GetSingleton().Register(animator);
-			animator->SetOnStart([s1](Animator* animator) {
-				s1->SetHit(true);
-			});
 
 			animator->SetOnAction([s1](Animator* animator, const Animation& anim) {
 				s1->SetVisibility(!s1->IsVisible());
@@ -998,7 +995,6 @@ void app::create_starman(int x, int y) {
 
 			animator->SetOnFinish([s1](Animator* animator) {
 				((FlashAnimator*)animator)->deleteCurrAnimation();
-				s1->SetHit(false);
 				AnimatorManager::GetSingleton().Cancel(animator);
 				animator->Destroy();
 			});
