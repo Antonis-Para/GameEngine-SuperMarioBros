@@ -896,23 +896,6 @@ void app::create_super_mushroom(int x, int y) {
 			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
 			s1->Move(0,-16);
 			
-			if (s1->lastMovedRight) {
-				if (s1->GetStateId() == IDLE_STATE) {
-					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.stand_right"));
-				}
-				else {
-					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.walk_right"));
-				}
-			}
-			else {
-				if (s1->GetStateId() == IDLE_STATE) {
-					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.stand_left"));
-				}
-				else {
-					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.walk_left"));
-				}
-			}
-
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
