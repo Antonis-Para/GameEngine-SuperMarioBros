@@ -873,8 +873,10 @@ void app::create_super_mushroom(int x, int y) {
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[](Sprite* s1, Sprite* s2) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
-			if (s1->GetFormStateId() != SMALL_MARIO) //CHANGE THIS AFTERWARDS. for now if mario is big he cant collect the mushroom
+			if (s1->GetFormStateId() != SMALL_MARIO) { //CHANGE THIS AFTERWARDS. for now if mario is big he cant collect the mushroom
+				s2->SetFormStateId(DELETE);
 				return;
+			}
 
 			//s1 must be mario
 			s1->SetFormStateId(SUPER_MARIO);
