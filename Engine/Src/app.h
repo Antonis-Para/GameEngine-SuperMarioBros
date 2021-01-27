@@ -44,6 +44,8 @@ namespace app {
 			bool isPaused = false;
 			uint64_t pauseTime = 0;
 
+			int lives = 3;
+
 			void Invoke(const Action& f);
 		public:
 			void SetOnPauseResume(const Action& f) { pauseResume = f; }
@@ -73,6 +75,10 @@ namespace app {
 			bool IsPaused(void) const;
 			uint64_t GetPauseTime(void) const;
 
+			int getLives(void);
+			void addLife(void);
+			void loseLife(void);
+			bool isDead(void);
 	};
 
 

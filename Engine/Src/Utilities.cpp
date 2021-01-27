@@ -25,3 +25,10 @@ int customRound(double number) {
 	else
 		return floor(number);
 }
+
+string intToString(int i) {
+	stringstream ss;
+	ss << i;
+
+	return ss.str();
+}

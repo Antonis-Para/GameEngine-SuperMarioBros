@@ -169,23 +169,26 @@ void InitialiseGame(Game& game) {
 	);
 
 	game.SetRender(
-		[game](void) {
+		[&game](void) {
 			circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 			underground_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 			action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
-
-			for(int i = 0; i < mario->getLives(); i++)
-				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50 + (i * 15), 20, 14, 14, 0);
 
 			for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
 				sprite->Display(BitmapGetScreen());
 			}
 			
-			al_draw_text(font, al_map_rgb(0, 0, 0), 30, 18, ALLEGRO_ALIGN_CENTER, "Lives: ");
+			al_draw_text(font, al_map_rgb(255, 255, 255), 30, 18, ALLEGRO_ALIGN_CENTER, "Lives: ");
 
-			if (game.IsPaused())
-				al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
-
+			if (game.getLives() < 6) {
+				for (int i = 0; i < game.getLives(); i++)
+					al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50 + (i * 15), 20, 14, 14, 0);
+			}
+			else {
+				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50, 20, 14, 14, 0);
+				al_draw_text(font, al_map_rgb(255, 255, 255), 70, 19, ALLEGRO_ALIGN_LEFT, ("x" + intToString(game.getLives())).c_str());
+			}
+			
 			al_flip_display();
 		}
 	);
@@ -205,10 +208,10 @@ void InitialiseGame(Game& game) {
 						game.Pause(GetGameTime());
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_K) {
-					mario->addLife();
+					game.addLife();
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_L) {
-					mario->loseLife();
+					game.loseLife();
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 					keys[event.keyboard.keycode] = true;
@@ -671,7 +674,6 @@ void app::MainApp::Load(void) {
 
 	mario->SetBoundingArea(new BoundingBox(mario->GetBox().x, mario->GetBox().y, mario->GetBox().x + mario->GetBox().w, mario->GetBox().y + mario->GetBox().h));
 	mario->SetFormStateId(SMALL_MARIO);
-	mario->setLives(3);
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
@@ -835,4 +837,20 @@ bool app::Game::IsPaused(void) const {
 
 uint64_t app::Game::GetPauseTime(void) const {
 	return pauseTime;
+}
+
+int app::Game::getLives(void) {
+	return lives;
+}
+
+void app::Game::addLife(void) {
+	lives++;
+}
+
+void app::Game::loseLife(void) {
+	lives--;
+}
+
+bool app::Game::isDead(void) {
+	return lives == 0;
 }
