@@ -842,9 +842,10 @@ void app::MainApp::Clear(void) {
 	al_uninstall_keyboard();
 	al_uninstall_mouse();
 	al_destroy_bitmap(action_layer->GetBitmap());
-	//al_destroy_bitmap(underground_layer->GetBitmap());
+	al_destroy_bitmap(underground_layer->GetBitmap());
 	//TODO destroy grid, tiles, background
 	delete action_layer;
+	delete underground_layer;
 	delete bitmaploader;
 }
 
