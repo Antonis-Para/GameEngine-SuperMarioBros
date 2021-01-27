@@ -14,6 +14,7 @@ extern std::unordered_set <Sprite*> shells;
 extern class MovingAnimator* walk, * pipe_movement;
 extern bool keys[ALLEGRO_KEY_MAX];
 extern bool disable_input;
+extern ALLEGRO_TIMER* blockTimer;
 
 //create enemies
 void app::create_enemy_goomba(int x, int y) {
@@ -705,6 +706,10 @@ void app::create_brick_sprite(int x, int y) {
 			if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
 				s2->Move(0, -4);
 				s2->SetFormStateId(MOVED_BLOCK);
+				jump->Stop();
+				if (jump_anim != nullptr)
+					jump->deleteCurrAnimation();
+				al_start_timer(blockTimer);
 				if (s1->GetFormStateId() == SUPER_MARIO) {
 					//smash animation
 
@@ -728,16 +733,22 @@ void app::create_block_sprite(int x, int y) {
 
 	CollisionChecker::GetSingleton().Register(mario, block,
 		[](Sprite* s1, Sprite* s2) {
-			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
-			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
-			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
-			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
-			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+			if (s2->GetFormStateId() != EMPTY_BLOCK) {
+				int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+				int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+				int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+				int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
-				s2->Move(0, -4);
-				s2->SetFormStateId(MOVED_BLOCK);
+				if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
+					s2->Move(0, -4);
+					s2->SetFormStateId(MOVED_BLOCK);
+					jump->Stop();
+					if (jump_anim != nullptr)
+						jump->deleteCurrAnimation();
+					al_start_timer(blockTimer);
+				}
 			}
 		}
 	);
