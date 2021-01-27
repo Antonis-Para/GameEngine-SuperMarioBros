@@ -15,6 +15,7 @@ extern class MovingAnimator* walk, * pipe_movement;
 extern bool keys[ALLEGRO_KEY_MAX];
 extern bool disable_input;
 extern ALLEGRO_TIMER* blockTimer;
+extern 
 
 //create enemies
 void app::create_enemy_goomba(int x, int y) {
@@ -132,7 +133,7 @@ void app::create_enemy_goomba(int x, int y) {
 }
 
 void app::create_enemy_green_koopa_troopa(int x, int y) {
-	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_right"), "green_koopa_troopa");
+	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"), "green_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
 	class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
@@ -368,7 +369,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 }
 
 void app::create_enemy_red_koopa_troopa(int x, int y) {
-	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"), "red_koopa_troopa");
+	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"), "red_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
 	class MovingAnimator* koopa_troopa_walk = new MovingAnimator();
@@ -692,6 +693,23 @@ void app::create_enemy_piranha_plant(int x, int y) {
 }
 
 //create blocks
+void collisionBlockWithEnemies(Sprite* block, Sprite* enemy) {
+	CollisionChecker::GetSingleton().Register(block, enemy,
+		[](Sprite* s1, Sprite* s2) {
+			if (s2->GetFormStateId() == SMASHED)
+				return;
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+
+			if (s1_y1 < s2_y2) {
+				//kill animation
+
+				s2->SetFormStateId(DELETE_BY_BLOCK);
+			}
+		}
+	);
+}
+
 void app::create_brick_sprite(int x, int y) {
 	Sprite* brick = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.brick"), "brick");
 	SpriteManager::GetSingleton().Add(brick);
@@ -727,6 +745,22 @@ void app::create_brick_sprite(int x, int y) {
 			}
 		}
 	);
+
+	if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
+		for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+			collisionBlockWithEnemies(brick, goomba);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+			collisionBlockWithEnemies(brick, koopa_troopa);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
+			collisionBlockWithEnemies(brick, koopa_troopa);
+		}
+	}
 }
 
 void app::create_block_sprite(int x, int y) {
@@ -759,6 +793,44 @@ void app::create_block_sprite(int x, int y) {
 					al_start_timer(blockTimer);
 				}
 			}
+		}
+	);
+
+	if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
+		for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+			collisionBlockWithEnemies(block, goomba);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
+}
+
+void app::create_coin_sprite(int x, int y, Game* game) {
+	Sprite* coin = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.coin"), "coin");
+	SpriteManager::GetSingleton().Add(coin);
+
+	coin->SetHasDirectMotion(true);
+	coin->SetStateId(IDLE_STATE);
+	coin->SetZorder(1);
+	coin->SetBoundingArea(new BoundingCircle(coin->GetBox().x + (coin->GetBox().w / 2), coin->GetBox().y + (coin->GetBox().h / 2), 5));
+	coin->GetGravityHandler().setGravityAddicted(false);
+	coin->SetFormStateId(COIN);
+
+	CollisionChecker::GetSingleton().Register(mario, coin,
+		[game](Sprite* s1, Sprite* s2) {
+			if (s2->GetFormStateId() == DELETE)
+				return;
+			s2->SetFormStateId(DELETE);
+			game->addCoin();
+			game->addPoints(200);
 		}
 	);
 }
@@ -955,11 +1027,17 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
+<<<<<<< HEAD
 	sprites = SpriteManager::GetSingleton().GetTypeList("powerup");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 		sprite->SetHasDirectMotion(false);
+=======
+	sprites = SpriteManager::GetSingleton().GetTypeList("coin");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+>>>>>>> b5a1a12f4cf8b8008cdc9c81c29ef855a48a81e5
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);

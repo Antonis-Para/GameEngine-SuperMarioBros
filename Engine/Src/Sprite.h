@@ -144,6 +144,7 @@ class CollisionChecker final{
 		template<typename T>
 		void Register(Sprite* s1, Sprite* s2, const T& f);
 		void Cancel(Sprite* s1, Sprite* s2);
+		void CancelAll(Sprite* s1);
 		void Check(void) const;
 		static auto GetSingleton(void)->CollisionChecker&;
 		static auto GetSingletonConst(void) -> const CollisionChecker&;
