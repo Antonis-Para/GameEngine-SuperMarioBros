@@ -124,6 +124,8 @@ public:
 	void SetFormStateId(spriteFormState_t);
 
 	void hit();
+	void SetHit(bool v);
+	bool GetHit();
 };
 
 template<typename Tfunc>

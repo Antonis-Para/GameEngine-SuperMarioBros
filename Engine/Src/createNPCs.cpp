@@ -829,8 +829,7 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 
 	CollisionChecker::GetSingleton().Register(mario, coin,
 		[game](Sprite* s1, Sprite* s2) {
-			if (s2->GetFormStateId() == DELETE)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addCoin();
 			game->addPoints(200);
@@ -875,17 +874,21 @@ void app::create_super_mushroom(int x, int y) {
 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[](Sprite* s1, Sprite* s2) {
-			if (s1->GetFormStateId() != SMALL_MARIO)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
+			s2->SetFormStateId(DELETE);
+			if (s1->GetFormStateId() == SUPER_MARIO || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				return; //if mario is already big, collect points
+			}
 
 			//s1 must be mario
-			s1->SetFormStateId(SUPER_MARIO);
+			if (s1->GetFormStateId() == SMALL_MARIO)
+				s1->SetFormStateId(SUPER_MARIO);
+			else
+				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
 			s1->Set_Str_StateId("Mario_big");
 			s1->SetBoxDimentions(16, 32);
 			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
 			s1->Move(0,-16);
-
-			s2->SetFormStateId(DELETE);
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
@@ -928,8 +931,7 @@ void app::create_1UP_mushroom(int x, int y, Game* game) {
 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[game](Sprite* s1, Sprite* s2) {
-			if (s2->GetFormStateId() == DELETE)
-				return;
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addLife();
 		}
@@ -938,7 +940,7 @@ void app::create_1UP_mushroom(int x, int y, Game* game) {
 }
 
 void app::create_starman(int x, int y) {
-	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.starman"), "powerup");
+	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.star"), "powerup");
 	SpriteManager::GetSingleton().Add(powerup);
 
 	powerup->SetStateId(WALKING_STATE);
@@ -972,9 +974,38 @@ void app::create_starman(int x, int y) {
 			powerup->SetPos(pos.x + *dx, pos.y + *dy);
 		});
 
+	//invincible mario 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
 		[](Sprite* s1, Sprite* s2) {
-			//invincible mario
+			CollisionChecker::GetSingleton().Cancel(s1, s2);
+			s2->SetFormStateId(DELETE); //delete the star
+
+			if (s1->GetFormStateId() == SMALL_MARIO)
+				s1->SetFormStateId(INVINCIBLE_MARIO_SMALL);
+			else if (s1->GetFormStateId() == SUPER_MARIO)
+				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
+			else { //TODO: mario is already invinsible. Do something
+				return;
+			}
+
+			FlashAnimator* animator = new FlashAnimator();
+			AnimatorManager::GetSingleton().Register(animator);
+			animator->SetOnStart([s1](Animator* animator) {
+				s1->SetHit(true);
+			});
+
+			animator->SetOnAction([s1](Animator* animator, const Animation& anim) {
+				s1->SetVisibility(!s1->IsVisible());
+			});
+
+			animator->SetOnFinish([s1](Animator* animator) {
+				((FlashAnimator*)animator)->deleteCurrAnimation();
+				s1->SetHit(false);
+				AnimatorManager::GetSingleton().Cancel(animator);
+				animator->Destroy();
+			});
+			unsigned seconds = 30;
+			animator->Start(new FlashAnimation("flash_star", seconds * 10, 100, 100), GetGameTime());
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity

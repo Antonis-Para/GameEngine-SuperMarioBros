@@ -674,7 +674,9 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 
 string loadAllPowerups(const ALLEGRO_CONFIG* config) {
 	return "powerups.super:" + string(al_get_config_value(config, "powerups", "super")) + '$'
-		+ "powerups.1up:" + string(al_get_config_value(config, "powerups", "1up")) + '$';
+		+ "powerups.1up:" + string(al_get_config_value(config, "powerups", "1up")) + '$'
+		+ "powerups.star:" + string(al_get_config_value(config, "powerups", "star")) + '$'
+		;
 }
 
 
@@ -792,11 +794,18 @@ void app::MainApp::Load(void) {
 		create_super_mushroom(std::stoi(coordinates[0]), std::stoi(coordinates[1]));
 	}
 
-	//create super mushroom
+	//create 1up mushroom
 	locations = splitString(al_get_config_value(config, "powerups_positions", "1up"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
 		create_1UP_mushroom(std::stoi(coordinates[0]), std::stoi(coordinates[1]), &game);
+	}
+
+	//create star mushroom
+	locations = splitString(al_get_config_value(config, "powerups_positions", "star"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		create_starman(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {
