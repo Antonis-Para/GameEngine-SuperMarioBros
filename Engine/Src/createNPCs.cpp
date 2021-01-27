@@ -79,7 +79,7 @@ void app::create_enemy_goomba(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits goomba from top
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 6 + s2_y1) { //hits goomba from top
 				s2->SetFormStateId(SMASHED);
 
 				delete goomba_walking_animation;
