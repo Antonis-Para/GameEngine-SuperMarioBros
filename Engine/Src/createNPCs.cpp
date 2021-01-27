@@ -797,6 +797,22 @@ void app::create_block_sprite(int x, int y) {
 			}
 		}
 	);
+
+	if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
+		for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
+			collisionBlockWithEnemies(block, goomba);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
+	if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
+		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
 }
 
 void app::create_coin_sprite(int x, int y, Game* game) {
@@ -805,15 +821,18 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 
 	coin->SetHasDirectMotion(true);
 	coin->SetStateId(IDLE_STATE);
-	coin->SetZorder(4);
-	coin->SetBoundingArea(new BoundingBox(coin->GetBox().x, coin->GetBox().y, coin->GetBox().x + coin->GetBox().w, coin->GetBox().y + coin->GetBox().h));
+	coin->SetZorder(1);
+	coin->SetBoundingArea(new BoundingCircle(coin->GetBox().x + (coin->GetBox().w / 2), coin->GetBox().y + (coin->GetBox().h / 2), 5));
 	coin->GetGravityHandler().setGravityAddicted(false);
 	coin->SetFormStateId(COIN);
 
 	CollisionChecker::GetSingleton().Register(mario, coin,
 		[game](Sprite* s1, Sprite* s2) {
+			if (s2->GetFormStateId() == DELETE)
+				return;
 			s2->SetFormStateId(DELETE);
 			game->addCoin();
+			game->addPoints(200);
 		}
 	);
 }
@@ -866,6 +885,11 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 	}
 
 	sprites = SpriteManager::GetSingleton().GetTypeList("block");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+	}
+
+	sprites = SpriteManager::GetSingleton().GetTypeList("coin");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}

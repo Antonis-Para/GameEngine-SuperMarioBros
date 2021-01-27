@@ -363,7 +363,7 @@ void InitialiseGame(Game& game) {
 	);
 
 	game.SetAI(
-		[](void) {
+		[&game](void) {
 			vector<Sprite*> toBeDestroyed;
 			vector<Sprite*> toBeDestroyedByBlock;
 
@@ -445,11 +445,27 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
+				if (!SpriteManager::GetSingleton().GetTypeList("coin").empty()) {
+					for (auto coin : SpriteManager::GetSingleton().GetTypeList("coin")) {
+						if (coin->GetFormStateId() == DELETE) {
+							coin->SetVisibility(false);
+							toBeDestroyed.push_back(coin);
+						}
+					}
+				}
 				for (auto sprite : toBeDestroyed) {
+					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
+						game.addPoints(100);
+					else if (sprite->GetTypeId() == "piranha_plant")
+						game.addPoints(200);
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				for (auto sprite : toBeDestroyedByBlock) {
+					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
+						game.addPoints(100);
+					else if (sprite->GetTypeId() == "piranha_plant")
+						game.addPoints(200);
 					sprite->GetAnimator()->Stop();
 					sprite->GetAnimator()->deleteCurrAnimation();
 					sprite->GetAnimator()->Destroy();
