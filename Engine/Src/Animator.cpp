@@ -82,7 +82,7 @@ void MovingAnimator::deleteCurrAnimation() {
 }
 
 //Moving path animator
-void MovingPathAnimator::Progress(timestamp_t currTime) {
+void MovingPathAnimator::Progress(timestamp_t currTime) { //plants never die
 	while (currTime > lastTime && (currTime - lastTime) >= anim->GetPath().at(frame).delay) {
 		lastTime += anim->GetPath().at(frame).delay;
 		NotifyAction(*anim);
@@ -138,6 +138,7 @@ void FlashAnimator::Progress(timestamp_t currTime) {
 		if (++currRep == anim->GetRepetitions()) {
 			state = ANIMATOR_FINISHED;
 			NotifyStopped();
+			break;
 		}
 	}
 }
