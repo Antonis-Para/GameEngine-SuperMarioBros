@@ -712,6 +712,19 @@ void collisionBlockWithEnemies(Sprite* block, Sprite* enemy) {
 	);
 }
 
+void collisionBlockWithPowerUps(Sprite* block, Sprite* powerUp) {
+	CollisionChecker::GetSingleton().Register(block, powerUp,
+		[](Sprite* s1, Sprite* s2) {
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+
+			if (s1_y1 < s2_y2) {
+				s2->lastMovedRight = !s2->lastMovedRight;
+			}
+		}
+	);
+}
+
 void app::create_brick_sprite(int x, int y) {
 	Sprite* brick = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.brick"), "brick");
 	SpriteManager::GetSingleton().Add(brick);

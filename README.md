@@ -18,8 +18,8 @@
 - [x] Make sprites
 - [x] Graviry and jump
 - [x] Pause
-- [ ] Display pause text
-- [ ] Stop jump animation when mario hits a block on the way up
+- [X] Display pause text
+- [X] Stop jump animation when mario hits a block on the way up
 - [ ] Smoother jump
 
 ---

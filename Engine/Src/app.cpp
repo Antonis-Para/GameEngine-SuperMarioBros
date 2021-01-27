@@ -792,6 +792,8 @@ void app::MainApp::Load(void) {
 }
 
 void app::App::Run(void) {
+	al_flush_event_queue(fallingQueue);
+	al_flush_event_queue(aiQueue);
 	game.MainLoop();
 }
 
