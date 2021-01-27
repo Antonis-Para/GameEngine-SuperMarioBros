@@ -762,6 +762,12 @@ void app::create_brick_sprite(int x, int y) {
 			collisionBlockWithEnemies(brick, koopa_troopa);
 		}
 	}
+
+	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+			collisionBlockWithPowerUps(brick, powerup);
+		}
+	}
 }
 
 void app::create_block_sprite(int x, int y, Game *game) {
@@ -814,6 +820,12 @@ void app::create_block_sprite(int x, int y, Game *game) {
 	}
 	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
 		collisionBlockWithEnemies(block, koopa_troopa);
+	}
+
+	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+			collisionBlockWithPowerUps(block, powerup);
+		}
 	}
 }
 
@@ -991,9 +1003,6 @@ void app::create_starman(int x, int y) {
 
 			FlashAnimator* animator = new FlashAnimator();
 			AnimatorManager::GetSingleton().Register(animator);
-			animator->SetOnStart([s1](Animator* animator) {
-				s1->SetHit(true);
-			});
 
 			animator->SetOnAction([s1](Animator* animator, const Animation& anim) {
 				s1->SetVisibility(!s1->IsVisible());
@@ -1001,7 +1010,6 @@ void app::create_starman(int x, int y) {
 
 			animator->SetOnFinish([s1](Animator* animator) {
 				((FlashAnimator*)animator)->deleteCurrAnimation();
-				s1->SetHit(false);
 				AnimatorManager::GetSingleton().Cancel(animator);
 				animator->Destroy();
 			});
