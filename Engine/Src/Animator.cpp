@@ -58,6 +58,7 @@ void MovingAnimator::Progress(timestamp_t currTime) {
 		if (!anim->IsForever() && ++currRep == anim->GetReps()) {
 			state = ANIMATOR_FINISHED;
 			NotifyStopped();
+			break;
 		}
 	}
 }
