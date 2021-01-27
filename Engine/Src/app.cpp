@@ -515,7 +515,7 @@ void InitialiseGame(Game& game) {
 						}
 						else if (brick->GetFormStateId() == SMASHED) {
 							toBeDestroyed.push_back(brick);
-							action_layer->SetTile(DIV_TILE_WIDTH(brick->GetBox().x), DIV_TILE_HEIGHT(brick->GetBox().y), total_tiles);
+							action_layer->SetTile(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y), total_tiles);
 						}
 					}
 				}

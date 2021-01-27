@@ -743,7 +743,7 @@ void app::create_brick_sprite(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
+			if (s1_x1 > s2_x1 - 12 && s1_x2 < s2_x2 + 12 && s1_y1 + 3 >= s2_y2) {
 				s2->Move(0, -4);
 				s2->SetFormStateId(MOVED_BLOCK);
 				jump->Stop();
@@ -753,7 +753,7 @@ void app::create_brick_sprite(int x, int y) {
 				if (s1->GetFormStateId() == SUPER_MARIO) {
 					//smash animation
 
-					//s2->SetFormStateId(SMASHED);
+					s2->SetFormStateId(SMASHED);
 				}
 			}
 		}
@@ -797,7 +797,7 @@ void app::create_block_sprite(int x, int y) {
 				int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 				int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-				if (s1_x1 > s2_x1 - 8 && s1_x2 < s2_x2 + 8 && s1_y1 + 3 >= s2_y2) {
+				if (s1_x1 > s2_x1 - 12 && s1_x2 < s2_x2 + 12 && s1_y1 + 3 >= s2_y2) {
 					s2->Move(0, -4);
 					s2->SetFormStateId(MOVED_BLOCK);
 					jump->Stop();
