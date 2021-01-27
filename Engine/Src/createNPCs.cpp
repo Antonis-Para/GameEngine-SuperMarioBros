@@ -889,7 +889,7 @@ void app::create_super_mushroom(int x, int y) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			if (s1->GetFormStateId() == SUPER_MARIO || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
-				return; //if mario is already big, collect points
+				return; //if mario is already big, just collect the points
 			}
 
 			//s1 must be mario
@@ -897,10 +897,11 @@ void app::create_super_mushroom(int x, int y) {
 				s1->SetFormStateId(SUPER_MARIO);
 			else
 				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
+
 			s1->Set_Str_StateId("Mario_big");
+			s1->Move(0,-16);
 			s1->SetBoxDimentions(16, 32);
 			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
-			s1->Move(0,-16);
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
