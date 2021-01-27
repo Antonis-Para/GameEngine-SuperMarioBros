@@ -12,6 +12,7 @@ using namespace std;
 class TileLayer* action_layer;
 TileLayer* underground_layer;
 class CircularBackground* circular_background;
+class CircularBackground* menu_circular_background;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
@@ -670,6 +671,7 @@ void app::MainApp::Load(void) {
 	loadMap(underground_layer, al_get_config_value(config, "paths", "underground_layer_path"));
 
 	circular_background = new CircularBackground(bg_tiles, al_get_config_value(config, "paths", "circular_backround_path"));
+	menu_circular_background = new CircularBackground(bg_tiles, al_get_config_value(config, "paths", "menu_backround_path"));
 
 	loadSolidTiles(config, action_layer);
 	action_layer->ComputeTileGridBlocks1();
@@ -795,8 +797,9 @@ void app::MainApp::Load(void) {
 
 void mainMenu() {
 	al_flush_event_queue(queue);
+	int total_scroll = 0;
 	while(true){
-		circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
+		menu_circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 
 		al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 30, ALLEGRO_ALIGN_CENTER, "CSD4022 - ANTONIS PARAGIOUDAKIS");
 		al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 70, ALLEGRO_ALIGN_CENTER, "CSD4101 - MIXALIS RAPTAKIS");
@@ -813,10 +816,12 @@ void mainMenu() {
 		if (!al_is_event_queue_empty(queue)) {
 			al_wait_for_event(queue, &event);
 			if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+				delete menu_circular_background;
 				break;
 			}
 			else if (event.type == ALLEGRO_EVENT_TIMER) {
-				circular_background->Scroll(1);
+				menu_circular_background->Scroll(1);
+				total_scroll++;
 			}
 			else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 				closeWindowClicked = true;
