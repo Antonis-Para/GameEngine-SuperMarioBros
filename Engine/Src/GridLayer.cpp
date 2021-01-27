@@ -42,6 +42,14 @@ bool GridLayer::IsOnSolidGround(const Rect& r,spritestate_t state) { // will nee
 	return dy == 0; // if true IS attached to solid ground
 }
 
+void GridLayer::UnsolidTile(int col, int row) {
+	GridIndex* grid_start = &(grid[row][col]);
+	for (auto k = 0; k < GRID_ELEMENT_HEIGHT; ++k) {
+		memset(grid_start, GRID_EMPTY_TILE, GRID_ELEMENT_WIDTH);
+		grid_start += GRID_MAX_WIDTH;
+	}
+}
+
 GridMap* GridLayer::GetBuffer(void) { return &grid; }
 
 const GridMap* GridLayer::GetBuffer(void) const { return &grid; }

@@ -43,6 +43,7 @@ class TileLayer {
 		void SetTile(Dim col, Dim row, Index index);
 		Index GetTile(Dim col, Dim row) const;
 		void ComputeTileGridBlocks1(void);
+		void UnsolidTileGridBlocks(int col, int row);
 		GridLayer* GetGrid(void) const;
 		const Point Pick(Dim x, Dim y) const;
 

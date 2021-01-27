@@ -31,6 +31,8 @@ public:
 	bool SolidOnRight(const Rect& r);
 	bool SolidOnLeft(const Rect& r);
 
+	void UnsolidTile(int col, int row);
+
 	GridMap* GetBuffer(void);
 	const GridMap* GetBuffer(void) const;
 	//GridLayer(unsigned rows, unsigned cols);
