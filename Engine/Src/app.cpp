@@ -44,10 +44,12 @@ bool not_moved = true;
 bool jumped = false;
 class FrameRangeAnimation* jump_anim = nullptr;
 
-int AI_x = 0, AI_y = 0;
 std::unordered_set <Sprite*> shells;
 
 Bitmap liveIcon = nullptr;
+
+ALLEGRO_FONT* font;
+ALLEGRO_FONT* paused_font;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -114,6 +116,10 @@ void InstallPauseResumeHandler(Game& game) {
 				al_flush_event_queue(fallingQueue);
 				al_flush_event_queue(aiQueue);
 			}
+			else {
+				al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
+				al_flip_display();
+			}
 		}
 	);
 }
@@ -163,17 +169,23 @@ void InitialiseGame(Game& game) {
 	);
 
 	game.SetRender(
-		[](void) {
+		[game](void) {
 			circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
 			underground_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 			action_layer->TileTerrainDisplay(al_get_backbuffer(display), displayArea);
 
 			for(int i = 0; i < mario->getLives(); i++)
-				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 20 + (i * 15), 20, 14, 14, 0);
+				al_draw_scaled_bitmap(liveIcon, 0, 0, 16, 16, 50 + (i * 15), 20, 14, 14, 0);
 
 			for (auto sprite : SpriteManager::GetSingleton().GetDisplayList()) {
 				sprite->Display(BitmapGetScreen());
 			}
+			
+			al_draw_text(font, al_map_rgb(0, 0, 0), 30, 18, ALLEGRO_ALIGN_CENTER, "Lives: ");
+
+			if (game.IsPaused())
+				al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
+
 			al_flip_display();
 		}
 	);
@@ -470,6 +482,11 @@ void app::MainApp::Initialise(void) {
 		std::cout << "ERROR: Could not init allegro\n";
 		assert(false);
 	}
+	al_init_image_addon();
+	al_init_primitives_addon();
+	al_init_font_addon();
+	al_init_ttf_addon();
+
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(displayArea.w, displayArea.h);
 	al_set_window_title(display, "Super Mario... CSD");
@@ -479,8 +496,6 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(queue, al_get_mouse_event_source());
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_display_event_source(display));
-	al_init_image_addon();
-	al_init_primitives_addon();
 
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -495,6 +510,9 @@ void app::MainApp::Initialise(void) {
 	aiTimer = al_create_timer(1.0 / 60);
 	al_register_event_source(aiQueue, al_get_timer_event_source(aiTimer));
 	al_start_timer(aiTimer);
+
+	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
+	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
 
 	InitialiseGame(game);
 
@@ -658,7 +676,6 @@ void app::MainApp::Load(void) {
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
 	vector<string> locations;
-	Sprite* tmp;
 
 	//create a demo goomba
 	locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
