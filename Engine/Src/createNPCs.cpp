@@ -1016,6 +1016,10 @@ void app::create_starman(int x, int y) {
 				((FlashAnimator*)animator)->deleteCurrAnimation();
 				AnimatorManager::GetSingleton().Cancel(animator);
 				animator->Destroy();
+				if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL)
+					s1->SetFormStateId(SMALL_MARIO);
+				else if (s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER)
+					s1->SetFormStateId(SUPER_MARIO);
 			});
 			unsigned seconds = 30;
 			animator->Start(new FlashAnimation("flash_star", seconds * 10, 100, 100), GetGameTime());
