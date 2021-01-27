@@ -763,11 +763,11 @@ void app::create_brick_sprite(int x, int y) {
 		}
 	}
 
-	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+	/*if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
 		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
 			collisionBlockWithPowerUps(brick, powerup);
 		}
-	}
+	}*/
 }
 
 void app::create_block_sprite(int x, int y, Game *game) {
@@ -810,6 +810,10 @@ void app::create_block_sprite(int x, int y, Game *game) {
 						create_1UP_mushroom(x - action_layer->GetViewWindow().x, y - 16, game);
 					else if (giftNum == 9)
 						create_starman(x - action_layer->GetViewWindow().x, y - 16);
+
+					for(Sprite *brick : SpriteManager::GetSingleton().GetTypeList("brick"))
+						for (Sprite *powerup : SpriteManager::GetSingleton().GetTypeList("powerup"))
+							collisionBlockWithPowerUps(brick, powerup);
 				}
 			}
 		}
