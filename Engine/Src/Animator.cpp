@@ -45,6 +45,11 @@ void Animator::TimeShift(timestamp_t offset) {
 	lastTime += offset;
 }
 
+void Animator::SetLastTime(timestamp_t time) {
+	lastTime = time;
+}
+
+
 // MovingAnimator
 void MovingAnimator::Progress(timestamp_t currTime) {
 	while (currTime > lastTime && (currTime - lastTime) >= anim->GetDelay()) {

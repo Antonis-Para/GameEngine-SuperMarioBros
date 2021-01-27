@@ -35,6 +35,7 @@ public:
 	void Stop(void);
 	bool HasFinished(void) const;
 
+	void SetLastTime(timestamp_t time);
 	virtual void TimeShift(timestamp_t offset);
 	virtual void Progress(timestamp_t currTime) = 0;
 	virtual void deleteCurrAnimation() = 0;

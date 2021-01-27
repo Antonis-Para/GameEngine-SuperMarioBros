@@ -1586,8 +1586,6 @@ void app::MainApp::Load(void) {
 		piranha->SetHasDirectMotion(true);
 
 		CollisionChecker::GetSingleton().Register(mario, piranha,
-			[](Sprite* s1, Sprite* s2) {});
-		CollisionChecker::GetSingleton().Register(mario, piranha,
 			[piranha_move](Sprite* s1, Sprite* s2) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
@@ -1597,53 +1595,11 @@ void app::MainApp::Load(void) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1 && piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //mario sits on the pipe
-				cout << "MARIO ON TOP\n";
-				/*s2->SetFormStateId(SMASHED);
-
-				delete goomba_walking_animation;
-
-				//jumping animation
-				if (jump_anim != nullptr) {
-					jump->Stop();
-					delete jump_anim;
-				}
-
-				CollisionChecker::GetSingleton().Cancel(s1, s2);
-				jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
-				jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
-					int sumOfNumbers = 0;
-					char maxTiles = 3;
-
-					for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
-
-					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
-				});
-
-				//play death animation of goomba
-				class MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
-				s2->SetFrame(0);
-				s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
-				s2->SetHasDirectMotion(true);
-				s2->Move(0, 7); //smashed is smaller so move him back to the ground
-				goomba_walk->Start(goomba_death_animation, GetGameTime());
-				goomba_walk->SetOnFinish([goomba_walk, s2](Animator* animator) {
-					AnimatorManager::GetSingleton().Cancel(animator);
-					for (auto s1 : shells)
-						CollisionChecker::GetSingleton().Cancel(s1, s2);
-					goomba_walk->deleteCurrAnimation();
-					s2->SetFormStateId(DELETE);
-					goomba_walk->Destroy();
-				});
-
-				jump->Start(jump_anim, GetGameTime());
-				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
-				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));*/
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1) { //mario on top of the piranha
+				if (piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) //mario sits on the pipe and piranha is bellow
+					piranha_move->SetLastTime(GetGameTime());
 			}
-			else {
-				//s2->lastMovedRight = !s2->lastMovedRight;
+			else { //mario AND piranha is on top of the pipe
 				//do mario penalty
 			}
 
