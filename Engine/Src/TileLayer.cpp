@@ -212,6 +212,11 @@ void TileLayer::ComputeTileGridBlocks1() {
 	}
 }
 
+void TileLayer::UnsolidTileGridBlocks(int _col, int _row) {
+	grid->UnsolidTile(MUL_GRID_ELEMENT_WIDTH(_col), MUL_GRID_ELEMENT_HEIGHT(_row));
+}
+
+
 GridLayer* TileLayer::GetGrid(void) const{
 	return grid;
 }

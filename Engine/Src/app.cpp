@@ -375,7 +375,7 @@ void InitialiseGame(Game& game) {
 						if (goomba->GetFormStateId() == SMASHED) {
 							//if smashed do nothing (dont move it)
 						}
-						else if (goomba->GetFormStateId() == DELETE) {
+						else if (goomba->GetFormStateId() == DELETE || goomba->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 							goomba->SetVisibility(false);
 							toBeDestroyed.push_back(goomba);
 						}
@@ -394,7 +394,7 @@ void InitialiseGame(Game& game) {
 				}
 				if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
 					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-						if (koopa_troopa->GetFormStateId() == DELETE) {
+						if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 							koopa_troopa->SetVisibility(false);
 							toBeDestroyed.push_back(koopa_troopa);
 						}
@@ -417,7 +417,7 @@ void InitialiseGame(Game& game) {
 				}
 				if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
 					for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
-						if (koopa_troopa->GetFormStateId() == DELETE) {
+						if (koopa_troopa->GetFormStateId() == DELETE || koopa_troopa->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 							koopa_troopa->SetVisibility(false);
 							toBeDestroyed.push_back(koopa_troopa);
 						}
@@ -456,7 +456,7 @@ void InitialiseGame(Game& game) {
 				}
 				if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
 					for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-						if (powerup->GetFormStateId() == DELETE) {
+						if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
 							powerup->SetVisibility(false);
 							toBeDestroyed.push_back(powerup);
 						}
@@ -515,7 +515,7 @@ void InitialiseGame(Game& game) {
 						}
 						else if (brick->GetFormStateId() == SMASHED) {
 							toBeDestroyed.push_back(brick);
-							action_layer->SetTile(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y), total_tiles);
+							action_layer->UnsolidTileGridBlocks(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
 						}
 					}
 				}
