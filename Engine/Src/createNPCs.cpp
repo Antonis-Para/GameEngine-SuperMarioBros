@@ -345,8 +345,8 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 				}
 				else {
 					//do mario penalty
-					if (!(mario->lastMovedRight == true && s1_x1 < s2_x1 ||
-						mario->lastMovedRight == false && s2_x2 < s1_x2))
+					if (!(s2->GetFormStateId() == SMASHED && 
+						(mario->lastMovedRight == true && s1_x1 < s2_x1 || mario->lastMovedRight == false && s2_x2 < s1_x2)))
 					{ //do not hit mario when he is pushing the shell
 						mario->hit();
 					}
@@ -583,9 +583,9 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 				else
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 			}
-			else { //mario hits shell from right or left
+			else { //mario hits coopa/shell from right or left
 
-				if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell starts moving
+				if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell is not moving. Start it
 					koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
 					koopa_troopa_walk->Stop();
 					koopa_troopa_walk->deleteCurrAnimation();
@@ -598,8 +598,8 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 				}
 				else {
 					//do mario penalty
-					if (!(mario->lastMovedRight  == true && s1_x1 < s2_x1 ||
-						mario->lastMovedRight == false && s2_x2 < s1_x2)) 
+					if (!(s2->GetFormStateId() == SMASHED && 
+						(mario->lastMovedRight  == true && s1_x1 < s2_x1 || mario->lastMovedRight == false && s2_x2 < s1_x2))) 
 					{ //do not hit mario when he is pushing the shell
 						mario->hit();
 					}
