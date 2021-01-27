@@ -53,6 +53,8 @@ Bitmap coinIcon = nullptr;
 
 ALLEGRO_FONT* font;
 ALLEGRO_FONT* paused_font;
+ALLEGRO_FONT* tittle_font;
+ALLEGRO_FONT* tittle_font_smaller;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -525,6 +527,8 @@ void app::MainApp::Initialise(void) {
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
 	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
+	tittle_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 30, NULL);
+	tittle_font_smaller = al_load_font(".\\Engine\\Media\\game_font.ttf", 25, NULL);
 
 	InitialiseGame(game);
 
@@ -789,13 +793,51 @@ void app::MainApp::Load(void) {
 	}
 }
 
+void mainMenu() {
+	al_flush_event_queue(queue);
+	while(true){
+		circular_background->Display(al_get_backbuffer(display), displayArea.x, displayArea.y);
+
+		al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 30, ALLEGRO_ALIGN_CENTER, "CSD4022 - ANTONIS PARAGIOUDAKIS");
+		al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 70, ALLEGRO_ALIGN_CENTER, "CSD4101 - MIXALIS RAPTAKIS");
+		al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 110, ALLEGRO_ALIGN_CENTER, "CSD4017 - GEORGOS PANTELAKIS");
+		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 220, ALLEGRO_ALIGN_CENTER, "University of Crete");
+		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 250, ALLEGRO_ALIGN_CENTER, "Department of Computer Science");
+		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 280, ALLEGRO_ALIGN_CENTER, "CS-454. Development of Intelligent Interfaces and Games");
+		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 310, ALLEGRO_ALIGN_CENTER, "Term Project, Fall Semester 2020");
+		al_draw_text(font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 420, ALLEGRO_ALIGN_CENTER, "Press ENTER to continue...");
+
+
+		al_flip_display();
+
+		if (!al_is_event_queue_empty(queue)) {
+			al_wait_for_event(queue, &event);
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+				break;
+			}
+			else if (event.type == ALLEGRO_EVENT_TIMER) {
+				circular_background->Scroll(1);
+			}
+			else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+				closeWindowClicked = true;
+				break;
+			}
+		}
+	}
+}
+
 void app::App::Run(void) {
+	mainMenu();
 	al_flush_event_queue(fallingQueue);
 	al_flush_event_queue(aiQueue);
 	game.MainLoop();
 }
 
 void app::MainApp::Clear(void) {
+	al_destroy_font(font);
+	al_destroy_font(paused_font);
+	al_destroy_font(tittle_font);
+	al_destroy_font(tittle_font_smaller);
 	al_destroy_display(display);
 	al_uninstall_keyboard();
 	al_uninstall_mouse();

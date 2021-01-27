@@ -759,7 +759,7 @@ void app::create_brick_sprite(int x, int y) {
 				if (jump_anim != nullptr)
 					jump->deleteCurrAnimation();
 				al_start_timer(blockTimer);
-				if (s1->GetFormStateId() == SUPER_MARIO) {
+				if (s1->GetFormStateId() == SUPER_MARIO || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
 					//smash animation
 
 					s2->SetFormStateId(SMASHED);
