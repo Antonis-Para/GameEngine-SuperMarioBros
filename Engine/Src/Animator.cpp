@@ -45,6 +45,11 @@ void Animator::TimeShift(timestamp_t offset) {
 	lastTime += offset;
 }
 
+void Animator::SetLastTime(timestamp_t time) {
+	lastTime = time;
+}
+
+
 // MovingAnimator
 void MovingAnimator::Progress(timestamp_t currTime) {
 	while (currTime > lastTime && (currTime - lastTime) >= anim->GetDelay()) {
@@ -85,6 +90,12 @@ void MovingPathAnimator::Progress(timestamp_t currTime) {
 		//	NotifyStopped();
 		//}
 	}
+}
+
+void MovingPathAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+	anim = nullptr;
 }
 
 MovingPathAnimation* MovingPathAnimator::GetAnim(void){
@@ -135,6 +146,12 @@ void FrameRangeAnimator::Progress(timestamp_t currTime) {
 				return;
 			}
 	}
+}
+
+void FrameRangeAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+	anim = nullptr;
 }
 
 unsigned FrameRangeAnimator::GetCurrFrame(void) const {
