@@ -793,6 +793,7 @@ void app::create_block_sprite(int x, int y, Game *game) {
 						jump->deleteCurrAnimation();
 					al_start_timer(blockTimer);
 
+					srand((unsigned) time(0));
 					int giftNum = rand() % 3;
 					if (giftNum == 0)
 						create_1UP_mushroom(x, y - 16, game);
