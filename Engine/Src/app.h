@@ -8,6 +8,8 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include <string>
+#include <unordered_set>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
@@ -127,3 +129,6 @@ namespace app {
 //--------------------OVERLOADED OPS--------------------
 
 bool operator<(const Color left, const Color right);
+
+void SetGameTime();
+unsigned long GetGameTime();
