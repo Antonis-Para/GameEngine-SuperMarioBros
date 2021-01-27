@@ -808,7 +808,7 @@ void app::MainApp::Load(void) {
 	locations = splitString(al_get_config_value(config, "powerups_positions", "super"), ",");
 	for (auto location : locations) {
 		coordinates = splitString(location, " ");
-		create_super_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+		create_1UP_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), &game);
 	}
 
 	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {
