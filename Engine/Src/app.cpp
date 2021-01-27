@@ -304,7 +304,7 @@ void InitialiseGame(Game& game) {
 									for (auto sprite : sprites) {
 										sprite->Move(-move_x, 0);
 									}
-								}								
+								}
 
 								mario->Move(-move_x, -move_y);
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
