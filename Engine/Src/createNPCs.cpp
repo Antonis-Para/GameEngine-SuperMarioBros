@@ -762,12 +762,6 @@ void app::create_brick_sprite(int x, int y) {
 			collisionBlockWithEnemies(brick, koopa_troopa);
 		}
 	}
-
-	/*if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
-		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-			collisionBlockWithPowerUps(brick, powerup);
-		}
-	}*/
 }
 
 void app::create_block_sprite(int x, int y, Game *game) {
@@ -811,9 +805,13 @@ void app::create_block_sprite(int x, int y, Game *game) {
 					else if (giftNum == 9)
 						create_starman(x - action_layer->GetViewWindow().x, y - 16);
 
-					for(Sprite *brick : SpriteManager::GetSingleton().GetTypeList("brick"))
-						for (Sprite *powerup : SpriteManager::GetSingleton().GetTypeList("powerup"))
-							collisionBlockWithPowerUps(brick, powerup);
+					if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+						std::vector<std::string> block_types = { "brick" , "block" };
+						for(std::string type : block_types)
+							for (Sprite* brick : SpriteManager::GetSingleton().GetTypeList(type))
+								for (Sprite* powerup : SpriteManager::GetSingleton().GetTypeList("powerup"))
+									collisionBlockWithPowerUps(brick, powerup);
+					}
 				}
 			}
 		}
@@ -827,12 +825,6 @@ void app::create_block_sprite(int x, int y, Game *game) {
 	}
 	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
 		collisionBlockWithEnemies(block, koopa_troopa);
-	}
-
-	if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
-		for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-			collisionBlockWithPowerUps(block, powerup);
-		}
 	}
 }
 
