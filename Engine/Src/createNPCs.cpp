@@ -665,12 +665,15 @@ void app::create_enemy_piranha_plant(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1) { //mario on top of the piranha
-				if (piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) //mario sits on the pipe and piranha is bellow
+
+			if (piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //piranha is bellow the pipe
+				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1) { //mario on top of the piranha
 					piranha_move->SetLastTime(GetGameTime());
+				}
 			}
 			else { //mario AND piranha is on top of the pipe
 				//do mario penalty
+				cout << "HIT\n";
 			}
 
 		}
