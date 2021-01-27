@@ -454,11 +454,27 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
+				if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
+					for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
+						if (powerup->GetFormStateId() == DELETE) {
+							powerup->SetVisibility(false);
+							toBeDestroyed.push_back(powerup);
+						}
+						else {
+							if (powerup->lastMovedRight)
+								powerup->Move(POWERUPS_MOVE_SPEED, 0);
+							else
+								powerup->Move(-POWERUPS_MOVE_SPEED, 0);
+						}
+					}
+				}
 				for (auto sprite : toBeDestroyed) {
 					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
 						game.addPoints(100);
 					else if (sprite->GetTypeId() == "piranha_plant")
 						game.addPoints(200);
+					else if (sprite->GetTypeId() == "powerup")
+						game.addPoints(1000);
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}

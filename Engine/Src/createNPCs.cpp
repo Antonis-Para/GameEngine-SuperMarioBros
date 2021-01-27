@@ -894,6 +894,9 @@ void app::create_super_mushroom(int x, int y) {
 			pos.h,
 		};
 		action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
+		if (*dx == 0) {
+			powerup->lastMovedRight = !powerup->lastMovedRight;
+		}
 		powerup->SetPos(pos.x + *dx, pos.y + *dy);
 	});
 
@@ -909,6 +912,8 @@ void app::create_super_mushroom(int x, int y) {
 			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
 			s1->Move(0,-16);
 			
+			s2->SetFormStateId(DELETE);
+
 			if (s1->lastMovedRight) {
 				if (s1->GetStateId() == IDLE_STATE) {
 					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.stand_right"));
@@ -1040,17 +1045,16 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
-<<<<<<< HEAD
 	sprites = SpriteManager::GetSingleton().GetTypeList("powerup");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->SetHasDirectMotion(true);
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 		sprite->SetHasDirectMotion(false);
-=======
+	}
+
 	sprites = SpriteManager::GetSingleton().GetTypeList("coin");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
->>>>>>> b5a1a12f4cf8b8008cdc9c81c29ef855a48a81e5
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
