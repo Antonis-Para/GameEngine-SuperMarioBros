@@ -185,6 +185,24 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 	CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
 		[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
 
+			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
+				//if mario is invinsible, don't think about it. Just kill him
+				if (s2->GetFormStateId() == SMASHED) {
+					shells.erase(s2);
+					if (s2->GetStateId() == IDLE_STATE) { //if he is not moving, he has an animation playing.
+						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
+						koopa_troopa_walk->deleteCurrAnimation();
+						
+					}
+				}
+				koopa_troopa_walk->Stop();
+				AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+				CollisionChecker::GetSingleton().CancelAll(s2);
+				s2->SetFormStateId(DELETE);
+				koopa_troopa_walk->Destroy();
+				return;
+			}
+
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
@@ -200,6 +218,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 					s2->SetFormStateId(SMASHED);
 					s2->SetStateId(IDLE_STATE);
 					s2->SetBoxDimentions(16, 16);
+					s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 					s2->Move(0, 4);
 
 					auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
@@ -253,6 +272,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
 
 						s2->SetBoxDimentions(16, 22);
+						s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 						s2->SetHasDirectMotion(true);
 						s2->Move(0, -6);
 						s2->SetHasDirectMotion(false);
@@ -299,6 +319,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"));
 
 							s2->SetBoxDimentions(16, 22);
+							s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 							s2->SetHasDirectMotion(true);
 							s2->Move(0, -6);
 							s2->SetHasDirectMotion(false);
@@ -432,10 +453,23 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 	});
 
 	CollisionChecker::GetSingleton().Register(mario, koopa_troopa,
-		[koopa_troopa_walk, koopa_troopa_walking_animation](Sprite* s1, Sprite* s2) {
+		[koopa_troopa_walk](Sprite* s1, Sprite* s2) {
 
 			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
 				//if mario is invinsible, don't think about it. Just kill him
+				if (s2->GetFormStateId() == SMASHED) {
+					shells.erase(s2);
+					if (s2->GetStateId() == IDLE_STATE) { //if he is not moving, he has an animation playing.
+						koopa_troopa_walk->SetOnFinish([](Animator * animator) {});
+						koopa_troopa_walk->deleteCurrAnimation();
+					}
+				}
+				koopa_troopa_walk->Stop();
+				AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
+				CollisionChecker::GetSingleton().CancelAll(s2);
+				s2->SetFormStateId(DELETE);
+				koopa_troopa_walk->Destroy();
+				return;
 			}
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
@@ -453,6 +487,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 					s2->SetFormStateId(SMASHED);
 					s2->SetStateId(IDLE_STATE);
 					s2->SetBoxDimentions(16, 16);
+					s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 					s2->Move(0, 4);
 					auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 					for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
@@ -491,7 +526,6 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 					}
 					shells.insert(s2);
 
-
 					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
 					koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
 						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
@@ -510,14 +544,15 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 							s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 
 						s2->SetBoxDimentions(16, 22);
+						s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 						s2->SetHasDirectMotion(true);
 						s2->Move(0, -6);
 						s2->SetHasDirectMotion(false);
 						koopa_troopa_walk->deleteCurrAnimation();
 						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_walk", 0, 0, 0, 100), GetGameTime());
 						koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
-						s2->SetFormStateId(ENEMY);
-						s2->SetStateId(WALKING_STATE);
+							s2->SetFormStateId(ENEMY);
+							s2->SetStateId(WALKING_STATE);
 						});
 
 				}
@@ -556,6 +591,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 								s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 
 							s2->SetBoxDimentions(16, 22);
+							s2->ReplaceBoundingArea(new BoundingBox(s2->GetBox().x, s2->GetBox().y, s2->GetBox().x + s2->GetBox().w, s2->GetBox().y + s2->GetBox().h));
 							s2->SetHasDirectMotion(true);
 							s2->Move(0, -6);
 							s2->SetHasDirectMotion(false);
