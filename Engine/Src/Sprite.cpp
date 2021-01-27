@@ -168,6 +168,30 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 	};
 }
 
+void Sprite::hit() {
+	if (isHit) return; //if sprite has alrteady been hit, dont hit it again :(
+	FlashAnimator* animator = new FlashAnimator();
+	AnimatorManager::GetSingleton().Register(animator);
+
+	animator->SetOnStart([this](Animator* animator) {
+		isHit = true;
+	});
+
+	animator->SetOnAction([this](Animator* animator, const Animation& anim) {
+		isVisible = !isVisible;
+		//Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+	});
+
+	animator->SetOnFinish([this](Animator* animator) {
+		((FlashAnimator*)animator)->deleteCurrAnimation();
+		isHit = false;
+		AnimatorManager::GetSingleton().Cancel(animator);
+		animator->Destroy();
+	});
+
+	animator->Start(new FlashAnimation("flash", 30, 100, 100), GetGameTime());
+}
+
 GravityHandler& Sprite::GetGravityHandler(void) {
 	return gravity;
 }

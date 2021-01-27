@@ -147,6 +147,7 @@ public:
 class FlashAnimation : public Animation {
 private:
 	unsigned repetitions = 0;
+	bool showing = false; //dont set this. it is set automaticly from animator
 	unsigned hideDelay = 0;
 	unsigned showDelay = 0;
 public:
@@ -154,6 +155,8 @@ public:
 
 	FlashAnimation(const std::string& _id, unsigned n, unsigned show, unsigned hide);
 
+	void SetShowing(bool val);
+	bool GetShowing();
 	Me& SetRepetitions(unsigned n);
 	unsigned GetRepetitions(void) const;
 	Me& SetHideDeay(unsigned d);

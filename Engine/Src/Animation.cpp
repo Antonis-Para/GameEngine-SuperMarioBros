@@ -314,6 +314,14 @@ unsigned FlashAnimation::GetShowDeay(void) const {
 	return showDelay;
 }
 
+void FlashAnimation::SetShowing(bool val) {
+	showing = val;
+}
+
+bool FlashAnimation::GetShowing() {
+	return showing;
+}
+
 Animation* FlashAnimation::Clone(void) const {
 	return new FlashAnimation(id, repetitions, hideDelay, showDelay);
 }

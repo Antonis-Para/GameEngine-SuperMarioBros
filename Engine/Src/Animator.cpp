@@ -119,6 +119,41 @@ void MovingPathAnimator::nextFrame() {
 		frame = 0;
 }
 
+//Flash animator
+void FlashAnimator::Progress(timestamp_t currTime) {
+	unsigned delay = 0;
+	if (anim->GetShowing() == true) {
+		delay = anim->GetShowDeay();
+		anim->SetShowing(false);
+	}
+	else {
+		delay = anim->GetHideDeay();
+		anim->SetShowing(true);
+	}
+
+	while (currTime > lastTime && (currTime - lastTime) >= delay) {
+		lastTime += delay;
+		NotifyAction(*anim);
+		if (++currRep == anim->GetRepetitions()) {
+			state = ANIMATOR_FINISHED;
+			NotifyStopped();
+		}
+	}
+}
+
+void FlashAnimator::Start(FlashAnimation* a, timestamp_t t) {
+	anim = a;
+	lastTime = t;
+	state = ANIMATOR_RUNNING;
+	NotifyStarted();
+}
+
+void FlashAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+	anim = nullptr;
+}
+
 
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->Move(anim.GetDx(), anim.GetDy());

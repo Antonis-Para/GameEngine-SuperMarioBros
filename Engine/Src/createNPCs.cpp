@@ -673,7 +673,8 @@ void app::create_enemy_piranha_plant(int x, int y) {
 			}
 			else { //mario AND piranha is on top of the pipe
 				//do mario penalty
-				cout << "HIT\n";
+				//cout << "HIT\n";
+				mario->hit();
 			}
 
 		}

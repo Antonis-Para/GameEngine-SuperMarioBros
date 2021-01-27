@@ -137,6 +137,18 @@ public:
 	void Start(MovingPathAnimation* a, timestamp_t t);
 };
 
+class FlashAnimator : public Animator {
+private:
+	FlashAnimation* anim = nullptr;
+	unsigned currRep = 0;
+public:
+	FlashAnimator(void) = default;
+
+	void Progress(timestamp_t currTime);
+	void deleteCurrAnimation();
+	void Start(FlashAnimation* a, timestamp_t t);
+};
+
 class AnimatorManager {
 private:
 	std::set<Animator*> running, suspended;

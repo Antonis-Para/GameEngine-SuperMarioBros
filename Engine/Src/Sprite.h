@@ -54,6 +54,7 @@ protected:
 	Rect frameBox;
 	int x = 0, y = 0;
 	bool isVisible = true;
+	bool isHit = false;
 	const AnimationFilm* currFilm = nullptr;
 	Animator* animator = nullptr;
 	BoundingArea* boundingArea = nullptr;
@@ -117,6 +118,8 @@ public:
 
 	spriteFormState_t GetFormStateId(void);
 	void SetFormStateId(spriteFormState_t);
+
+	void hit();
 };
 
 template<typename Tfunc>
