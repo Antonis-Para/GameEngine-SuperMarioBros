@@ -418,6 +418,14 @@ void InitialiseGame(Game& game) {
 						}
 					}
 				}
+				if (!SpriteManager::GetSingleton().GetTypeList("piranha_plant").empty()) {
+					for (auto plant : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) {
+						if (plant->GetFormStateId() == DELETE) {
+							plant->SetVisibility(false);
+							toBeDestroyed.push_back(plant);
+						}
+					}
+				}
 				if (!SpriteManager::GetSingleton().GetTypeList("block").empty()) {
 					for (auto block : SpriteManager::GetSingleton().GetTypeList("block")) {
 						if (block->GetFormStateId() == MOVED_BLOCK) {
@@ -1111,6 +1119,7 @@ void app::MainApp::Load(void) {
 						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 						sprites.remove(s2); //remove my self
 						//HERE ADD MARIO COLLISION
 						//CollisionChecker::GetSingleton().Register(s2, mario, [](Sprite* s1, Sprite* s2) {
@@ -1123,12 +1132,14 @@ void app::MainApp::Load(void) {
 										return;
 									if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving do nothing
 										return;
+									if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimator*)s2->GetAnimator())->GetAnim()->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
+										return; //if piranha is under the pipe do nothing
 									s2->SetFormStateId(DELETE);
 									for (auto shell : shells)
 										CollisionChecker::GetSingleton().Cancel(shell, s2);
 									//CollisionChecker::GetSingleton().Cancel(s1, s2);
 									CollisionChecker::GetSingleton().Cancel(mario, s2); //remove mario collision with other sprite
-									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
+									Animator* tmp = s2->GetAnimator();
 									tmp->deleteCurrAnimation();
 									tmp->Stop();
 									AnimatorManager::GetSingleton().Cancel(tmp);
@@ -1143,6 +1154,7 @@ void app::MainApp::Load(void) {
 							auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 							sprites.remove(s2); //remove my self
 							//CollisionChecker::GetSingleton().Cancel(s2, mario); //remove shell collision with mario
 							for (auto sprite : sprites) { //remove shell collision with sprites
@@ -1188,6 +1200,7 @@ void app::MainApp::Load(void) {
 								auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 								sprites.remove(s2); //remove my self
 								//CollisionChecker::GetSingleton().Cancel(s2, mario); //remove shell collision with mario
 								for (auto sprite : sprites) { //remove shell collision with sprites
@@ -1360,6 +1373,7 @@ void app::MainApp::Load(void) {
 						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 						sprites.remove(s2); //remove my self
 						//HERE ADD MARIO COLLISION
 						//CollisionChecker::GetSingleton().Register(s2, mario, [](Sprite* s1, Sprite* s2) {
@@ -1373,16 +1387,21 @@ void app::MainApp::Load(void) {
 										return;
 									if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving
 										return;
+									if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimator*)s2->GetAnimator())->GetAnim()->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
+										return; //if piranha is under the pipe do nothing
 									s2->SetFormStateId(DELETE);
 									//CollisionChecker::GetSingleton().Cancel(s1, s2);
 									for (auto shell : shells) //deleting sprite so remove all collisions it has with the shells
 										CollisionChecker::GetSingleton().Cancel(shell, s2);
 									CollisionChecker::GetSingleton().Cancel(mario, s2);
-									MovingAnimator* tmp = (MovingAnimator*)s2->GetAnimator();
+
+									Animator* tmp = s2->GetAnimator();
 									tmp->deleteCurrAnimation();
 									tmp->Stop();
 									AnimatorManager::GetSingleton().Cancel(tmp);
 									tmp->Destroy();
+
+									//SpriteManager::GetSingleton().Remove(s2); //bye bye
 								}
 							);
 						}
@@ -1394,6 +1413,7 @@ void app::MainApp::Load(void) {
 							auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 							sprites.remove(s2); //remove my self
 							//CollisionChecker::GetSingleton().Cancel(s2, mario); //remove shell collision with mario
 							for (auto sprite : sprites) { //remove shell collision with sprites
@@ -1439,6 +1459,7 @@ void app::MainApp::Load(void) {
 								auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
 								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) sprites.push_back(sprite);
+								for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 								sprites.remove(s2); //remove my self
 								//CollisionChecker::GetSingleton().Cancel(s2, mario); //remove shell collision with mario
 								for (auto sprite : sprites) { //remove shell collision with sprites
@@ -1536,23 +1557,23 @@ void app::MainApp::Load(void) {
 		});
 
 		MovingPathAnimation::Path path;
-		for (int i = 0; i < 16; i++) {	//plant goes up
+		for (int i = 0; i < 12; i++) {	//plant goes up
 			path.push_back(struct PathEntry());
 			path.at(i).delay = 70;
 			path.at(i).dy = -2;
 		}
-		for (int i = 16; i < 44; i++) { //plant does nothing
+		for (int i = 12; i < 40; i++) { //plant does nothing
 			path.push_back(struct PathEntry());
 			path.at(i).delay = 80;
 		}
-		for (int i = 44; i < 60; i++) { //plant goes down
+		for (int i = 40; i < 52; i++) { //plant goes down
 			path.push_back(struct PathEntry());
 			path.at(i).delay = 70;
 			path.at(i).dy = 2;
 		}
 		path.push_back(struct PathEntry());
-		path.at(60).delay = 2000; //do nothing while bellow the pipe
-
+		path.at(52).delay = 2000; //do nothing while bellow the pipe
+		//last frame is also used as "idle" state. in a lot of parts we check if we are at the last frame so be carefull when modifing!
 
 		class MovingPathAnimation* piranha_moving_animation = new MovingPathAnimation("piranha", path);
 		piranha_move->Start(piranha_moving_animation, GetGameTime());
@@ -1564,8 +1585,10 @@ void app::MainApp::Load(void) {
 		piranha->SetFormStateId(ENEMY);
 		piranha->SetHasDirectMotion(true);
 
-		/*CollisionChecker::GetSingleton().Register(mario, goomba,
-			[goomba_walk, goomba_walking_animation](Sprite* s1, Sprite* s2) {
+		CollisionChecker::GetSingleton().Register(mario, piranha,
+			[](Sprite* s1, Sprite* s2) {});
+		/*CollisionChecker::GetSingleton().Register(mario, piranha,
+			[piranha_move](Sprite* s1, Sprite* s2) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
@@ -1574,8 +1597,9 @@ void app::MainApp::Load(void) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits goomba from top
-				s2->SetFormStateId(SMASHED);
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 + 3<= s2_y1 && piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //mario sits on the pipe
+				cout << "SITS\n";
+				/*s2->SetFormStateId(SMASHED);
 
 				delete goomba_walking_animation;
 

@@ -87,6 +87,12 @@ void MovingPathAnimator::Progress(timestamp_t currTime) {
 	}
 }
 
+void MovingPathAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+	anim = nullptr;
+}
+
 MovingPathAnimation* MovingPathAnimator::GetAnim(void){
 	return anim;
 }
@@ -135,6 +141,12 @@ void FrameRangeAnimator::Progress(timestamp_t currTime) {
 				return;
 			}
 	}
+}
+
+void FrameRangeAnimator::deleteCurrAnimation() {
+	assert(anim);
+	delete anim;
+	anim = nullptr;
 }
 
 unsigned FrameRangeAnimator::GetCurrFrame(void) const {

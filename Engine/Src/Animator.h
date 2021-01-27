@@ -37,6 +37,7 @@ public:
 
 	virtual void TimeShift(timestamp_t offset);
 	virtual void Progress(timestamp_t currTime) = 0;
+	virtual void deleteCurrAnimation() = 0;
 
 	template<typename Tfunc>
 	void SetOnFinish(const Tfunc& f);
@@ -94,6 +95,7 @@ public:
 	void Progress(timestamp_t currTime);
 	unsigned GetCurrFrame(void) const;
 	unsigned GetCurrRep(void) const;
+	void deleteCurrAnimation();
 	void Start(FrameRangeAnimation* a, timestamp_t t);
 };
 
@@ -130,6 +132,7 @@ public:
 	//unsigned GetCurrRep(void) const;
 	//unsigned GetElapsedTime(void) const;
 	//float GetElapsedTimeNormalised(void) const;
+	void deleteCurrAnimation();
 	void Start(MovingPathAnimation* a, timestamp_t t);
 };
 
