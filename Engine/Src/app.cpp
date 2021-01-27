@@ -1587,7 +1587,7 @@ void app::MainApp::Load(void) {
 
 		CollisionChecker::GetSingleton().Register(mario, piranha,
 			[](Sprite* s1, Sprite* s2) {});
-		/*CollisionChecker::GetSingleton().Register(mario, piranha,
+		CollisionChecker::GetSingleton().Register(mario, piranha,
 			[piranha_move](Sprite* s1, Sprite* s2) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
@@ -1597,8 +1597,8 @@ void app::MainApp::Load(void) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 + 3<= s2_y1 && piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //mario sits on the pipe
-				cout << "SITS\n";
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1 && piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //mario sits on the pipe
+				cout << "MARIO ON TOP\n";
 				/*s2->SetFormStateId(SMASHED);
 
 				delete goomba_walking_animation;
@@ -1640,7 +1640,7 @@ void app::MainApp::Load(void) {
 				if (mario->lastMovedRight)
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
 				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));*/
 			}
 			else {
 				//s2->lastMovedRight = !s2->lastMovedRight;
@@ -1648,7 +1648,7 @@ void app::MainApp::Load(void) {
 			}
 
 		}
-		);*/
+		);
 	}
 
 
