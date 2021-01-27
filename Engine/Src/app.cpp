@@ -265,10 +265,11 @@ void InitialiseGame(Game& game) {
 									jump->Stop();
 								});
 							jump->Start(jump_anim, GetGameTime());
+
 							if (mario->lastMovedRight)
-								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_right"));
 							else
-								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 						}
 					}
 
@@ -283,7 +284,7 @@ void InitialiseGame(Game& game) {
 						}
 
 						if (jump_anim == nullptr) {
-							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_left"));
+							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_left"));
 						}
 						mario->lastMovedRight = false;
 						not_moved = false;
@@ -323,7 +324,7 @@ void InitialiseGame(Game& game) {
 								//mario->SetPos(mario->GetBox().x - move_x, mario->GetBox().y - move_y);
 							}
 							if (jump_anim == nullptr) {
-								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.walk_right"));
+								mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_right"));
 							}
 							mario->lastMovedRight = true;
 							not_moved = false;
@@ -335,9 +336,9 @@ void InitialiseGame(Game& game) {
 						mario->SetStateId(WALKING_STATE);
 						mario->resetSpeed();
 						if (mario->lastMovedRight)
-							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
+							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
 						else
-							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_left"));
+							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_left"));
 					}
 				}
 			}
@@ -608,9 +609,9 @@ void app::MainApp::Initialise(void) {
 		mario->GetGravityHandler().SetFalling(false);
 		mario->SetFrame(0);
 		if (mario->lastMovedRight)
-			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"));
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
 		else
-			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_left"));
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_left"));
 		AnimatorManager::GetSingleton().MarkAsSuspended(walk);
 
 		if (jump->IsAlive()) {
@@ -630,6 +631,12 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		 + "Mario_small.stand_left:" + string(al_get_config_value(config, "Mario_small", "stand_left")) + '$'
 		 + "Mario_small.jump_right:" + string(al_get_config_value(config, "Mario_small", "jump_right")) + '$'
 		 + "Mario_small.jump_left:" + string(al_get_config_value(config, "Mario_small", "jump_left")) + '$'
+		 + "Mario_big.walk_right:" + string(al_get_config_value(config, "Mario_big", "walk_right")) + '$'
+		 + "Mario_big.walk_left:" + string(al_get_config_value(config, "Mario_big", "walk_left")) + '$'
+		 + "Mario_big.stand_right:" + string(al_get_config_value(config, "Mario_big", "stand_right")) + '$'
+		 + "Mario_big.stand_left:" + string(al_get_config_value(config, "Mario_big", "stand_left")) + '$'
+		 + "Mario_big.jump_right:" + string(al_get_config_value(config, "Mario_big", "jump_right")) + '$'
+		 + "Mario_big.jump_left:" + string(al_get_config_value(config, "Mario_big", "jump_left")) + '$'
 		;
 }
 
@@ -663,6 +670,13 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$'
 		;
 }
+
+string loadAllPowerups(const ALLEGRO_CONFIG* config) {
+
+	return "powerups.super:" + string(al_get_config_value(config, "powerups", "super")) + '$'
+		;
+}
+
 
 void app::MainApp::Load(void) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
@@ -699,6 +713,7 @@ void app::MainApp::Load(void) {
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllPipes(config), al_get_config_value(config, "paths", "tiles_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllEnemies(config), al_get_config_value(config, "paths", "enemies_path"));
 	AnimationFilmHolder::GetInstance().LoadAll(loadAllBlocks(config), al_get_config_value(config, "paths", "npcs_path"));
+	AnimationFilmHolder::GetInstance().LoadAll(loadAllPowerups(config), al_get_config_value(config, "paths", "npcs_path"));
 
 	liveIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "characters_path")), { 127, 60, 16, 16 });
 	coinIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "npcs_path")), {0, 16, 16, 16});
@@ -726,6 +741,7 @@ void app::MainApp::Load(void) {
 
 	mario->SetBoundingArea(new BoundingBox(mario->GetBox().x, mario->GetBox().y, mario->GetBox().x + mario->GetBox().w, mario->GetBox().y + mario->GetBox().h));
 	mario->SetFormStateId(SMALL_MARIO);
+	mario->Set_Str_StateId("Mario_small");
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
@@ -769,6 +785,13 @@ void app::MainApp::Load(void) {
 		pipe->SetFormStateId(PIPE);
 		SpriteManager::GetSingleton().Add(pipe);
 		
+	}
+
+	//create super mushroom
+	locations = splitString(al_get_config_value(config, "powerups_positions", "super"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		create_super_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
 	}
 
 	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {

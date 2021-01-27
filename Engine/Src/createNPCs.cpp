@@ -119,9 +119,9 @@ void app::create_enemy_goomba(int x, int y) {
 
 				jump->Start(jump_anim, GetGameTime());
 				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_right"));
 				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 			}
 			else {
 				//do mario penalty
@@ -335,9 +335,9 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 					});
 				jump->Start(jump_anim, GetGameTime());
 				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_right"));
 				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 			}
 			else { //mario hits shell from right or left
 
@@ -357,7 +357,6 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 					if (!(mario->lastMovedRight == true && s1_x1 < s2_x1 ||
 						mario->lastMovedRight == false && s2_x2 < s1_x2))
 					{ //do not hit mario when he is pushing the shell
-						cout << mario->lastMovedRight << " " << s2->lastMovedRight << endl;
 						mario->hit();
 					}
 				}
@@ -592,9 +591,9 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 					});
 				jump->Start(jump_anim, GetGameTime());
 				if (mario->lastMovedRight)
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_right"));
 				else
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 			}
 			else { //mario hits shell from right or left
 
@@ -614,7 +613,6 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 					if (!(mario->lastMovedRight  == true && s1_x1 < s2_x1 ||
 						mario->lastMovedRight == false && s2_x2 < s1_x2)) 
 					{ //do not hit mario when he is pushing the shell
-						cout << mario->lastMovedRight << " " << s2->lastMovedRight << endl;
 						mario->hit();
 					}
 				}
@@ -755,7 +753,7 @@ void app::create_brick_sprite(int x, int y) {
 				if (s1->GetFormStateId() == SUPER_MARIO) {
 					//smash animation
 
-					s2->SetFormStateId(SMASHED);
+					//s2->SetFormStateId(SMASHED);
 				}
 			}
 		}
@@ -850,6 +848,146 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 	);
 }
 
+//crete powerups
+void app::create_super_mushroom(int x, int y) {
+	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.super"), "powerup");
+	SpriteManager::GetSingleton().Add(powerup);
+
+	/*class MovingAnimator* powerup_walk = new MovingAnimator();
+	powerup->SetAnimator(powerup_walk);
+	AnimatorManager::GetSingleton().Register(powerup_walk);
+
+	goomba_walk->SetOnAction([goomba](Animator* animator, const Animation& anim) {
+		goomba->NextFrame();
+	});
+	goomba_walk->SetOnFinish([goomba](Animator* animator) {
+		//for (auto s1 : shells)
+			//CollisionChecker::GetSingleton().Cancel(s1, goomba);
+		//AnimatorManager::GetSingleton().Cancel(animator);
+	});
+
+
+	class MovingAnimation* goomba_walking_animation = new MovingAnimation("goomba_walk", 0, 0, 0, 100);
+	goomba_walk->Start(goomba_walking_animation, GetGameTime());*/
+	powerup->SetStateId(WALKING_STATE);
+	powerup->SetZorder(0);
+	powerup->SetBoundingArea(new BoundingBox(powerup->GetBox().x, powerup->GetBox().y, powerup->GetBox().x + powerup->GetBox().w, powerup->GetBox().y + powerup->GetBox().h));
+	powerup->GetGravityHandler().setGravityAddicted(true);
+	//goomba->SetFormStateId(ENEMY);
+
+	powerup->GetGravityHandler().SetOnSolidGround([powerup](const Rect& r) {
+		Rect posOnGrid{
+			r.x + action_layer->GetViewWindow().x,
+			r.y + action_layer->GetViewWindow().y,
+			r.w,
+			r.h,
+		};
+
+		return action_layer->GetGrid()->IsOnSolidGround(posOnGrid, powerup->GetStateId());
+	});
+
+	powerup->SetMover([powerup](const Rect& pos, int* dx, int* dy) {
+		Rect posOnGrid{
+			pos.x + action_layer->GetViewWindow().x,
+			pos.y + action_layer->GetViewWindow().y,
+			pos.w,
+			pos.h,
+		};
+		action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
+		powerup->SetPos(pos.x + *dx, pos.y + *dy);
+	});
+
+	CollisionChecker::GetSingleton().Register(mario, powerup,
+		[](Sprite* s1, Sprite* s2) {
+			if (s1->GetFormStateId() != SMALL_MARIO)
+				return;
+
+			//s1 must be mario
+			s1->SetFormStateId(SUPER_MARIO);
+			s1->Set_Str_StateId("Mario_big");
+			s1->SetBoxDimentions(16, 32);
+			s1->ReplaceBoundingArea(new BoundingBox(s1->GetBox().x, s1->GetBox().y, s1->GetBox().x + s1->GetBox().w, s1->GetBox().y + s1->GetBox().h));
+			s1->Move(0,-16);
+			
+			if (s1->lastMovedRight) {
+				if (s1->GetStateId() == IDLE_STATE) {
+					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.stand_right"));
+				}
+				else {
+					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.walk_right"));
+				}
+			}
+			else {
+				if (s1->GetStateId() == IDLE_STATE) {
+					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.stand_left"));
+				}
+				else {
+					s1->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_big.walk_left"));
+				}
+			}
+
+			/*int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
+			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
+			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
+			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
+			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
+
+			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //hits goomba from top
+				s2->SetFormStateId(SMASHED);
+
+				delete goomba_walking_animation;
+
+				//jumping animation
+				if (jump_anim != nullptr) {
+					jump->Stop();
+					delete jump_anim;
+				}
+
+				CollisionChecker::GetSingleton().Cancel(s1, s2);
+				jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
+				jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
+					int sumOfNumbers = 0;
+					char maxTiles = 3;
+
+					for (int i = 1; i <= jump_anim->GetEndFrame(); i++) sumOfNumbers += i;
+
+					dy = -customRound((float)((jump_anim->GetEndFrame() - frameNo) * maxTiles * TILE_HEIGHT) / sumOfNumbers);
+				});
+
+				//play death animation of goomba
+				class MovingAnimation* goomba_death_animation = new MovingAnimation("goomba_smash", 1, 0, 0, 750);
+				s2->SetFrame(0);
+				s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba_smashed"));
+				s2->SetHasDirectMotion(true);
+				s2->Move(0, 9); //smashed is smaller so move him back to the ground
+				goomba_walk->Start(goomba_death_animation, GetGameTime());
+				goomba_walk->SetOnFinish([goomba_walk, s2](Animator* animator) {
+					AnimatorManager::GetSingleton().Cancel(animator);
+					for (auto s1 : shells)
+						CollisionChecker::GetSingleton().Cancel(s1, s2);
+					goomba_walk->deleteCurrAnimation();
+					s2->SetFormStateId(DELETE);
+					goomba_walk->Destroy();
+				});
+
+				jump->Start(jump_anim, GetGameTime());
+				if (mario->lastMovedRight)
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_right"));
+				else
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("Mario_small.jump_left"));
+			}
+			else {
+				//do mario penalty
+				mario->hit();
+			}*/
+
+		}
+	);
+	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
+}
+
+
 //---------------------------------------------------------------------------
 //-------------------From Here Is The Pipe Creation--------------------------
 //---------------------------------------------------------------------------
@@ -902,9 +1040,17 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
+<<<<<<< HEAD
+	sprites = SpriteManager::GetSingleton().GetTypeList("powerup");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
+		sprite->SetHasDirectMotion(true);
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+		sprite->SetHasDirectMotion(false);
+=======
 	sprites = SpriteManager::GetSingleton().GetTypeList("coin");
 	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pipes)
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+>>>>>>> b5a1a12f4cf8b8008cdc9c81c29ef855a48a81e5
 	}
 
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
