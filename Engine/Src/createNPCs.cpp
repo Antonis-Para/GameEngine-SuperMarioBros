@@ -16,6 +16,38 @@ extern bool keys[ALLEGRO_KEY_MAX];
 extern bool disable_input;
 extern ALLEGRO_TIMER* blockTimer;
 
+void collisionBlockWithEnemies(Sprite* block, Sprite* enemy) {
+	CollisionChecker::GetSingleton().Register(block, enemy,
+		[](Sprite* s1, Sprite* s2) {
+			if (s2->GetFormStateId() == SMASHED)
+				return;
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+
+			if (s1_y1 < s2_y2) {
+				if (s1->GetFormStateId() == MOVED_BLOCK || s1->GetFormStateId() == SMASHED) {
+					//kill animation
+
+					s2->SetFormStateId(DELETE_BY_BLOCK);
+				}
+			}
+		}
+	);
+}
+
+void collisionBlockWithPowerUps(Sprite* block, Sprite* powerUp) {
+	CollisionChecker::GetSingleton().Register(block, powerUp,
+		[](Sprite* s1, Sprite* s2) {
+			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
+
+			if (s1_y1 < s2_y2) {
+				s2->lastMovedRight = !s2->lastMovedRight;
+			}
+		}
+	);
+}
+
 //create enemies
 Sprite* app::create_enemy_goomba(int x, int y) {
 	Sprite* goomba = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba"), "goomba");
@@ -127,6 +159,14 @@ Sprite* app::create_enemy_goomba(int x, int y) {
 			}
 		}
 	);
+
+	std::vector<std::string> block_types = { "brick", "block" };
+	for (std::string block_type : block_types) {
+		for (auto block : SpriteManager::GetSingleton().GetTypeList(block_type)) {
+			collisionBlockWithEnemies(block, goomba);
+		}
+	}
+
 	return goomba;
 }
 
@@ -382,6 +422,14 @@ Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 			}
 		}
 	);
+
+	std::vector<std::string> block_types = { "brick", "block" };
+	for (std::string block_type : block_types) {
+		for (auto block : SpriteManager::GetSingleton().GetTypeList(block_type)) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
+
 	return koopa_troopa;
 }
 
@@ -656,6 +704,14 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 			}
 		}
 	);
+
+	std::vector<std::string> block_types = { "brick", "block" };
+	for (std::string block_type : block_types) {
+		for (auto block : SpriteManager::GetSingleton().GetTypeList(block_type)) {
+			collisionBlockWithEnemies(block, koopa_troopa);
+		}
+	}
+
 	return koopa_troopa;
 }
 
@@ -708,8 +764,13 @@ Sprite* app::create_enemy_piranha_plant(int x, int y) {
 	CollisionChecker::GetSingleton().Register(mario, piranha,
 		[piranha_move](Sprite* s1, Sprite* s2) {
 
+			
 			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
 				//if mario is invinsible, don't think about it. Just kill him
+				if (piranha_move->GetFrame() + 1 == ((MovingPathAnimation*)(piranha_move->GetAnim()))->GetPath().size()) {//piranha is bellow the pipe dont kill him
+					piranha_move->SetLastTime(GetGameTime());
+					return;
+				}
 				piranha_move->deleteCurrAnimation();
 				piranha_move->Stop();
 				AnimatorManager::GetSingleton().Cancel(piranha_move);
@@ -742,35 +803,6 @@ Sprite* app::create_enemy_piranha_plant(int x, int y) {
 }
 
 //create blocks
-void collisionBlockWithEnemies(Sprite* block, Sprite* enemy) {
-	CollisionChecker::GetSingleton().Register(block, enemy,
-		[](Sprite* s1, Sprite* s2) {
-			if (s2->GetFormStateId() == SMASHED)
-				return;
-			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
-
-			if (s1_y1 < s2_y2) {
-				//kill animation
-
-				s2->SetFormStateId(DELETE_BY_BLOCK);
-			}
-		}
-	);
-}
-
-void collisionBlockWithPowerUps(Sprite* block, Sprite* powerUp) {
-	CollisionChecker::GetSingleton().Register(block, powerUp,
-		[](Sprite* s1, Sprite* s2) {
-			int s1_y1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY1();
-			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
-
-			if (s1_y1 < s2_y2) {
-				s2->lastMovedRight = !s2->lastMovedRight;
-			}
-		}
-	);
-}
 
 void app::create_brick_sprite(int x, int y) {
 	Sprite* brick = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("blocks.brick"), "brick");
@@ -807,22 +839,6 @@ void app::create_brick_sprite(int x, int y) {
 			}
 		}
 	);
-
-	if (!SpriteManager::GetSingleton().GetTypeList("goomba").empty()) {
-		for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
-			collisionBlockWithEnemies(brick, goomba);
-		}
-	}
-	if (!SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa").empty()) {
-		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-			collisionBlockWithEnemies(brick, koopa_troopa);
-		}
-	}
-	if (!SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa").empty()) {
-		for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
-			collisionBlockWithEnemies(brick, koopa_troopa);
-		}
-	}
 }
 
 void app::create_block_sprite(int x, int y, Game *game) {
@@ -877,16 +893,6 @@ void app::create_block_sprite(int x, int y, Game *game) {
 			}
 		}
 	);
-
-	for (auto goomba : SpriteManager::GetSingleton().GetTypeList("goomba")) {
-		collisionBlockWithEnemies(block, goomba);
-	}
-	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("green_koopa_troopa")) {
-		collisionBlockWithEnemies(block, koopa_troopa);
-	}
-	for (auto koopa_troopa : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) {
-		collisionBlockWithEnemies(block, koopa_troopa);
-	}
 }
 
 void app::create_coin_sprite(int x, int y, Game* game) {
