@@ -437,6 +437,7 @@ void respawn(Game& game) {
 	CollisionChecker::GetSingleton().clear();
 	AnimatorManager::GetSingleton().CancelAndRemoveAll();
 	SpriteManager::GetSingleton().RemoveAll();
+	shells.clear();
 
 	recreateSprites(config, game, checkpoint);
 
