@@ -58,6 +58,7 @@ class FrameRangeAnimation* jump_anim = nullptr;
 
 bool isDead = false;
 bool winFinished = false;
+bool respawing = false;
 bool once = true;
 int secondsToClose = 2;
 int checkpoint_x = 0;
@@ -152,7 +153,7 @@ void InstallPauseResumeHandler(Game& game) {
 				al_flush_event_queue(showQueue);
 			}
 			else {
-				if(!game.isGameOver())
+				if(!game.isGameOver() && !respawing && !winFinished)
 					al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
 				al_flip_display();
 			}
@@ -463,6 +464,8 @@ void respawn(Game& game) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
 	bool checkpoint = false;
 
+
+
 	if (mario->GetBox().x + action_layer->GetViewWindow().x >= checkpoint_x && mario->GetBox().x + action_layer->GetViewWindow().x < end_x) {
 		checkpoint = true;
 	}
@@ -507,20 +510,42 @@ void InitialiseGame(Game& game) {
 		[&game](void) {
 			if (isDead) {
 				game.loseLife();
-				if(!game.isGameOver() && !winFinished)
+				al_start_timer(finishTimer);
+				game.Pause(GetGameTime());
+				disable_input = true;
+				isDead = false;
+				if (game.isGameOver()) {
+					secondsToClose = 30;
+					mario->SetVisibility(false);
+				}
+				else {
+					secondsToClose = 5;
 					respawn(game);
+					respawing = true;
+				}
 				isDead = false;
 			}
-			if (game.isGameOver()) {
+			if (respawing) {
+				game.Render();
 
-				if (once) {
-					secondsToClose = 30;
-					al_start_timer(finishTimer);
-					game.Pause(0);
-					mario->SetVisibility(false);
-					once = false;
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "You DIED!");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "You DIED!");
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("You will be respawned in " + to_string(secondsToClose) + " seconds").c_str());
+
+				al_flip_display();
+
+				if (!al_is_event_queue_empty(finishQueue)) {
+					al_wait_for_event(finishQueue, &event);
+					secondsToClose--;
+					if (secondsToClose == 0) {
+						game.Resume();
+						al_stop_timer(finishTimer);
+						disable_input = false;
+						respawing = false;
+					}
 				}
-
+			}
+			if (game.isGameOver()) {
 				game.Render();
 
 				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
@@ -614,7 +639,7 @@ void InitialiseGame(Game& game) {
 				pointsShowList.remove(entry);
 			}
 
-			if(!game.isGameOver() && !winFinished)
+			if(!game.isGameOver() && !winFinished && !respawing)
 				al_flip_display();
 		}
 	);
