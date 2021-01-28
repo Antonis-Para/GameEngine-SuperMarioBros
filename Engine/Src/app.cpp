@@ -441,6 +441,11 @@ void respawn(Game& game) {
 		checkpoint = true;
 	}
 
+	if (jump_anim != nullptr) {
+		jump->Stop();
+		delete jump_anim;
+	}
+
 	CollisionChecker::GetSingleton().clear();
 	AnimatorManager::GetSingleton().CancelAndRemoveAll();
 	SpriteManager::GetSingleton().RemoveAll();
