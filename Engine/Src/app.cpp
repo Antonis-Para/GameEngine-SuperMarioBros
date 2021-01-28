@@ -358,62 +358,62 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 				create_coin_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
 			}
 			else
-			//create flag pole
-			if (action_layer->GetTile(j, i) == 496 || action_layer->GetTile(j, i) == 470) { //this is the final flag
-				Sprite* pole = nullptr;
-				if (action_layer->GetTile(j, i) == 496)
-					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
-				else
-					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
-				SpriteManager::GetSingleton().Add(pole);
-				pole->SetHasDirectMotion(true);
-				pole->GetGravityHandler().setGravityAddicted(false);
-				pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
-				CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite* s1, Sprite* s2) {
-					disable_input = true;
-					CollisionChecker::GetSingleton().CancelAll(mario);
-					if (mario->won) return;
-					mario->won = true;
-					AnimatorManager::GetSingleton().CancelAndRemoveAll();
+				//create flag pole
+				if (action_layer->GetTile(j, i) == 496 || action_layer->GetTile(j, i) == 470) { //this is the final flag
+					Sprite* pole = nullptr;
+					if (action_layer->GetTile(j, i) == 496)
+						pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
+					else
+						pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
+					SpriteManager::GetSingleton().Add(pole);
+					pole->SetHasDirectMotion(true);
+					pole->GetGravityHandler().setGravityAddicted(false);
+					pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
+					CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite* s1, Sprite* s2) {
+						disable_input = true;
+						CollisionChecker::GetSingleton().CancelAll(mario);
+						if (mario->won) return;
+						mario->won = true;
+						AnimatorManager::GetSingleton().CancelAndRemoveAll();
 
-					mario->SetFrame(0);
-					mario->SetStateId(WALKING_STATE);
-					mario->GetGravityHandler().setGravityAddicted(false);
-					mario->GetGravityHandler().SetFalling(false);
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
-
-					MovingAnimator* finish_sequence = new MovingAnimator();
-					mario->Move(2, 0);
-					finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
-						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-
-						if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
-							animator->Stop();
-						}
-						});
-
-					finish_sequence->SetOnFinish([](Animator* animator) { //when we get here, mario is on the ground. stand walking right
-						cout << "CONGRATZ!\n";
-						//animator->deleteCurrAnimation();
-						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_right"));
 						mario->SetFrame(0);
-						mario->GetGravityHandler().setGravityAddicted(true);
+						mario->SetStateId(WALKING_STATE);
+						mario->GetGravityHandler().setGravityAddicted(false);
+						mario->GetGravityHandler().SetFalling(false);
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".winning_sequence"));
 
-						//start walking right
-						animator->SetOnAction([](Animator* animator, const Animation& anim) {
+						MovingAnimator* finish_sequence = new MovingAnimator();
+						mario->Move(7, 0);
+						finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
 							Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-						});
 
-						((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
-						animator->SetOnFinish([](Animator* animator) {
-							winFinished = true;
-							mario->SetVisibility(false);
-							AnimatorManager::GetSingleton().Cancel(animator);
-						});
-					});
+							if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
+								animator->Stop();
+							}
+							});
 
-					AnimatorManager::GetSingleton().Register(finish_sequence);
-					finish_sequence->Start(new MovingAnimation("finish_sequence", 0, 0, 1, 20), GetGameTime());
+						finish_sequence->SetOnFinish([](Animator* animator) { //when we get here, mario is on the ground. stand walking right
+							cout << "CONGRATZ!\n";
+							//animator->deleteCurrAnimation();
+							mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_right"));
+							mario->SetFrame(0);
+							mario->GetGravityHandler().setGravityAddicted(true);
+
+							//start walking right
+							animator->SetOnAction([](Animator* animator, const Animation& anim) {
+								Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+								});
+
+							((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
+							animator->SetOnFinish([](Animator* animator) {
+								winFinished = true;
+								mario->SetVisibility(false);
+								AnimatorManager::GetSingleton().Cancel(animator);
+								});
+							});
+
+						AnimatorManager::GetSingleton().Register(finish_sequence);
+						finish_sequence->Start(new MovingAnimation("finish_sequence", 0, 0, 1, 20), GetGameTime());
 
 				});
 			}
