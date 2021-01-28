@@ -510,6 +510,8 @@ void InitialiseGame(Game& game) {
 		[&game](void) {
 			if (isDead) {
 				game.loseLife();
+				al_stop_sample_instance(backgroundSong);
+				al_play_sample(deathEffect, .5f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 				al_start_timer(finishTimer);
 				game.Pause(GetGameTime());
 				disable_input = true;
@@ -519,7 +521,7 @@ void InitialiseGame(Game& game) {
 					mario->SetVisibility(false);
 				}
 				else {
-					secondsToClose = 5;
+					secondsToClose = 3;
 					respawn(game);
 					respawing = true;
 				}
