@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <unordered_map>
+#include <tuple>
 #include <vector>
 #include <math.h>
 #include <string>

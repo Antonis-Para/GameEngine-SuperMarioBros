@@ -13,6 +13,7 @@ class TileLayer* action_layer;
 TileLayer* underground_layer;
 class CircularBackground* circular_background;
 class CircularBackground* menu_circular_background;
+std::unordered_map<std::string, std::vector<std::string>> enemies_positions;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
@@ -166,6 +167,28 @@ void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& 
 	sprite->SetFrame(frameRangeAnimator->GetCurrFrame());
 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
+}
+
+static void createClosestEnemies(void) {
+	for (std::pair<std::string, std::vector<std::string> > enemie_position : enemies_positions) {
+		std::vector<std::string> copied_locations(enemie_position.second);
+		for (std::vector<std::string>::iterator it = enemie_position.second.begin(); it != enemie_position.second.end(); ++it) {
+			std::vector<std::string> coordinates = splitString(*it, " ");
+			int x = std::stoi(coordinates[0]) - action_layer->GetViewWindow().x, y = std::stoi(coordinates[1]);
+			if (x < action_layer->GetViewWindow().w) {
+				if (enemie_position.first == "goomba")
+					create_enemy_goomba(x, y);
+				else if (enemie_position.first == "green_koopa_troopa")
+					create_enemy_green_koopa_troopa(x, y);
+				else if (enemie_position.first == "red_koopa_troopa")
+					create_enemy_red_koopa_troopa(x, y);
+				else if (enemie_position.first == "piranha_plant")
+					create_enemy_piranha_plant(x, y);
+				copied_locations.erase(std::find(copied_locations.begin(), copied_locations.end(), *it));
+			}
+		}
+		enemies_positions[enemie_position.first] = copied_locations;
+	}
 }
 
 void respawn() {
@@ -519,6 +542,7 @@ void InitialiseGame(Game& game) {
 				}
 				toBeDestroyed.clear();
 			}
+			createClosestEnemies();
 		}
 	);
 
@@ -764,37 +788,13 @@ void app::MainApp::Load(void) {
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
+	std::vector<std::string> enemies_names = { "goomba", "green_koopa_troopa", "red_koopa_troopa", "piranha_plant" };
 	vector<string> locations;
-
-	//create a demo goomba
-	locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_goomba(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-	//create a demo Koopa Troopa 
-	locations = splitString(al_get_config_value(config, "emenies_positions", "green_koopa_troopa"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_green_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-
-	/*--------------------create a demo Red Koopa Troopa --------------------------
-	* Exactly the same as the green koopa but the mover function is changed. Only this!*/
-
-	locations = splitString(al_get_config_value(config, "emenies_positions", "red_koopa_troopa"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_red_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-	/*---------------------------Create demo piranha plant------------------------*/
-	locations = splitString(al_get_config_value(config, "emenies_positions", "piranha_plant"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_piranha_plant(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+	for (std::string enemie_name : enemies_names) {
+		enemies_positions[enemie_name] = std::vector<std::string>();
+		locations = splitString(al_get_config_value(config, "emenies_positions", enemie_name.c_str()), ",");
+		for (auto location : locations)
+			enemies_positions[enemie_name].push_back(location);
 	}
 
 	//create all pipe sprites and add collisions
