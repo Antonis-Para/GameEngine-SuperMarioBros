@@ -764,8 +764,13 @@ Sprite* app::create_enemy_piranha_plant(int x, int y) {
 	CollisionChecker::GetSingleton().Register(mario, piranha,
 		[piranha_move](Sprite* s1, Sprite* s2) {
 
+			
 			if (s1->GetFormStateId() == INVINCIBLE_MARIO_SMALL || s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER) {
 				//if mario is invinsible, don't think about it. Just kill him
+				if (piranha_move->GetFrame() + 1 == ((MovingPathAnimation*)(piranha_move->GetAnim()))->GetPath().size()) {//piranha is bellow the pipe dont kill him
+					piranha_move->SetLastTime(GetGameTime());
+					return;
+				}
 				piranha_move->deleteCurrAnimation();
 				piranha_move->Stop();
 				AnimatorManager::GetSingleton().Cancel(piranha_move);
