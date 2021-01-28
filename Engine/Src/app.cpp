@@ -378,7 +378,7 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 					pole->SetHasDirectMotion(true);
 					pole->GetGravityHandler().setGravityAddicted(false);
 					pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
-					CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite* s1, Sprite* s2) {
+					CollisionChecker::GetSingleton().Register(mario, pole, [&game](Sprite* s1, Sprite* s2) {
 						disable_input = true;
 						CollisionChecker::GetSingleton().CancelAll(mario);
 						if (mario->won) return;
@@ -393,13 +393,13 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 
 						MovingAnimator* finish_sequence = new MovingAnimator();
 						mario->Move(7, 0);
-						finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
+						finish_sequence->SetOnAction([&game](Animator* animator, const Animation& anim) {
 							Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-
+							game.addPoints(10);
 							if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
 								animator->Stop();
 							}
-							});
+						});
 
 						finish_sequence->SetOnFinish([](Animator* animator) { //when we get here, mario is on the ground. stand walking right
 							cout << "CONGRATZ!\n";
@@ -1165,7 +1165,7 @@ void app::MainApp::Load(void) {
 				pole->SetHasDirectMotion(true);
 				pole->GetGravityHandler().setGravityAddicted(false);
 				pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
-				CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite *s1, Sprite *s2) {
+				CollisionChecker::GetSingleton().Register(mario, pole, [this](Sprite *s1, Sprite *s2) {
 					disable_input = true;
 					CollisionChecker::GetSingleton().CancelAll(mario);
 					if (mario->won) return;
@@ -1180,9 +1180,9 @@ void app::MainApp::Load(void) {
 
 					MovingAnimator* finish_sequence = new MovingAnimator();
 					mario->Move(7, 0);
-					finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
+					finish_sequence->SetOnAction([this](Animator* animator, const Animation& anim) {
 						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-
+						game.addPoints(10);
 						if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
 							animator->Stop();
 						}

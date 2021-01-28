@@ -405,10 +405,14 @@ Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 					koopa_troopa_walk->Stop();
 					koopa_troopa_walk->deleteCurrAnimation();
 					AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
-					if (s1_x1 < s2_x1)
+					if (s1_x1 < s2_x1) {
 						s2->lastMovedRight = true;
-					else
+						s2->Move(16, 0);
+					}
+					else {
 						s2->lastMovedRight = false;
+						s2->Move(-16, 0);
+					}
 					s2->SetStateId(WALKING_STATE);
 				}
 				else {
@@ -524,14 +528,12 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 
 			int s1_y2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getY2();
 			int s2_y1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY1();
+			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 			int s1_x1 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX1();
 			int s1_x2 = ((const BoundingBox*)(s1->GetBoundingArea()))->getX2();
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-			cout << "IN\n";
-			if (s2->GetFormStateId() == SMASHED)
-				cout << "IN\n";
 			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //mario hits  coopa/shell from top
 				
 				if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
@@ -684,16 +686,21 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".jump_left"));
 			}
 			else { //mario hits coopa/shell from right or left
-
+			
 				if (s2->GetFormStateId() == SMASHED && s2->GetStateId() == IDLE_STATE) { //shell is not moving. Start it
+					
 					koopa_troopa_walk->SetOnFinish([](Animator* animator) {});
 					koopa_troopa_walk->Stop();
 					koopa_troopa_walk->deleteCurrAnimation();
 					AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
-					if (s1_x1 < s2_x1)
+					if (s1_x1 < s2_x1) {
 						s2->lastMovedRight = true;
-					else
+						s2->Move(16, 0);
+					}
+					else {
 						s2->lastMovedRight = false;
+						s2->Move(-16, 0);
+					}
 					s2->SetStateId(WALKING_STATE);
 				}
 				else {
