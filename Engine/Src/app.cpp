@@ -20,22 +20,26 @@ int widthInTiles = 0, heightInTiles = 0;
 unsigned int total_tiles;
 bool closeWindowClicked = false;
 bool keys[ALLEGRO_KEY_MAX] = { 0 };
-ALLEGRO_TIMER* timer;
-ALLEGRO_TIMER* fallingTimer;
-ALLEGRO_TIMER* aiTimer;
-ALLEGRO_TIMER* blockTimer;
-ALLEGRO_TIMER* finishTimer;
 bool gridOn = true;
 bool disable_input = false;
 Bitmap characters = nullptr;
 Bitmap npcs = nullptr;
 
-ALLEGRO_DISPLAY* display;
+ALLEGRO_TIMER* timer;
+ALLEGRO_TIMER* fallingTimer;
+ALLEGRO_TIMER* aiTimer;
+ALLEGRO_TIMER* blockTimer;
+ALLEGRO_TIMER* finishTimer;
+ALLEGRO_TIMER* showTimer;
+
 ALLEGRO_EVENT_QUEUE* queue;
 ALLEGRO_EVENT_QUEUE* fallingQueue;
 ALLEGRO_EVENT_QUEUE* aiQueue;
 ALLEGRO_EVENT_QUEUE* blockQueue;
 ALLEGRO_EVENT_QUEUE* finishQueue;
+ALLEGRO_EVENT_QUEUE* showQueue;
+
+ALLEGRO_DISPLAY* display;
 bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
@@ -65,6 +69,8 @@ ALLEGRO_FONT* font;
 ALLEGRO_FONT* paused_font;
 ALLEGRO_FONT* tittle_font;
 ALLEGRO_FONT* tittle_font_smaller;
+
+list<struct pointShow*> pointsShowList;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -130,6 +136,7 @@ void InstallPauseResumeHandler(Game& game) {
 				);
 				al_flush_event_queue(fallingQueue);
 				al_flush_event_queue(aiQueue);
+				al_flush_event_queue(showQueue);
 			}
 			else {
 				if(!game.isGameOver())
@@ -556,6 +563,26 @@ void InitialiseGame(Game& game) {
 			al_draw_text(font, al_map_rgb(255, 255, 255), 525, 18, ALLEGRO_ALIGN_CENTER, "Score: ");
 			al_draw_text(font, al_map_rgb(255, 255, 255), 550, 19, ALLEGRO_ALIGN_LEFT, standarizeSize(to_string(game.getPoints()), 8).c_str());
 
+			list<struct pointShow*> toBeDeleted;
+			for (auto entry : pointsShowList) {
+				al_draw_text(font, al_map_rgb(255, 255, 255), entry->x, entry->y, ALLEGRO_ALIGN_LEFT, to_string(entry->points).c_str());
+				if (entry->y < entry->final_y) {
+					toBeDeleted.push_back(entry);
+				}
+			}
+			if (!al_is_event_queue_empty(showQueue)) {
+				al_wait_for_event(showQueue, &event);
+				for (auto entry : pointsShowList) {
+					entry->y--;
+					if (entry->y < entry->final_y) {
+						toBeDeleted.push_back(entry);
+					}
+				}
+			}
+			for (auto entry : toBeDeleted) {
+				pointsShowList.remove(entry);
+			}
+
 			if(!game.isGameOver() && !winFinished)
 				al_flip_display();
 		}
@@ -915,6 +942,11 @@ void app::MainApp::Initialise(void) {
 	finishQueue = al_create_event_queue();
 	finishTimer = al_create_timer(1.0);
 	al_register_event_source(finishQueue, al_get_timer_event_source(finishTimer));
+
+	showQueue = al_create_event_queue();
+	showTimer = al_create_timer(1.0 / 30);
+	al_register_event_source(showQueue, al_get_timer_event_source(showTimer));
+	al_start_timer(showTimer);
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
 	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
@@ -1423,5 +1455,7 @@ int app::Game::getPoints(void) {
 }
 
 void app::Game::addPoints(int extra_points) {
+	struct pointShow* tmp = new pointShow({ extra_points, mario->GetBox().x, mario->GetBox().y, mario->GetBox().y - 50 });
+	pointsShowList.push_back(tmp);
 	points += extra_points;
 }
