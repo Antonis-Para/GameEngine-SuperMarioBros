@@ -5,10 +5,10 @@
 namespace app {
 
 	//create enemies
-	void create_enemy_goomba(int x, int y);
-	void create_enemy_green_koopa_troopa(int x, int y);
-	void create_enemy_red_koopa_troopa(int x, int y);
-	void create_enemy_piranha_plant(int x, int y);
+	Sprite* create_enemy_goomba(int x, int y);
+	Sprite* create_enemy_green_koopa_troopa(int x, int y);
+	Sprite* create_enemy_red_koopa_troopa(int x, int y);
+	Sprite* create_enemy_piranha_plant(int x, int y);
 
 	//create powerups
 	void create_super_mushroom(int x, int y);

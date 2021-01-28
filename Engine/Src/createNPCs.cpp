@@ -17,7 +17,7 @@ extern bool disable_input;
 extern ALLEGRO_TIMER* blockTimer;
 
 //create enemies
-void app::create_enemy_goomba(int x, int y) {
+Sprite* app::create_enemy_goomba(int x, int y) {
 	Sprite* goomba = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.goomba"), "goomba");
 	SpriteManager::GetSingleton().Add(goomba);
 
@@ -127,9 +127,10 @@ void app::create_enemy_goomba(int x, int y) {
 			}
 		}
 	);
+	return goomba;
 }
 
-void app::create_enemy_green_koopa_troopa(int x, int y) {
+Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.green_koopa_troopa_left"), "green_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
@@ -381,9 +382,10 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 			}
 		}
 	);
+	return koopa_troopa;
 }
 
-void app::create_enemy_red_koopa_troopa(int x, int y) {
+Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 	Sprite* koopa_troopa = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"), "red_koopa_troopa");
 	SpriteManager::GetSingleton().Add(koopa_troopa);
 
@@ -534,6 +536,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("piranha_plant")) sprites.push_back(sprite);
 						sprites.remove(s2); //remove my self
 						//CollisionChecker::GetSingleton().Cancel(s2, mario); //remove shell collision with mario
+						//CollisionChecker::GetSingleton().CancelAll(s2);
 						for (auto sprite : sprites) { //remove shell collision with sprites
 							CollisionChecker::GetSingleton().Cancel(s2, sprite);
 						}
@@ -653,9 +656,10 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 			}
 		}
 	);
+	return koopa_troopa;
 }
 
-void app::create_enemy_piranha_plant(int x, int y) {
+Sprite* app::create_enemy_piranha_plant(int x, int y) {
 	Sprite* piranha = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("enemies.piranha_plant"), "piranha_plant");
 	SpriteManager::GetSingleton().Add(piranha);
 
@@ -734,6 +738,7 @@ void app::create_enemy_piranha_plant(int x, int y) {
 
 		}
 	);
+	return piranha;
 }
 
 //create blocks

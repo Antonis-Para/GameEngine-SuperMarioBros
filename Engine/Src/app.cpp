@@ -181,15 +181,39 @@ static void createClosestEnemies(void) {
 			std::vector<std::string> coordinates = splitString(*it, " ");
 			int x = std::stoi(coordinates[0]) - action_layer->GetViewWindow().x, y = std::stoi(coordinates[1]);
 			if (x < action_layer->GetViewWindow().w) {
+				Sprite* new_sprite = nullptr;
 				if (enemie_position.first == "goomba")
-					create_enemy_goomba(x, y);
+					new_sprite = create_enemy_goomba(x, y);
 				else if (enemie_position.first == "green_koopa_troopa")
-					create_enemy_green_koopa_troopa(x, y);
+					new_sprite = create_enemy_green_koopa_troopa(x, y);
 				else if (enemie_position.first == "red_koopa_troopa")
-					create_enemy_red_koopa_troopa(x, y);
+					new_sprite = create_enemy_red_koopa_troopa(x, y);
 				else if (enemie_position.first == "piranha_plant")
-					create_enemy_piranha_plant(x, y);
+					new_sprite = create_enemy_piranha_plant(x, y);
 				copied_locations.erase(std::find(copied_locations.begin(), copied_locations.end(), *it));
+				if (new_sprite) {
+					for (auto shell : shells) {
+						CollisionChecker::GetSingleton().Register(shell, new_sprite, [](Sprite* s1, Sprite* s2) {
+							if (s1->GetFormStateId() == SMASHED && s2->GetFormStateId() == SMASHED) //2 sells colide? do nothing
+								return;
+							if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving
+								return;
+							if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimation*)s2->GetAnimator()->GetAnim())->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
+								return; //if piranha is under the pipe do nothing
+							s2->SetFormStateId(DELETE);
+							//CollisionChecker::GetSingleton().Cancel(s1, s2);
+							for (auto shell : shells) //deleting sprite so remove all collisions it has with the shells
+								CollisionChecker::GetSingleton().Cancel(shell, s2);
+							CollisionChecker::GetSingleton().Cancel(mario, s2);
+
+							Animator* tmp = s2->GetAnimator();
+							tmp->deleteCurrAnimation();
+							tmp->Stop();
+							AnimatorManager::GetSingleton().Cancel(tmp);
+							tmp->Destroy();
+						});
+					}
+				}
 			}
 		}
 		enemies_positions[enemie_position.first] = copied_locations;
