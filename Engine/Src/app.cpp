@@ -743,6 +743,7 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$'
 		+ "blocks.pole:" + string(al_get_config_value(config, "blocks", "pole")) + '$'
 		+ "blocks.green_ball:" + string(al_get_config_value(config, "blocks", "green_ball")) + '$'
+		+ "blocks.small_flag:" + string(al_get_config_value(config, "blocks", "small_flag")) + '$'
 		;
 }
 
@@ -927,9 +928,11 @@ void app::MainApp::Load(void) {
 						});
 
 						((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
-						animator->SetOnFinish([](Animator* animator) {
+						animator->SetOnFinish([](Animator* animator) { //activated when entered the castle
 							mario->SetVisibility(false); 
 							AnimatorManager::GetSingleton().Cancel(animator);
+							auto small_flag = SpriteManager::GetSingleton().GetTypeList("small_flag");
+							small_flag.front()->SetVisibility(true);
 						});
 					});
 
@@ -937,6 +940,13 @@ void app::MainApp::Load(void) {
 					finish_sequence->Start(new MovingAnimation("finish_sequence", 0, 0, 1, 20), GetGameTime());
 
 				});
+			}
+			else if (action_layer->GetTile(j, i) == 471) {
+				Sprite *small_flag = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.small_flag"), "small_flag");
+				SpriteManager::GetSingleton().Add(small_flag);
+				small_flag->SetHasDirectMotion(true);
+				small_flag->GetGravityHandler().setGravityAddicted(false);
+				small_flag->SetVisibility(false);
 			}
 		}
 	}
