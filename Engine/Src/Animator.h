@@ -150,6 +150,7 @@ public:
 	void deleteCurrAnimation();
 	void Start(FlashAnimation* a, timestamp_t t);
 	Animation* GetAnim(void);
+	void ResetCurrRep();
 };
 
 class AnimatorManager {
