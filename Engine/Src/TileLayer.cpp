@@ -1,5 +1,5 @@
-#include "TileLayer.h"
-#include "Bitmap.h"
+#include "../Include/TileLayer.h"
+#include "../Include/Bitmap.h"
 
 //Rect viewWin = app::Rect{ 0, 0, VIEW_WIN_X, VIEW_WIN_Y };
 //Rect displayArea = app::Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };

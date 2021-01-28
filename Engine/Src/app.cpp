@@ -1,10 +1,10 @@
-#include "app.h"
-#include "Bitmap.h"
-#include "Utilities.h"
-#include "Animation.h"
-#include "Animator.h"
-#include "createNPCs.h"
-#include "Sprite.h"
+#include "../Include/app.h"
+#include "../Include/Bitmap.h"
+#include "../Include/Utilities.h"
+#include "../Include/Animation.h"
+#include "../Include/Animator.h"
+#include "../Include/createNPCs.h"
+#include "../Include/Sprite.h"
 
 using namespace std;
 
@@ -1018,16 +1018,16 @@ void app::MainApp::Initialise(void) {
 	al_register_event_source(showQueue, al_get_timer_event_source(showTimer));
 	al_start_timer(showTimer);
 
-	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
-	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
-	tittle_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 30, NULL);
-	tittle_font_smaller = al_load_font(".\\Engine\\Media\\game_font.ttf", 25, NULL);
+	font = al_load_font(".\\Engine\\Bin\\game_font.ttf", 20, NULL);
+	paused_font = al_load_font(".\\Engine\\Bin\\game_font.ttf", 40, NULL);
+	tittle_font = al_load_font(".\\Engine\\Bin\\game_font.ttf", 30, NULL);
+	tittle_font_smaller = al_load_font(".\\Engine\\Bin\\game_font.ttf", 25, NULL);
 
-	jumpEffect = al_load_sample(".\\Engine\\Media\\marioJumpSoundEffect.wav");
+	jumpEffect = al_load_sample(".\\Engine\\Bin\\marioJumpSoundEffect.wav");
 	assert(jumpEffect);
-	deathEffect = al_load_sample(".\\Engine\\Media\\marioDeathSoundEffect.wav");
+	deathEffect = al_load_sample(".\\Engine\\Bin\\marioDeathSoundEffect.wav");
 	assert(deathEffect);
-	bgSong = al_load_sample(".\\Engine\\Media\\SuperMarioBrosBackgroundMusic.ogg");
+	bgSong = al_load_sample(".\\Engine\\Bin\\SuperMarioBrosBackgroundMusic.ogg");
 	assert(bgSong);
 	backgroundSong = al_create_sample_instance(bgSong);
 	assert(backgroundSong);

@@ -1,4 +1,4 @@
-#include "Destruction.h"
+#include "../Include/Destruction.h"
 
 // DestructionManager
 DestructionManager DestructionManager::singleton;

@@ -1,4 +1,4 @@
-#include "Animator.h"
+#include "../Include/Animator.h"
 
 // Animator
 Animator::Animator(void) {

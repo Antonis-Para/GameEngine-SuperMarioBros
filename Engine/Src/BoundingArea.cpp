@@ -1,5 +1,5 @@
-#include "BoundingArea.h"
-#include "app.h"
+#include "../Include/BoundingArea.h"
+#include "../Include/app.h"
 
 // BoundingBox
 bool BoundingBox::Intersects(const BoundingBox &box) const {

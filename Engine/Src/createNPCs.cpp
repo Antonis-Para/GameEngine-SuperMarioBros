@@ -1,6 +1,6 @@
-#include "createNPCs.h"
-#include "app.h"
-#include "Utilities.h"
+#include "../Include/createNPCs.h"
+#include "../Include/app.h"
+#include "../Include/Utilities.h"
 
 using namespace std;
 

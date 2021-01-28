@@ -1,5 +1,5 @@
-#include "Animation.h"
-#include "Utilities.h"
+#include "../Include/Animation.h"
+#include "../Include/Utilities.h"
 
 // AnimationFilm
 AnimationFilm::AnimationFilm(const std::string& _id) : id(_id) {}

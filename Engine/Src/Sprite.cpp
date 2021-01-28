@@ -1,5 +1,5 @@
-#include "Sprite.h"
-#include "Utilities.h"
+#include "../Include/Sprite.h"
+#include "../Include/Utilities.h"
 extern struct game_params game_params;
 
 // MotionQuantizer
