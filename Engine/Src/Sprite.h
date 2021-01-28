@@ -125,7 +125,6 @@ public:
 	void SetFormStateId(spriteFormState_t);
 
 	void hit();
-	void kill();
 };
 
 template<typename Tfunc>
@@ -148,6 +147,7 @@ class CollisionChecker final{
 		void Cancel(Sprite* s1, Sprite* s2);
 		void CancelAll(Sprite* s1);
 		void Check(void) const;
+		void clear(void);
 		static auto GetSingleton(void)->CollisionChecker&;
 		static auto GetSingletonConst(void) -> const CollisionChecker&;
 };
@@ -171,6 +171,7 @@ class SpriteManager final {
 	public:
 		void Add(Sprite* s); // insert by ascending order
 		void Remove(Sprite* s);
+		void RemoveAll(void);
 		auto GetDisplayList(void) -> const SpriteList&;
 		auto GetTypeList(const std::string& typeId) -> const SpriteList&;
 		static auto GetSingleton(void)->SpriteManager&;

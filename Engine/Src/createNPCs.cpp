@@ -1085,7 +1085,7 @@ void app::create_starman(int x, int y) {
 //-------------------From Here Is The Pipe Creation--------------------------
 //---------------------------------------------------------------------------
 
-void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mario_y) {
+void app::MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mario_y) {
 	Sprite* mario = SpriteManager::GetSingleton().GetTypeList("mario").front();
 	mario->SetHasDirectMotion(true);
 	mario->Move(new_mario_x - mario->GetBox().x, new_mario_y - mario->GetBox().y);

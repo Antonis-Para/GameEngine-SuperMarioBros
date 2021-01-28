@@ -303,6 +303,10 @@ void CollisionChecker::Check(void) const {
 			std::get<2>(e)(std::get<0>(e), std::get<1>(e));
 }
 
+void CollisionChecker::clear(void) {
+	entries.clear();
+}
+
 auto CollisionChecker::GetSingleton(void) -> CollisionChecker& {
 	return singleton;
 }
@@ -325,6 +329,16 @@ void SpriteManager::Remove(Sprite* s) {
 	dpyList.remove(s);
 	types[s->GetTypeId()].remove(s);
 	delete s;
+}
+
+void SpriteManager::RemoveAll(void) {
+	auto temp = dpyList;
+
+	for (auto sprite : temp) {
+		dpyList.remove(sprite);
+		types[sprite->GetTypeId()].remove(sprite);
+		delete sprite;
+	}
 }
 
 auto SpriteManager::GetDisplayList(void) -> const SpriteList& {

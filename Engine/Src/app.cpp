@@ -51,6 +51,7 @@ bool jumped = false;
 class FrameRangeAnimation* jump_anim = nullptr;
 
 bool isDead = false;
+bool winFinished = false;
 bool once = true;
 int secondsToClose = 2;
 int checkpoint_x = 0;
@@ -195,15 +196,85 @@ static void createClosestEnemies(void) {
 	}
 }
 
-void respawn() {
-	if (mario->GetBox().x >= checkpoint_x) {
+void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
+	walk = new MovingAnimator();
+	jump = new FrameRangeAnimator();
+	pipe_movement = new MovingAnimator();
 
-	}
-	else {
+	AnimatorManager::GetSingleton().Register(walk);
+	AnimatorManager::GetSingleton().Register(jump);
+	AnimatorManager::GetSingleton().Register(pipe_movement);
+	walk->SetOnAction([](Animator* animator, const Animation& anim) {
+		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+		});
 
-	}
+	jump->SetOnAction([](Animator* animator, const Animation& anim) {
+		FrameRange_Action(mario, animator, (FrameRangeAnimation&)anim);
+		});
 
-	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
+	jump->SetOnStart([](Animator* animator) {
+		mario->GetGravityHandler().SetFalling(false);
+		mario->GetGravityHandler().setGravityAddicted(false);
+		});
+	jump->SetOnFinish([](Animator* animator) {
+		delete jump_anim;
+		jump_anim = nullptr;
+		jump->Stop();
+		mario->GetGravityHandler().setGravityAddicted(true);
+		mario->GetGravityHandler().Check(mario->GetBox());
+		mario->SetFrame(0);
+		});
+
+	pipe_movement->SetOnAction([](Animator* animator, const Animation& anim) {
+		Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+		});
+	pipe_movement->SetOnStart([](Animator* animator) {
+		mario->SetHasDirectMotion(true);
+		mario->GetGravityHandler().setGravityAddicted(false);
+		mario->GetGravityHandler().SetFalling(false);
+		mario->SetFrame(0);
+		if (mario->lastMovedRight)
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
+		else
+			mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_left"));
+		AnimatorManager::GetSingleton().MarkAsSuspended(walk);
+
+		if (jump->IsAlive()) {
+			jump->Stop();
+		}
+		disable_input = true;
+		});
+
+	walk->Start(new MovingAnimation("walk", 0, 0, 0, 80), GetGameTime());
+
+	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
+	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
+	SpriteManager::GetSingleton().Add(mario);
+
+	action_layer->SetViewWindow(Rect{ 0,0,action_layer->GetViewWindow().w,action_layer->GetViewWindow().h });
+
+	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
+		int old_dx = *dx;
+		Rect posOnGrid{
+			pos.x + action_layer->GetViewWindow().x,
+			pos.y + action_layer->GetViewWindow().y,
+			pos.w,
+			pos.h,
+		};
+		if (gridOn)
+			action_layer->GetGrid()->FilterGridMotion(posOnGrid, dx, dy);
+		mario->SetPos(pos.x + *dx, pos.y + *dy);
+
+		if (old_dx > * dx && old_dx > 0 || old_dx < *dx && old_dx < 0) {
+			mario->SetStateId(IDLE_STATE);
+		}
+		});
+
+	mario->SetBoundingArea(new BoundingBox(mario->GetBox().x, mario->GetBox().y, mario->GetBox().x + mario->GetBox().w, mario->GetBox().y + mario->GetBox().h));
+	mario->SetFormStateId(SMALL_MARIO);
+	mario->Set_Str_StateId("Mario_small");
+
+	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
 	std::vector<std::string> enemies_names = { "goomba", "green_koopa_troopa", "red_koopa_troopa", "piranha_plant" };
 	vector<string> locations;
@@ -213,6 +284,138 @@ void respawn() {
 		for (auto location : locations)
 			enemies_positions[enemie_name].push_back(location);
 	}
+
+	//create all pipe sprites and add collisions
+	for (auto pipes : splitString(al_get_config_value(config, "pipes", "pipe_locations"), ",")) {
+
+		Sprite* pipe = LoadPipeCollision(mario, pipes);
+		pipe->SetFormStateId(PIPE);
+		SpriteManager::GetSingleton().Add(pipe);
+
+	}
+
+	//create super mushroom
+	locations = splitString(al_get_config_value(config, "powerups_positions", "super"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		create_super_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+	}
+
+	//create 1up mushroom
+	locations = splitString(al_get_config_value(config, "powerups_positions", "1up"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		create_1UP_mushroom(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), &game);
+	}
+
+	//create star
+	locations = splitString(al_get_config_value(config, "powerups_positions", "star"), ",");
+	for (auto location : locations) {
+		coordinates = splitString(location, " ");
+		create_starman(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+	}
+
+	for (unsigned int i = 0; i < action_layer->GetMapWidth(); i++) {
+		for (unsigned int j = 0; j < action_layer->GetMapHeight(); j++) {
+			// replace each brick index with sprite
+			if (action_layer->GetTile(j, i) == 0) {
+				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
+			}
+			else
+
+			// replace each block index with sprite
+			if (action_layer->GetTile(j, i) == 4) {
+				create_brick_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
+			}
+			else
+
+			// replace each coin index with sprite
+			if (action_layer->GetTile(j, i) == 26) {
+				create_coin_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
+			}
+			else
+			//create flag pole
+			if (action_layer->GetTile(j, i) == 496 || action_layer->GetTile(j, i) == 470) { //this is the final flag
+				Sprite* pole = nullptr;
+				if (action_layer->GetTile(j, i) == 496)
+					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
+				else
+					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
+				SpriteManager::GetSingleton().Add(pole);
+				pole->SetHasDirectMotion(true);
+				pole->GetGravityHandler().setGravityAddicted(false);
+				pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
+				CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite* s1, Sprite* s2) {
+					disable_input = true;
+					CollisionChecker::GetSingleton().CancelAll(mario);
+					if (mario->won) return;
+					mario->won = true;
+					AnimatorManager::GetSingleton().CancelAndRemoveAll();
+
+					mario->SetFrame(0);
+					mario->SetStateId(WALKING_STATE);
+					mario->GetGravityHandler().setGravityAddicted(false);
+					mario->GetGravityHandler().SetFalling(false);
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
+
+					MovingAnimator* finish_sequence = new MovingAnimator();
+					mario->Move(2, 0);
+					finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
+						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+
+						if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
+							animator->Stop();
+						}
+						});
+
+					finish_sequence->SetOnFinish([](Animator* animator) { //when we get here, mario is on the ground. stand walking right
+						cout << "CONGRATZ!\n";
+						//animator->deleteCurrAnimation();
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_right"));
+						mario->SetFrame(0);
+						mario->GetGravityHandler().setGravityAddicted(true);
+
+						//start walking right
+						animator->SetOnAction([](Animator* animator, const Animation& anim) {
+							Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+						});
+
+						((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
+						animator->SetOnFinish([](Animator* animator) {
+							winFinished = true;
+							mario->SetVisibility(false);
+							AnimatorManager::GetSingleton().Cancel(animator);
+						});
+					});
+
+					AnimatorManager::GetSingleton().Register(finish_sequence);
+					finish_sequence->Start(new MovingAnimation("finish_sequence", 0, 0, 1, 20), GetGameTime());
+
+				});
+			}
+		}
+	}
+
+	if (checkpoint) {
+		MoveScene(checkpoint_x - 100, 0, 100, atoi(coordinates[1].c_str()));
+	}
+}
+
+void respawn(Game& game) {
+	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
+	bool checkpoint = false;
+
+	if (mario->GetBox().x >= checkpoint_x) {
+		checkpoint = true;
+	}
+
+	CollisionChecker::GetSingleton().clear();
+	AnimatorManager::GetSingleton().CancelAndRemoveAll();
+	SpriteManager::GetSingleton().RemoveAll();
+
+	recreateSprites(config, game, checkpoint);
+
+	mario->Move(1, 0);
 }
 
 void InitialiseGame(Game& game) {
@@ -223,7 +426,8 @@ void InitialiseGame(Game& game) {
 		[&game](void) {
 			if (isDead) {
 				game.loseLife();
-				respawn();
+				if(!game.isGameOver() && !winFinished)
+					respawn(game);
 				isDead = false;
 			}
 			if (game.isGameOver()) {
@@ -238,8 +442,34 @@ void InitialiseGame(Game& game) {
 
 				game.Render();
 
-				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "Game Over!");
-				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over!");
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
+
+				al_flip_display();
+
+				if (!al_is_event_queue_empty(finishQueue)) {
+					al_wait_for_event(finishQueue, &event);
+					secondsToClose--;
+					if (secondsToClose == 0) {
+						return false;
+					}
+				}
+			}
+			if (winFinished) {
+
+				if (once) {
+					secondsToClose = 30;
+					al_start_timer(finishTimer);
+					game.Pause(GetGameTime());
+					mario->SetVisibility(false);
+					once = false;
+				}
+
+				game.Render();
+
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "You won the game!");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "You won the game!");
 				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
 
 				al_flip_display();
@@ -283,7 +513,7 @@ void InitialiseGame(Game& game) {
 			al_draw_text(font, al_map_rgb(255, 255, 255), 525, 18, ALLEGRO_ALIGN_CENTER, "Score: ");
 			al_draw_text(font, al_map_rgb(255, 255, 255), 550, 19, ALLEGRO_ALIGN_LEFT, standarizeSize(to_string(game.getPoints()), 8).c_str());
 
-			if(!game.isGameOver())
+			if(!game.isGameOver() && !winFinished)
 				al_flip_display();
 		}
 	);
@@ -297,10 +527,13 @@ void InitialiseGame(Game& game) {
 					gridOn = !gridOn;
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_P) {
-					if (game.IsPaused())
+					if (!game.isGameOver() && !winFinished) {
+						if (game.IsPaused())
 						game.Resume();
 					else
 						game.Pause(GetGameTime());
+					}
+					
 				}
 				else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_K) {
 					game.addLife();
@@ -454,6 +687,10 @@ void InitialiseGame(Game& game) {
 			vector<Sprite*> toBeDestroyed;
 			vector<Sprite*> toBeDestroyedByBlock;
 			vector<Sprite*> toBeDestroyedWithoutPoints;
+
+			if (mario->GetBox().y > action_layer->GetViewWindow().h + 10) {
+				isDead = true;
+			}
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
@@ -926,6 +1163,7 @@ void app::MainApp::Load(void) {
 
 						((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
 						animator->SetOnFinish([](Animator* animator) {
+							winFinished = true;
 							mario->SetVisibility(false); 
 							AnimatorManager::GetSingleton().Cancel(animator);
 						});

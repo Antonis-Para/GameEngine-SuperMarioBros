@@ -19,5 +19,6 @@ namespace app {
 	void create_brick_sprite(int x, int y);
 	void create_block_sprite(int, int, Game*);
 	void create_coin_sprite(int x, int y, Game* game);
+	void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mario_y);
 	Sprite* LoadPipeCollision(Sprite* mario, string pipes);
 }
