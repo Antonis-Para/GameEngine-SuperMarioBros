@@ -507,6 +507,12 @@ void InitialiseGame(Game& game) {
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				for (auto sprite : toBeDestroyedWithoutPoints) {
+					if (sprite->GetAnimator()) {
+						sprite->GetAnimator()->Stop();
+						sprite->GetAnimator()->deleteCurrAnimation();
+						sprite->GetAnimator()->Destroy();
+						AnimatorManager::GetSingleton().Cancel(sprite->GetAnimator());
+					}
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
