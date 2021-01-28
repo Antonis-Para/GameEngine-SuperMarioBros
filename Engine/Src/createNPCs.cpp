@@ -237,7 +237,7 @@ void app::create_enemy_green_koopa_troopa(int x, int y) {
 									return;
 								if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving do nothing
 									return;
-								if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimator*)s2->GetAnimator())->GetAnim()->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
+								if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimation*)s2->GetAnimator()->GetAnim())->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
 									return; //if piranha is under the pipe do nothing
 								s2->SetFormStateId(DELETE);
 								for (auto shell : shells)
@@ -506,7 +506,7 @@ void app::create_enemy_red_koopa_troopa(int x, int y) {
 									return;
 								if (s1->GetStateId() == IDLE_STATE) //if someone collides when shell is not moving
 									return;
-								if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimator*)s2->GetAnimator())->GetAnim()->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
+								if (s2->GetTypeId() == "piranha_plant" && ((MovingPathAnimation*)s2->GetAnimator()->GetAnim())->GetPath().size() == 1 + ((MovingPathAnimator*)s2->GetAnimator())->GetFrame())
 									return; //if piranha is under the pipe do nothing
 								s2->SetFormStateId(DELETE);
 								//CollisionChecker::GetSingleton().Cancel(s1, s2);
@@ -722,8 +722,7 @@ void app::create_enemy_piranha_plant(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
-
-			if (piranha_move->GetFrame() + 1 == piranha_move->GetAnim()->GetPath().size()) { //piranha is bellow the pipe
+			if (piranha_move->GetFrame() + 1 == ((MovingPathAnimation*)(piranha_move->GetAnim()))->GetPath().size()) { //piranha is bellow the pipe
 				if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 2 + s2_y1) { //mario on top of the piranha
 					piranha_move->SetLastTime(GetGameTime());
 				}
@@ -1066,6 +1065,7 @@ void app::create_starman(int x, int y) {
 			});
 
 			animator->SetOnFinish([s1](Animator* animator) {
+				s1->SetVisibility(true);
 				((FlashAnimator*)animator)->deleteCurrAnimation();
 				AnimatorManager::GetSingleton().Cancel(animator);
 				animator->Destroy();
@@ -1145,6 +1145,11 @@ void MoveScene(int new_screen_x, int new_screen_y, int new_mario_x, int new_mari
 		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
 	}
 
+	sprites = SpriteManager::GetSingleton().GetTypeList("pole");
+	for (auto sprite : sprites) { // move the sprites the opposite directions (f.e. pole)
+		sprite->Move(-(new_screen_x - action_layer->GetViewWindow().x), 0);
+	}
+
 	circular_background->Scroll(new_screen_x - action_layer->GetViewWindow().x);
 	underground_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, underground_layer->GetViewWindow().w, underground_layer->GetViewWindow().h });
 	action_layer->SetViewWindow(Rect{ new_screen_x, new_screen_y, action_layer->GetViewWindow().w, action_layer->GetViewWindow().h });
@@ -1176,7 +1181,7 @@ Sprite* app::LoadPipeCollision(Sprite* mario, string pipes) {
 			if ((s2_y2 >= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && keys[ALLEGRO_KEY_S]) { //if mario on top of the pipe
 				//PLAY ANIMATION HERE
 
-				if (&pipe_movement->GetAnim() != nullptr)
+				if (pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.up", 32, 0, 1, 30), GetGameTime());
 
@@ -1205,7 +1210,7 @@ Sprite* app::LoadPipeCollision(Sprite* mario, string pipes) {
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
 			if ((s2_y2 <= s1_y1) && (s1_x1 >= s2_x1) && (s1_x2 <= s2_x2) && (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP])) { //if mario bellow the pipe
-				if (&pipe_movement->GetAnim() != nullptr)
+				if (pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.down", 32, 0, -1, 30), GetGameTime());
 
@@ -1233,7 +1238,7 @@ Sprite* app::LoadPipeCollision(Sprite* mario, string pipes) {
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
 			if ((s2_x2 >= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && (keys[ALLEGRO_KEY_D] || keys[ALLEGRO_KEY_RIGHT])) { //if mario on left of the pipe
-				if (&pipe_movement->GetAnim() != nullptr)
+				if (pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.left", 32, 1, 0, 30), GetGameTime());
 
@@ -1261,7 +1266,7 @@ Sprite* app::LoadPipeCollision(Sprite* mario, string pipes) {
 			int s2_y2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getY2();
 
 			if ((s2_x2 <= s1_x1) && (s1_y1 >= s2_y1) && (s1_y2 <= s2_y2) && (keys[ALLEGRO_KEY_A] || keys[ALLEGRO_KEY_LEFT])) { //if mario on right of the pipe
-				if (&pipe_movement->GetAnim() != nullptr)
+				if (pipe_movement->GetAnim() != nullptr)
 					return;
 				pipe_movement->Start(new MovingAnimation("pipe.right", 32, -1, 0, 30), GetGameTime());
 

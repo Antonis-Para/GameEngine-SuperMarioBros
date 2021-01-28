@@ -76,6 +76,7 @@ protected:
 	short int speedUpdatedTimes = 0;
 public:
 	bool lastMovedRight = false;
+	bool won = false;
 
 	Sprite(int _x, int _y, const AnimationFilm* film, const std::string& _typeId = "");
 
@@ -124,8 +125,7 @@ public:
 	void SetFormStateId(spriteFormState_t);
 
 	void hit();
-	void SetHit(bool v);
-	bool GetHit();
+	void kill();
 };
 
 template<typename Tfunc>

@@ -63,8 +63,8 @@ void MovingAnimator::Progress(timestamp_t currTime) {
 	}
 }
 
-auto MovingAnimator::GetAnim(void) const -> const MovingAnimation& {
-	return *anim;
+Animation* MovingAnimator::GetAnim(void){
+	return anim;
 }
 
 void MovingAnimator::Start(MovingAnimation* a, timestamp_t t) {
@@ -99,7 +99,7 @@ void MovingPathAnimator::deleteCurrAnimation() {
 	anim = nullptr;
 }
 
-MovingPathAnimation* MovingPathAnimator::GetAnim(void){
+Animation* MovingPathAnimator::GetAnim(void){
 	return anim;
 }
 
@@ -156,6 +156,9 @@ void FlashAnimator::deleteCurrAnimation() {
 	anim = nullptr;
 }
 
+Animation* FlashAnimator::GetAnim(void) {
+	return anim;
+}
 
 /*void Sprite_MoveAction(Sprite* sprite, const MovingAnimation& anim) {
 	sprite->Move(anim.GetDx(), anim.GetDy());
@@ -210,6 +213,9 @@ void FrameRangeAnimator::Start(FrameRangeAnimation* a, timestamp_t t) {
 	NotifyAction(*anim);
 }
 
+Animation* FrameRangeAnimator::GetAnim(void) {
+	return anim;
+}
 
 // TickAnimator
 void TickAnimator::Progress(timestamp_t currTime) {
@@ -262,6 +268,26 @@ void AnimatorManager::Register(Animator* a) {
 void AnimatorManager::Cancel(Animator* a) {
 	assert(a->HasFinished());
 	suspended.erase(a);
+}
+
+void AnimatorManager::CancelAndRemoveAll() {
+	auto copied1(suspended);
+	for (auto* a : copied1) {
+		//if (a->GetAnim() != nullptr)
+		//	a->deleteCurrAnimation();
+		suspended.erase(a);
+		a->Destroy();
+	}
+
+	auto copied2(running);
+	for (auto* a : copied2) {
+		if (a->GetAnim() != nullptr)
+			a->deleteCurrAnimation();
+		running.erase(a);
+		a->Destroy();
+	}
+
+	//suspended.erase(a);
 }
 
 void AnimatorManager::MarkAsRunning(Animator* a) {

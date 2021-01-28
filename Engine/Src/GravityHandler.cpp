@@ -22,6 +22,10 @@ void GravityHandler::Check(const Rect& r) {
 	}
 }
 
+bool GravityHandler::isOnSolidGround(const Rect& r) {
+	return onSolidGround(r);
+}
+
 bool GravityHandler::isFalling() {
 	return is_Falling;
 

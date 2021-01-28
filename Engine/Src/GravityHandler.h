@@ -27,6 +27,7 @@ public:
 	void Check(const Rect& r);
 	bool isFalling();
 	void SetFalling(bool v);
+	bool isOnSolidGround(const Rect&);
 	void setGravityAddicted(bool val);
 	int getFallingTimer(void);
 	void increaseFallingTimer(void);
