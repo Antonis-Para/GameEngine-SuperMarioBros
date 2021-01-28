@@ -632,6 +632,8 @@ string loadAllBlocks(const ALLEGRO_CONFIG* config) {
 		+ "blocks.block:" + string(al_get_config_value(config, "blocks", "block")) + '$'
 		+ "blocks.empty_block:" + string(al_get_config_value(config, "blocks", "empty_block")) + '$'
 		+ "blocks.coin:" + string(al_get_config_value(config, "blocks", "coin")) + '$'
+		+ "blocks.pole:" + string(al_get_config_value(config, "blocks", "pole")) + '$'
+		+ "blocks.green_ball:" + string(al_get_config_value(config, "blocks", "green_ball")) + '$'
 		;
 }
 
@@ -780,16 +782,74 @@ void app::MainApp::Load(void) {
 			// replace each brick index with sprite
 			if (action_layer->GetTile(j, i) == 0) {
 				create_block_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
-			}
+			}else
 
 			// replace each block index with sprite
 			if (action_layer->GetTile(j, i) == 4) {
 				create_brick_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j));
-			}
+			}else
 
 			// replace each coin index with sprite
 			if (action_layer->GetTile(j, i) == 26) {
 				create_coin_sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), &game);
+			}else
+				//create flag pole
+			if (action_layer->GetTile(j, i) == 496 || action_layer->GetTile(j, i) == 470) { //this is the final flag
+				Sprite* pole = nullptr;
+				if (action_layer->GetTile(j, i) == 496)
+					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
+				else
+					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
+				SpriteManager::GetSingleton().Add(pole);
+				pole->SetHasDirectMotion(true);
+				pole->GetGravityHandler().setGravityAddicted(false);
+				pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
+				CollisionChecker::GetSingleton().Register(mario, pole, [](Sprite *s1, Sprite *s2) {
+					disable_input = true;
+					CollisionChecker::GetSingleton().CancelAll(mario);
+					if (mario->won) return;
+					mario->won = true;
+					AnimatorManager::GetSingleton().CancelAndRemoveAll();
+
+					mario->SetFrame(0);
+					mario->SetStateId(WALKING_STATE);
+					mario->GetGravityHandler().setGravityAddicted(false);
+					mario->GetGravityHandler().SetFalling(false);
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
+
+					MovingAnimator* finish_sequence = new MovingAnimator();
+					mario->Move(2, 0);
+					finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
+						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+
+						if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
+							animator->Stop();
+						}
+					});
+
+					finish_sequence->SetOnFinish([](Animator* animator) { //when we get here, mario is on the ground. stand walking right
+						cout << "CONGRATZ!\n";
+						//animator->deleteCurrAnimation();
+						mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".walk_right"));
+						mario->SetFrame(0);
+						mario->GetGravityHandler().setGravityAddicted(true);
+
+						//start walking right
+						animator->SetOnAction([](Animator* animator, const Animation& anim) {
+							Sprite_MoveAction(mario, (const MovingAnimation&)anim);
+						});
+
+						((MovingAnimator*)animator)->Start(new MovingAnimation("finish_sequence", 80, 2, 0, 20), GetGameTime());
+						animator->SetOnFinish([](Animator* animator) {
+							mario->SetVisibility(false); 
+							AnimatorManager::GetSingleton().Cancel(animator);
+						});
+					});
+
+					AnimatorManager::GetSingleton().Register(finish_sequence);
+					finish_sequence->Start(new MovingAnimation("finish_sequence", 0, 0, 1, 20), GetGameTime());
+
+				});
 			}
 		}
 	}
@@ -883,6 +943,7 @@ bool app::ReadTextMap(class TileLayer* layer, string filename) {
 				else {
 					layer->SetTile(x, y, val);
 				}
+
 				x++;
 				line.erase(0, pos + delimiter.length());
 			}

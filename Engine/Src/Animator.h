@@ -39,6 +39,7 @@ public:
 	virtual void TimeShift(timestamp_t offset);
 	virtual void Progress(timestamp_t currTime) = 0;
 	virtual void deleteCurrAnimation() = 0;
+	virtual Animation* GetAnim(void) = 0;
 
 	template<typename Tfunc>
 	void SetOnFinish(const Tfunc& f);
@@ -71,7 +72,7 @@ public:
 	MovingAnimator(void) = default;
 
 	void Progress(timestamp_t currTime);
-	auto GetAnim(void) const -> const MovingAnimation&;
+	Animation* GetAnim(void);
 	void Start(MovingAnimation* a, timestamp_t t);
 	void deleteCurrAnimation();
 };
@@ -98,6 +99,7 @@ public:
 	unsigned GetCurrRep(void) const;
 	void deleteCurrAnimation();
 	void Start(FrameRangeAnimation* a, timestamp_t t);
+	Animation* GetAnim(void);
 };
 
 
@@ -129,7 +131,7 @@ public:
 	unsigned GetFrame(void);
 
 	void Progress(timestamp_t currTime);
-	MovingPathAnimation* GetAnim(void);
+	Animation* GetAnim(void);
 	//unsigned GetCurrRep(void) const;
 	//unsigned GetElapsedTime(void) const;
 	//float GetElapsedTimeNormalised(void) const;
@@ -147,6 +149,7 @@ public:
 	void Progress(timestamp_t currTime);
 	void deleteCurrAnimation();
 	void Start(FlashAnimation* a, timestamp_t t);
+	Animation* GetAnim(void);
 };
 
 class AnimatorManager {
@@ -165,4 +168,5 @@ public:
 	static auto GetSingleton(void)->AnimatorManager&;
 	static auto GetSingletonConst(void) -> const AnimatorManager&;
 	void TimeShift(unsigned dt);
+	void AnimatorManager::CancelAndRemoveAll();
 };

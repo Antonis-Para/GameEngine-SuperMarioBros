@@ -183,8 +183,13 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 	};
 }
 
+void Sprite::kill() {
+
+}
+
 void Sprite::hit() {
-	if (isHit || formStateId == INVINCIBLE_MARIO_SMALL || formStateId == INVINCIBLE_MARIO_SUPER) return; //if sprite has alrteady been hit, dont hit it again :(
+	if (isHit || formStateId == INVINCIBLE_MARIO_SMALL || formStateId == INVINCIBLE_MARIO_SUPER) 
+		return; //if sprite has alrteady been hit, dont hit it again :(
 	
 	if (formStateId == SUPER_MARIO) {
 		formStateId = SMALL_MARIO;
@@ -195,7 +200,8 @@ void Sprite::hit() {
 	}
 	else { //mario is small and gets hit->KILL HIM!
 		cout << "MARIO JUST GOT KILLED\n";
-		//return; <- TODO: uncomment when we make the mario getting killed
+		kill();
+		return; //<- TODO: uncomment when we make the mario getting killed
 	}
 	
 	FlashAnimator* animator = new FlashAnimator();
@@ -213,18 +219,12 @@ void Sprite::hit() {
 	animator->SetOnFinish([this](Animator* animator) {
 		((FlashAnimator*)animator)->deleteCurrAnimation();
 		isHit = false;
+		isVisible = true;
 		AnimatorManager::GetSingleton().Cancel(animator);
 		animator->Destroy();
 	});
 
 	animator->Start(new FlashAnimation("flash", 30, 100, 100), GetGameTime());
-}
-
-void Sprite::SetHit(bool val) {
-	isHit = val;
-}
-bool Sprite::GetHit() {
-	return isHit;
 }
 
 GravityHandler& Sprite::GetGravityHandler(void) {
