@@ -441,6 +441,7 @@ void respawn(Game& game) {
 	recreateSprites(config, game, checkpoint);
 
 	mario->Move(1, 0);
+	shells.clear();
 }
 
 void InitialiseGame(Game& game) {
