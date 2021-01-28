@@ -921,7 +921,7 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addCoin();
-			game->addPoints(200);
+			game->addPoints(game_params.coin_points);
 		}
 	);
 }

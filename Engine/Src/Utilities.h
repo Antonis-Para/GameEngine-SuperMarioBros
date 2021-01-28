@@ -20,6 +20,7 @@ struct game_params {
 	unsigned piranha_plant_points = 100;
 	unsigned powerups_points = 1000;
 	unsigned mario_max_speed = 4;
+	unsigned coin_points = 200;
 };
 
 vector <string> splitString(string text, string delimiter);
