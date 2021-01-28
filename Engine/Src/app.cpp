@@ -61,6 +61,7 @@ bool winFinished = false;
 bool once = true;
 int secondsToClose = 2;
 int checkpoint_x = 0;
+int end_x = 0;
 
 std::unordered_set <Sprite*> shells;
 
@@ -459,7 +460,7 @@ void respawn(Game& game) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
 	bool checkpoint = false;
 
-	if (mario->GetBox().x + action_layer->GetViewWindow().x >= checkpoint_x) {
+	if (mario->GetBox().x + action_layer->GetViewWindow().x >= checkpoint_x && mario->GetBox().x + action_layer->GetViewWindow().x < end_x) {
 		checkpoint = true;
 	}
 
@@ -1255,6 +1256,7 @@ void app::MainApp::Load(void) {
 				if (action_layer->GetTile(j, i) == 496)
 					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
 				else
+					end_x = MUL_TILE_WIDTH(i);
 					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
 				SpriteManager::GetSingleton().Add(pole);
 				pole->SetHasDirectMotion(true);
