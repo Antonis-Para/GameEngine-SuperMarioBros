@@ -79,7 +79,7 @@ list<struct pointShow*> pointsShowList;
 ALLEGRO_SAMPLE* deathEffect;
 static ALLEGRO_SAMPLE* jumpEffect;
 static ALLEGRO_SAMPLE* bgSong;
-static ALLEGRO_SAMPLE_INSTANCE* backgroundSong;
+ALLEGRO_SAMPLE_INSTANCE* backgroundSong;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -540,6 +540,7 @@ void InitialiseGame(Game& game) {
 					if (secondsToClose == 0) {
 						game.Resume();
 						al_stop_timer(finishTimer);
+						al_play_sample_instance(backgroundSong);
 						disable_input = false;
 						respawing = false;
 					}
