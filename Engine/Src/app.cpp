@@ -405,8 +405,9 @@ void respawn(Game& game) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
 	bool checkpoint = false;
 
-	if (mario->GetBox().x >= checkpoint_x) {
+	if (mario->GetBox().x + action_layer->GetViewWindow().x >= checkpoint_x) {
 		checkpoint = true;
+		cout << "checkpoint" << endl;
 	}
 
 	CollisionChecker::GetSingleton().clear();
