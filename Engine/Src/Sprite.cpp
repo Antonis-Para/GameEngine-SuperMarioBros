@@ -183,6 +183,7 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 	};
 }
 
+
 extern bool isDead;
 
 void Sprite::hit() {
@@ -200,7 +201,6 @@ void Sprite::hit() {
 		cout << "MARIO JUST GOT KILLED\n";
 		isDead = true;
 		//return; <- TODO: uncomment when we make the mario getting killed
-
 	}
 	
 	FlashAnimator* animator = new FlashAnimator();

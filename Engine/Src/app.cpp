@@ -49,8 +49,11 @@ class FrameRangeAnimator* jump;
 bool not_moved = true;
 bool jumped = false;
 class FrameRangeAnimation* jump_anim = nullptr;
+
 bool isDead = false;
 bool once = true;
+int secondsToClose = 2;
+int checkpoint_x = 0;
 
 std::unordered_set <Sprite*> shells;
 
@@ -128,7 +131,8 @@ void InstallPauseResumeHandler(Game& game) {
 				al_flush_event_queue(aiQueue);
 			}
 			else {
-				al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
+				if(!game.isGameOver())
+					al_draw_text(paused_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Paused");
 				al_flip_display();
 			}
 		}
@@ -192,7 +196,23 @@ static void createClosestEnemies(void) {
 }
 
 void respawn() {
+	if (mario->GetBox().x >= checkpoint_x) {
 
+	}
+	else {
+
+	}
+
+	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
+
+	std::vector<std::string> enemies_names = { "goomba", "green_koopa_troopa", "red_koopa_troopa", "piranha_plant" };
+	vector<string> locations;
+	for (std::string enemie_name : enemies_names) {
+		enemies_positions[enemie_name] = std::vector<std::string>();
+		locations = splitString(al_get_config_value(config, "emenies_positions", enemie_name.c_str()), ",");
+		for (auto location : locations)
+			enemies_positions[enemie_name].push_back(location);
+	}
 }
 
 void InitialiseGame(Game& game) {
@@ -207,16 +227,20 @@ void InitialiseGame(Game& game) {
 				isDead = false;
 			}
 			if (game.isGameOver()) {
-				int secondsToClose = 30;
 
 				if (once) {
+					secondsToClose = 30;
 					al_start_timer(finishTimer);
 					game.Pause(0);
 					mario->SetVisibility(false);
 					once = false;
 				}
 
-				al_draw_text(tittle_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over!");
+				game.Render();
+
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "Game Over!");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over!");
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
 
 				al_flip_display();
 
@@ -259,7 +283,8 @@ void InitialiseGame(Game& game) {
 			al_draw_text(font, al_map_rgb(255, 255, 255), 525, 18, ALLEGRO_ALIGN_CENTER, "Score: ");
 			al_draw_text(font, al_map_rgb(255, 255, 255), 550, 19, ALLEGRO_ALIGN_LEFT, standarizeSize(to_string(game.getPoints()), 8).c_str());
 
-			al_flip_display();
+			if(!game.isGameOver())
+				al_flip_display();
 		}
 	);
 
@@ -768,6 +793,8 @@ void app::MainApp::Load(void) {
 
 	liveIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "characters_path")), { 127, 60, 16, 16 });
 	coinIcon = SubBitmapCreate(BitmapLoad(al_get_config_value(config, "paths", "npcs_path")), {0, 16, 16, 16});
+
+	checkpoint_x = atoi(splitString(al_get_config_value(config, "potitions", "checkpoint"), " ")[0].c_str());
 
 	vector<string> coordinates = splitString(al_get_config_value(config, "potitions", "start"), " ");
 	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
