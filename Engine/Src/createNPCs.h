@@ -1,6 +1,4 @@
 #include "Sprite.h"
-#include <cstdlib>
-#include <ctime>
 
 namespace app {
 

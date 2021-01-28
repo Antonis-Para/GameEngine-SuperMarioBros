@@ -881,17 +881,16 @@ void app::create_block_sprite(int x, int y, Game *game) {
 						jump->deleteCurrAnimation();
 					al_start_timer(blockTimer);
 
-					srand((unsigned) time(0));
-					int giftNum = rand() % 10;
-					if (giftNum == 0 || giftNum == 1 || giftNum == 2)
-						create_coin_sprite(x - action_layer->GetViewWindow().x, y - 16, game);
-					else if(giftNum == 3 || giftNum == 4 || giftNum == 5)
-						create_super_mushroom(x - action_layer->GetViewWindow().x, y - 16);
-					else if (giftNum == 6 || giftNum == 7) {}
-					else if (giftNum == 8)
-						create_1UP_mushroom(x - action_layer->GetViewWindow().x, y - 16, game);
-					else if (giftNum == 9)
+					int giftNum = rand() % 100;
+					if(giftNum < 10)
 						create_starman(x - action_layer->GetViewWindow().x, y - 16);
+					else if(giftNum < 20)
+						create_1UP_mushroom(x - action_layer->GetViewWindow().x, y - 16, game);
+					else if (giftNum < 40) {}
+					else if(giftNum < 70)
+						create_super_mushroom(x - action_layer->GetViewWindow().x, y - 16);
+					else if(giftNum < 100)
+						create_coin_sprite(x - action_layer->GetViewWindow().x, y - 16, game);
 
 					if (!SpriteManager::GetSingleton().GetTypeList("powerup").empty()) {
 						std::vector<std::string> block_types = { "brick" , "block" };
@@ -922,7 +921,7 @@ void app::create_coin_sprite(int x, int y, Game* game) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE);
 			game->addCoin();
-			game->addPoints(200);
+			game->addPoints(game_params.coin_points);
 		}
 	);
 }

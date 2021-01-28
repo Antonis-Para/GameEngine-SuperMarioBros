@@ -12,6 +12,8 @@
 #include <math.h>
 #include <string>
 #include <unordered_set>
+#include <cstdlib>
+#include <ctime>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>

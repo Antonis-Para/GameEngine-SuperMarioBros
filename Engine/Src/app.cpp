@@ -493,6 +493,7 @@ void InitialiseParams(ALLEGRO_CONFIG*  config) {
 	game_params.piranha_plant_points = atoi(al_get_config_value(config, "Game_Params", "piranha_plant_points"));
 	game_params.powerups_points = atoi(al_get_config_value(config, "Game_Params", "powerups_points"));
 	game_params.mario_max_speed = atoi(al_get_config_value(config, "Game_Params", "mario_max_speed"));
+	game_params.coin_points = atoi(al_get_config_value(config, "Game_Params", "coin_points"));
 }
 
 void InitialiseGame(Game& game) {
@@ -658,7 +659,7 @@ void InitialiseGame(Game& game) {
 						return;
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-						al_play_sample(jumpEffect, .75f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
+						al_play_sample(jumpEffect, .10f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 						if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
 							jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
@@ -937,6 +938,7 @@ void InitialiseGame(Game& game) {
 }
 
 void app::MainApp::Initialise(void) {
+	srand((unsigned int) time(NULL));
 	SetGameTime();
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";
@@ -1000,6 +1002,7 @@ void app::MainApp::Initialise(void) {
 	assert(backgroundSong);
 	al_reserve_samples(2);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
+	al_set_sample_instance_gain(backgroundSong, .5f);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
 
