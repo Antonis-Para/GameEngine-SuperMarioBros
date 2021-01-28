@@ -12,7 +12,8 @@ vector <string> splitString(string text, string delimiter) {
 		results.push_back(token);
 		text.erase(0, pos + delimiter.length());
 	}
-	results.push_back(text);
+	if (text != "")
+		results.push_back(text);
 
 	return results;
 }
