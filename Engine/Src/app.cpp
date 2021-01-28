@@ -119,6 +119,7 @@ void app::Game::MainLoopIteration(void) {
 		AI();
 		Physics();
 		CollisionChecking();
+		//DestructionManager::Get().Commit();
 		CommitDestructions();
 		UserCode(); // hook for custom code at end
 	}
