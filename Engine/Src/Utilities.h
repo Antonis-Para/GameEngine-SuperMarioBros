@@ -25,3 +25,10 @@ struct game_params {
 vector <string> splitString(string text, string delimiter);
 int customRound(double number);
 string standarizeSize(string text, int size);
+
+struct pointShow {
+    int points;
+    int x;
+    int y;
+    int final_y;
+};
