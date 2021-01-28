@@ -690,8 +690,8 @@ void InitialiseGame(Game& game) {
 						return;
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
-						al_play_sample(jumpEffect, .10f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 						if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
+							al_play_sample(jumpEffect, .10f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 							jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
 							jump_anim->SetChangeSpeed([](int& dx, int& dy, int frameNo) {
