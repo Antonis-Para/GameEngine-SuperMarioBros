@@ -183,14 +183,8 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 	};
 }
 
-<<<<<<< HEAD
-void Sprite::kill() {
-
-}
-
-=======
 extern bool isDead;
->>>>>>> 317748b257b96b05050777221a65cb726f0a837c
+
 void Sprite::hit() {
 	if (isHit || formStateId == INVINCIBLE_MARIO_SMALL || formStateId == INVINCIBLE_MARIO_SUPER) 
 		return; //if sprite has alrteady been hit, dont hit it again :(
@@ -204,13 +198,9 @@ void Sprite::hit() {
 	}
 	else { //mario is small and gets hit->KILL HIM!
 		cout << "MARIO JUST GOT KILLED\n";
-<<<<<<< HEAD
-		kill();
-		return; //<- TODO: uncomment when we make the mario getting killed
-=======
 		isDead = true;
 		//return; <- TODO: uncomment when we make the mario getting killed
->>>>>>> 317748b257b96b05050777221a65cb726f0a837c
+
 	}
 	
 	FlashAnimator* animator = new FlashAnimator();
