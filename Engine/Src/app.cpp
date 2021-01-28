@@ -432,6 +432,10 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 		}
 	}
 
+	for (auto brick : SpriteManager::GetSingleton().GetTypeList("brick")) {
+		action_layer->SolidTileGridBlock(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y));
+	}
+
 	if (checkpoint) {
 		MoveScene(checkpoint_x - 100, 0, 100, atoi(coordinates[1].c_str()));
 	}
@@ -846,7 +850,7 @@ void InitialiseGame(Game& game) {
 					}
 					else if (brick->GetFormStateId() == SMASHED) {
 						toBeDestroyed.push_back(brick);
-						action_layer->UnsolidTileGridBlocks(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
+						action_layer->UnsolidTileGridBlock(DIV_TILE_WIDTH(brick->GetBox().x + action_layer->GetViewWindow().x), DIV_TILE_HEIGHT(brick->GetBox().y + action_layer->GetViewWindow().y) + 1);
 					}
 				}
 				for (auto sprite : toBeDestroyed) {

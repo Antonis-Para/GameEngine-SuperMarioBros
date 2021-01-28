@@ -32,6 +32,7 @@ public:
 	bool SolidOnLeft(const Rect& r);
 
 	void UnsolidTile(int col, int row);
+	void SolidTile(int col, int row);
 
 	GridMap* GetBuffer(void);
 	const GridMap* GetBuffer(void) const;

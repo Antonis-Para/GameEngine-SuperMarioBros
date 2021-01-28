@@ -1029,12 +1029,13 @@ void app::create_1UP_mushroom(int x, int y, Game* game) {
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
 }
 
+FlashAnimator* star_animator = nullptr;
 void app::create_starman(int x, int y) {
 	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.star"), "powerup");
 	SpriteManager::GetSingleton().Add(powerup);
+	unsigned seconds = 30;
 
 	powerup->SetStateId(WALKING_STATE);
-	powerup->SetZorder(0);
 	powerup->SetBoundingArea(new BoundingBox(powerup->GetBox().x, powerup->GetBox().y, powerup->GetBox().x + powerup->GetBox().w, powerup->GetBox().y + powerup->GetBox().h));
 	powerup->GetGravityHandler().setGravityAddicted(true);
 
@@ -1066,7 +1067,7 @@ void app::create_starman(int x, int y) {
 
 	//invincible mario 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
-		[](Sprite* s1, Sprite* s2) {
+		[seconds](Sprite* s1, Sprite* s2) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE); //delete the star
 
@@ -1075,18 +1076,23 @@ void app::create_starman(int x, int y) {
 			else if (s1->GetFormStateId() == SUPER_MARIO)
 				s1->SetFormStateId(INVINCIBLE_MARIO_SUPER);
 			else { //TODO: mario is already invinsible. Do something
+				if (star_animator == nullptr) return; //no mans land
+				star_animator->ResetCurrRep(); //reset
 				return;
 			}
 
 			FlashAnimator* animator = new FlashAnimator();
 			AnimatorManager::GetSingleton().Register(animator);
+			star_animator = animator;
+
 
 			animator->SetOnAction([s1](Animator* animator, const Animation& anim) {
 				s1->SetVisibility(!s1->IsVisible());
 			});
 
-			animator->SetOnFinish([s1](Animator* animator) {
+			animator->SetOnFinish([s1, seconds](Animator* animator) {
 				s1->SetVisibility(true);
+				star_animator = nullptr;
 				((FlashAnimator*)animator)->deleteCurrAnimation();
 				AnimatorManager::GetSingleton().Cancel(animator);
 				animator->Destroy();
@@ -1095,7 +1101,6 @@ void app::create_starman(int x, int y) {
 				else if (s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER)
 					s1->SetFormStateId(SUPER_MARIO);
 			});
-			unsigned seconds = 30;
 			animator->Start(new FlashAnimation("flash_star", seconds * 10, 100, 100), GetGameTime());
 		}
 	);
