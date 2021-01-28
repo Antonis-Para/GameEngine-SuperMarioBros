@@ -1,35 +1,30 @@
-# Super Mario
+# CS-454. Development of Intelligent Interfaces and Games
 
 ---
 
-### Content
-- [TODO](#todo)
-- [About Allegro](#about-allegro)
+## Implementation of Super Mario
 
 ---
 
-## TODO
-
-- [x] Write code from lectures
-- [x] Map APIs from lecture to Allegro
-- [x] INI file
-- [x] Mario character load (small)
-- [ ] Rest of characters load
-- [x] Make sprites
-- [x] Graviry and jump
-- [x] Pause
-- [X] Display pause text
-- [X] Stop jump animation when mario hits a block on the way up
-- [ ] Smoother jump
+## Team
+- Paragioudakis Antonis csd4022@csd.uoc.gr
+- Pantelakis Giorgos Stavros csd4017@csd.uoc.gr
+- Raptakis Michail csd4101@csd.uoc.gr
 
 ---
 
-## Questions
+## About Implementation
+The implementation of the work was done in the environment of Microsoft Visual Studio 2019.  
+For the graphics the Allegro5 library was used, which we used through the NuGet Package Manager  
+Microsoft Visual Studio 2019 and the activation of the necessary Addons from the properties of  
+the project ( Image, Truetype Font, Primitives, Audio, Audio Codec Addons). To run the game, a  
+new project must be created, with the above features, and the code imported. Note that in the  
+config.ini file the necessary changes must be made to the path of the variables depending on  
+the structure of the project.
 
-- Are we supposed to change our sprites' animationFilm or is the animator going to handle this?
+---
 
-
-## About Allegro
+### About Allegro
 
 [Allegro Oficial repository](https://github.com/liballeg/allegro5)  
 [Allegro Oficial wiki](https://github.com/liballeg/allegro_wiki/wiki)
