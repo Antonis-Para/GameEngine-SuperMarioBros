@@ -407,11 +407,11 @@ Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 					AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
 					if (s1_x1 < s2_x1) {
 						s2->lastMovedRight = true;
-						s2->Move(8, 0);
+						s2->Move(16, 0);
 					}
 					else {
 						s2->lastMovedRight = false;
-						s2->Move(-8, 0);
+						s2->Move(-16, 0);
 					}
 					s2->SetStateId(WALKING_STATE);
 				}
@@ -695,11 +695,11 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 					AnimatorManager::GetSingleton().Cancel(koopa_troopa_walk);
 					if (s1_x1 < s2_x1) {
 						s2->lastMovedRight = true;
-						s2->Move(8, 0);
+						s2->Move(16, 0);
 					}
 					else {
 						s2->lastMovedRight = false;
-						s2->Move(-8, 0);
+						s2->Move(-16, 0);
 					}
 					s2->SetStateId(WALKING_STATE);
 				}
