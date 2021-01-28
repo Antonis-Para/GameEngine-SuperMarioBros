@@ -936,6 +936,7 @@ void InitialiseGame(Game& game) {
 }
 
 void app::MainApp::Initialise(void) {
+	srand((unsigned int) time(NULL));
 	SetGameTime();
 	if (!al_init()) {
 		std::cout << "ERROR: Could not init allegro\n";

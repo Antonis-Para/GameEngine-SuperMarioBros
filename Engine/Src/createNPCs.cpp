@@ -881,7 +881,6 @@ void app::create_block_sprite(int x, int y, Game *game) {
 						jump->deleteCurrAnimation();
 					al_start_timer(blockTimer);
 
-					srand((unsigned) time(0));
 					int giftNum = rand() % 100;
 					if(giftNum < 10)
 						create_starman(x - action_layer->GetViewWindow().x, y - 16);
