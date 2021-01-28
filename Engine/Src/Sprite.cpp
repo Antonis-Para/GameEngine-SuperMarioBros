@@ -185,6 +185,7 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 
 
 extern bool isDead;
+
 void Sprite::hit() {
 	if (isHit || formStateId == INVINCIBLE_MARIO_SMALL || formStateId == INVINCIBLE_MARIO_SUPER) 
 		return; //if sprite has alrteady been hit, dont hit it again :(
