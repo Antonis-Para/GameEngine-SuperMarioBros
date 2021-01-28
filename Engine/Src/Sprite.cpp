@@ -1,4 +1,6 @@
 #include "Sprite.h"
+#include "Utilities.h"
+extern struct game_params game_params;
 
 // MotionQuantizer
 MotionQuantizer& MotionQuantizer::SetRange(int h, int v) {
@@ -242,13 +244,13 @@ char Sprite::GetSpeed() {
 }
 
 void Sprite::incSpeed(unsigned long time) {
-	if (time - lastSpeedUpdate >= speedDelay && speedUpdatedTimes < CHARACTER_MAX_SPEED) {
-		speed = ((speedUpdatedTimes + 1) * CHARACTER_MAX_SPEED) / CHARACTER_MAX_SPEED;
+	if (time - lastSpeedUpdate >= speedDelay && speedUpdatedTimes < game_params.mario_max_speed) {
+		speed = ((speedUpdatedTimes + 1) * game_params.mario_max_speed) / game_params.mario_max_speed;
 		lastSpeedUpdate = time;
 		speedUpdatedTimes++;
 	}
-	else if (speedUpdatedTimes == CHARACTER_MAX_SPEED) {
-		speed = CHARACTER_MAX_SPEED;
+	else if (speedUpdatedTimes == game_params.mario_max_speed) {
+		speed = game_params.mario_max_speed;
 		SetStateId(RUNNING_STATE);
 	}
 }

@@ -46,7 +46,7 @@ namespace app {
 			bool isPaused = false;
 			uint64_t pauseTime = 0;
 
-			int lives = 3;
+			int lives = 6;
 			int coins = 0;
 			int points = 0;
 
@@ -62,6 +62,7 @@ namespace app {
 			template <typename Tfunc> void SetAI(const Tfunc& f) { ai = f; }
 			// rest of setters are similary defined
 
+			void setInitLifes(int l);
 			void Render(void);
 			void ProgressAnimations(void);
 			void Input(void);
