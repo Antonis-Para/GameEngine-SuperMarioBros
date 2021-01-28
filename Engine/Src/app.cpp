@@ -8,6 +8,8 @@
 
 using namespace std;
 
+struct game_params game_params;
+
 //--------------------GLOBAL VARS-----------------------
 class TileLayer* action_layer;
 TileLayer* underground_layer;
@@ -68,6 +70,10 @@ ALLEGRO_FONT* tittle_font_smaller;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
+void app::Game::setInitLifes(int l) {
+	lives = l;
+}
+
 void app::Game::Invoke(const Action& f) { if (f) f(); }
 void app::Game::Render(void) { Invoke(render); }
 void app::Game::ProgressAnimations(void) { Invoke(anim); }
@@ -461,6 +467,22 @@ void respawn(Game& game) {
 	mario->Move(1, 0);
 }
 
+void InitialiseParams(ALLEGRO_CONFIG*  config) {
+
+	game_params.initial_player_lifes = atoi(al_get_config_value(config, "Game_Params", "initial_player_lifes"));
+	game_params.invinsible_mario_duration = atoi(al_get_config_value(config, "Game_Params", "invinsible_mario_duration"));
+	game_params.coins_to_get_life = atoi(al_get_config_value(config, "Game_Params", "coins_to_get_life"));
+	game_params.koopa_troopa_stun_duration = atoi(al_get_config_value(config, "Game_Params", "koopa_troopa_stun_duration"));
+	game_params.enemy_speed = atoi(al_get_config_value(config, "Game_Params", "enemy_speed"));
+	game_params.enemy_shell_speed = atoi(al_get_config_value(config, "Game_Params", "enemy_shell_speed"));
+	game_params.goomba_points = atoi(al_get_config_value(config, "Game_Params", "goomba_points"));
+	game_params.green_koopa_troopa_points = atoi(al_get_config_value(config, "Game_Params", "green_koopa_troopa_points"));
+	game_params.red_koopa_troopa_points = atoi(al_get_config_value(config, "Game_Params", "red_koopa_troopa_points"));
+	game_params.piranha_plant_points = atoi(al_get_config_value(config, "Game_Params", "piranha_plant_points"));
+	game_params.powerups_points = atoi(al_get_config_value(config, "Game_Params", "powerups_points"));
+	game_params.mario_max_speed = atoi(al_get_config_value(config, "Game_Params", "mario_max_speed"));
+}
+
 void InitialiseGame(Game& game) {
 
 	InstallPauseResumeHandler(game);
@@ -758,11 +780,11 @@ void InitialiseGame(Game& game) {
 						else {
 							int speed = 0;
 							if (enemie_type == "goomba")
-								speed = ENEMIES_MOVE_SPEED;
+								speed = game_params.enemy_speed;
 							else if (enemie->GetStateId() == WALKING_STATE) {
-								speed = ENEMIES_MOVE_SPEED;
+								speed = game_params.enemy_speed;
 								if (enemie->GetFormStateId() == SMASHED)
-									speed = SHELL_SPEED;
+									speed = game_params.enemy_shell_speed;
 							}
 							enemie->Move(enemie->lastMovedRight ? speed : -speed, 0);
 						}
@@ -790,20 +812,28 @@ void InitialiseGame(Game& game) {
 						powerup->Move(powerup->lastMovedRight ? POWERUPS_MOVE_SPEED : -POWERUPS_MOVE_SPEED, 0);
 				}
 				for (auto sprite : toBeDestroyed) {
-					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
-						game.addPoints(100);
+					if (sprite->GetTypeId() == "goomba")
+						game.addPoints(game_params.goomba_points);
+					else if (sprite->GetTypeId() == "green_koopa_troopa")
+						game.addPoints(game_params.green_koopa_troopa_points);
+					else if (sprite->GetTypeId() == "red_koopa_troopa")
+						game.addPoints(game_params.red_koopa_troopa_points);
 					else if (sprite->GetTypeId() == "piranha_plant")
-						game.addPoints(200);
+						game.addPoints(game_params.piranha_plant_points);
 					else if (sprite->GetTypeId() == "powerup")
-						game.addPoints(1000);
+						game.addPoints(game_params.powerups_points);
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				for (auto sprite : toBeDestroyedByBlock) {
-					if (sprite->GetTypeId() == "goomba" || sprite->GetTypeId() == "green_koopa_troopa" || sprite->GetTypeId() == "red_koopa_troopa")
-						game.addPoints(100);
+					if (sprite->GetTypeId() == "goomba")
+						game.addPoints(game_params.goomba_points);
+					else if (sprite->GetTypeId() == "green_koopa_troopa")
+						game.addPoints(game_params.green_koopa_troopa_points);
+					else if (sprite->GetTypeId() == "red_koopa_troopa")
+						game.addPoints(game_params.red_koopa_troopa_points);
 					else if (sprite->GetTypeId() == "piranha_plant")
-						game.addPoints(200);
+						game.addPoints(game_params.piranha_plant_points);
 					sprite->GetAnimator()->Stop();
 					sprite->GetAnimator()->deleteCurrAnimation();
 					sprite->GetAnimator()->Destroy();
@@ -1040,6 +1070,8 @@ string loadAllPowerups(const ALLEGRO_CONFIG* config) {
 
 void app::MainApp::Load(void) {
 	ALLEGRO_CONFIG* config = al_load_config_file(".\\Engine\\config.ini");
+	InitialiseParams(config);
+	game.setInitLifes(game_params.initial_player_lifes);
 	assert(config != NULL);
 
 	//load bitmaps, TODO we shouldnt have a bitmap loader at all. Animation film will handle this
@@ -1408,7 +1440,7 @@ int app::Game::getCoins(void) {
 void app::Game::addCoin(void) {
 	coins += 1;
 
-	if (coins == 100) {
+	if (coins == game_params.coins_to_get_life) {
 		resetCoins();
 		addLife();
 	}

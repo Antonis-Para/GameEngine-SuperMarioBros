@@ -15,6 +15,7 @@ extern MovingAnimator* walk, * pipe_movement;
 extern bool keys[ALLEGRO_KEY_MAX];
 extern bool disable_input;
 extern ALLEGRO_TIMER* blockTimer;
+extern struct game_params game_params;
 
 void collisionBlockWithEnemies(Sprite* block, Sprite* enemy) {
 	CollisionChecker::GetSingleton().Register(block, enemy,
@@ -295,7 +296,7 @@ Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 					}
 					shells.insert(s2);
 
-					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, game_params.koopa_troopa_stun_duration * 1000), GetGameTime());
 					koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) { //transforms from shell to koopa troopa
 						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
@@ -342,7 +343,7 @@ Sprite* app::create_enemy_green_koopa_troopa(int x, int y) {
 					}
 					else { // shell is already moving. Stop it
 
-						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, game_params.koopa_troopa_stun_duration *1000), GetGameTime());
 						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
 							auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
@@ -491,11 +492,11 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 		else {
 			if (!action_layer->GetGrid()->IsOnSolidGround(posOnGrid, WALKING_STATE) && koopa_troopa->GetFormStateId() == ENEMY) {
 				if (koopa_troopa->lastMovedRight) {
-					*dx = -ENEMIES_MOVE_SPEED;
+					*dx = (-1) * (int)game_params.enemy_speed;
 					koopa_troopa->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_left"));
 				}
 				else {
-					*dx = ENEMIES_MOVE_SPEED;
+					*dx = game_params.enemy_speed;
 					koopa_troopa->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_right"));
 				}
 				*dy = 0;
@@ -581,7 +582,7 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 					}
 					shells.insert(s2);
 
-					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+					koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, game_params.koopa_troopa_stun_duration*1000), GetGameTime());
 					koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
 						auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 						for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
@@ -629,7 +630,7 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 					}
 					else { // shell is already moving. Stop it
 
-						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, 5000), GetGameTime());
+						koopa_troopa_walk->Start(new MovingAnimation("koopa_troopa_shell", 1, 0, 0, game_params.koopa_troopa_stun_duration * 1000), GetGameTime());
 						koopa_troopa_walk->SetOnFinish([s2, koopa_troopa_walk](Animator* animator) {
 							auto sprites = SpriteManager::GetSingleton().GetTypeList("goomba");
 							for (auto sprite : SpriteManager::GetSingleton().GetTypeList("red_koopa_troopa")) sprites.push_back(sprite);
@@ -1033,7 +1034,6 @@ FlashAnimator* star_animator = nullptr;
 void app::create_starman(int x, int y) {
 	Sprite* powerup = new Sprite(x, y, AnimationFilmHolder::GetInstance().GetFilm("powerups.star"), "powerup");
 	SpriteManager::GetSingleton().Add(powerup);
-	unsigned seconds = 30;
 
 	powerup->SetStateId(WALKING_STATE);
 	powerup->SetBoundingArea(new BoundingBox(powerup->GetBox().x, powerup->GetBox().y, powerup->GetBox().x + powerup->GetBox().w, powerup->GetBox().y + powerup->GetBox().h));
@@ -1067,7 +1067,7 @@ void app::create_starman(int x, int y) {
 
 	//invincible mario 
 	CollisionChecker::GetSingleton().Register(mario, powerup,
-		[seconds](Sprite* s1, Sprite* s2) {
+		[](Sprite* s1, Sprite* s2) {
 			CollisionChecker::GetSingleton().Cancel(s1, s2);
 			s2->SetFormStateId(DELETE); //delete the star
 
@@ -1090,7 +1090,7 @@ void app::create_starman(int x, int y) {
 				s1->SetVisibility(!s1->IsVisible());
 			});
 
-			animator->SetOnFinish([s1, seconds](Animator* animator) {
+			animator->SetOnFinish([s1](Animator* animator) {
 				s1->SetVisibility(true);
 				star_animator = nullptr;
 				((FlashAnimator*)animator)->deleteCurrAnimation();
@@ -1101,7 +1101,7 @@ void app::create_starman(int x, int y) {
 				else if (s1->GetFormStateId() == INVINCIBLE_MARIO_SUPER)
 					s1->SetFormStateId(SUPER_MARIO);
 			});
-			animator->Start(new FlashAnimation("flash_star", seconds * 10, 100, 100), GetGameTime());
+			animator->Start(new FlashAnimation("flash_star", game_params.invinsible_mario_duration * 10, 100, 100), GetGameTime());
 		}
 	);
 	powerup->GetGravityHandler().Check(powerup->GetBox()); //activte gravity
