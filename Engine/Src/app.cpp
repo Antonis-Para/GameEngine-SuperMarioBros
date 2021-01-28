@@ -492,6 +492,7 @@ void InitialiseParams(ALLEGRO_CONFIG*  config) {
 	game_params.piranha_plant_points = atoi(al_get_config_value(config, "Game_Params", "piranha_plant_points"));
 	game_params.powerups_points = atoi(al_get_config_value(config, "Game_Params", "powerups_points"));
 	game_params.mario_max_speed = atoi(al_get_config_value(config, "Game_Params", "mario_max_speed"));
+	game_params.coin_points = atoi(al_get_config_value(config, "Game_Params", "coin_points"));
 }
 
 void InitialiseGame(Game& game) {
