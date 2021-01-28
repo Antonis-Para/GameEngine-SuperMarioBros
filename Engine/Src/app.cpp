@@ -188,8 +188,16 @@ static void createClosestEnemies(void) {
 					new_sprite = create_enemy_green_koopa_troopa(x, y);
 				else if (enemie_position.first == "red_koopa_troopa")
 					new_sprite = create_enemy_red_koopa_troopa(x, y);
-				else if (enemie_position.first == "piranha_plant")
+				else if (enemie_position.first == "piranha_plant") {
 					new_sprite = create_enemy_piranha_plant(x, y);
+					Sprite *pipe = new Sprite(x - 8, y, AnimationFilmHolder::GetInstance().GetFilm("Pipe.up"), "pipe");
+					pipe->SetHasDirectMotion(true);
+					pipe->GetGravityHandler().setGravityAddicted(false);
+					pipe->SetZorder(1);
+					pipe->SetBoundingArea(new BoundingBox(pipe->GetBox().x, pipe->GetBox().y, pipe->GetBox().x + pipe->GetBox().w, pipe->GetBox().y + pipe->GetBox().h));
+					pipe->SetFormStateId(PIPE);
+					SpriteManager::GetSingleton().Add(pipe);
+				}
 				copied_locations.erase(std::find(copied_locations.begin(), copied_locations.end(), *it));
 				if (new_sprite) {
 					for (auto shell : shells) {
