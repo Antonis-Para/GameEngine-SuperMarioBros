@@ -187,6 +187,7 @@ const Sprite::Mover MakeSpriteGridLayerMover(GridLayer* gridLayer, Sprite* sprit
 
 
 extern bool isDead;
+extern ALLEGRO_SAMPLE* deathEffect;
 
 void Sprite::hit() {
 	if (isHit || formStateId == INVINCIBLE_MARIO_SMALL || formStateId == INVINCIBLE_MARIO_SUPER) 
@@ -201,6 +202,7 @@ void Sprite::hit() {
 	}
 	else { //mario is small and gets hit->KILL HIM!
 		isDead = true;
+		al_play_sample(deathEffect, .5f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 		//return; <- TODO: uncomment when we make the mario getting killed
 	}
 	
