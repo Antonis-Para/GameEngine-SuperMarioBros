@@ -82,7 +82,7 @@ namespace app {
 			int getLives(void);
 			void addLife(void);
 			void loseLife(void);
-			bool isDead(void);
+			bool isGameOver(void);
 
 			int getCoins(void);
 			void addCoin(void);
