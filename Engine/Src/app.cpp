@@ -23,6 +23,7 @@ ALLEGRO_TIMER* timer;
 ALLEGRO_TIMER* fallingTimer;
 ALLEGRO_TIMER* aiTimer;
 ALLEGRO_TIMER* blockTimer;
+ALLEGRO_TIMER* finishTimer;
 bool gridOn = true;
 bool disable_input = false;
 Bitmap characters = nullptr;
@@ -33,6 +34,7 @@ ALLEGRO_EVENT_QUEUE* queue;
 ALLEGRO_EVENT_QUEUE* fallingQueue;
 ALLEGRO_EVENT_QUEUE* aiQueue;
 ALLEGRO_EVENT_QUEUE* blockQueue;
+ALLEGRO_EVENT_QUEUE* finishQueue;
 bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
@@ -46,6 +48,8 @@ class FrameRangeAnimator* jump;
 bool not_moved = true;
 bool jumped = false;
 class FrameRangeAnimation* jump_anim = nullptr;
+bool isDead = false;
+bool once = true;
 
 std::unordered_set <Sprite*> shells;
 
@@ -164,12 +168,43 @@ void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
 }
 
+void respawn() {
+
+}
+
 void InitialiseGame(Game& game) {
 
 	InstallPauseResumeHandler(game);
 
 	game.SetDone(
-		[](void) {
+		[&game](void) {
+			if (isDead) {
+				game.loseLife();
+				respawn();
+				isDead = false;
+			}
+			if (game.isGameOver()) {
+				int secondsToClose = 30;
+
+				if (once) {
+					al_start_timer(finishTimer);
+					game.Pause(0);
+					mario->SetVisibility(false);
+					once = false;
+				}
+
+				al_draw_text(tittle_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over!");
+
+				al_flip_display();
+
+				if (!al_is_event_queue_empty(finishQueue)) {
+					al_wait_for_event(finishQueue, &event);
+					secondsToClose--;
+					if (secondsToClose == 0) {
+						return false;
+					}
+				}
+			}
 			return !closeWindowClicked;
 		}
 	);
@@ -370,6 +405,7 @@ void InitialiseGame(Game& game) {
 		[&game](void) {
 			vector<Sprite*> toBeDestroyed;
 			vector<Sprite*> toBeDestroyedByBlock;
+			vector<Sprite*> toBeDestroyedWithoutPoints;
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
@@ -379,10 +415,13 @@ void InitialiseGame(Game& game) {
 						if (enemie_type == "goomba" && enemie->GetFormStateId() == SMASHED) {
 							//if smashed do nothing (dont move it)
 						}
-						else if (enemie->GetFormStateId() == DELETE
-							|| (enemie_type != "red_koopa_troopa" && enemie->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h))) {
+						else if (enemie->GetFormStateId() == DELETE) {
 							enemie->SetVisibility(false);
 							toBeDestroyed.push_back(enemie);
+						}
+						else if (enemie->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+							enemie->SetVisibility(false);
+							toBeDestroyedWithoutPoints.push_back(enemie);
 						}
 						else if (enemie->GetFormStateId() == DELETE_BY_BLOCK) {
 							enemie->SetVisibility(false);
@@ -411,9 +450,13 @@ void InitialiseGame(Game& game) {
 					}
 
 				for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-					if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+					if (powerup->GetFormStateId() == DELETE) {
 						powerup->SetVisibility(false);
 						toBeDestroyed.push_back(powerup);
+					}
+					else if (powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+						powerup->SetVisibility(false);
+						toBeDestroyedWithoutPoints.push_back(powerup);
 					}
 					else
 						powerup->Move(powerup->lastMovedRight ? POWERUPS_MOVE_SPEED : -POWERUPS_MOVE_SPEED, 0);
@@ -440,8 +483,13 @@ void InitialiseGame(Game& game) {
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
+				for (auto sprite : toBeDestroyedWithoutPoints) {
+					SpriteManager::GetSingleton().Remove(sprite);
+					CollisionChecker::GetSingleton().CancelAll(sprite);
+				}
 				toBeDestroyed.clear();
 				toBeDestroyedByBlock.clear();
+				toBeDestroyedWithoutPoints.clear();
 			}
 
 			if (!al_is_event_queue_empty(blockQueue)) {
@@ -525,6 +573,10 @@ void app::MainApp::Initialise(void) {
 	blockQueue = al_create_event_queue();
 	blockTimer = al_create_timer(1.0/6);
 	al_register_event_source(blockQueue, al_get_timer_event_source(blockTimer));
+
+	finishQueue = al_create_event_queue();
+	finishTimer = al_create_timer(1.0);
+	al_register_event_source(finishQueue, al_get_timer_event_source(finishTimer));
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
 	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
@@ -956,7 +1008,7 @@ void app::Game::loseLife(void) {
 	lives--;
 }
 
-bool app::Game::isDead(void) {
+bool app::Game::isGameOver(void) {
 	return lives == 0;
 }
 
