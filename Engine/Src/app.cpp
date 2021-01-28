@@ -283,6 +283,7 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 	mario = new Sprite(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()), AnimationFilmHolder::GetInstance().GetFilm("Mario_small.stand_right"), "mario");
 	SpriteManager::GetSingleton().Add(mario);
 
+	underground_layer->SetViewWindow(Rect{ 0,0,action_layer->GetViewWindow().w,action_layer->GetViewWindow().h });
 	action_layer->SetViewWindow(Rect{ 0,0,action_layer->GetViewWindow().w,action_layer->GetViewWindow().h });
 
 	mario->SetMover([](const Rect& pos, int* dx, int* dy) {
