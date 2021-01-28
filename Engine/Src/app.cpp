@@ -76,9 +76,10 @@ ALLEGRO_FONT* tittle_font_smaller;
 
 list<struct pointShow*> pointsShowList;
 
+ALLEGRO_SAMPLE* deathEffect;
 static ALLEGRO_SAMPLE* jumpEffect;
 static ALLEGRO_SAMPLE* bgSong;
-static ALLEGRO_SAMPLE_INSTANCE* backgroundSong;
+ALLEGRO_SAMPLE_INSTANCE* backgroundSong;
 /*--------------------CLASSES---------------------------*/
 
 //-------------Class Game----------------
@@ -539,6 +540,7 @@ void InitialiseGame(Game& game) {
 					if (secondsToClose == 0) {
 						game.Resume();
 						al_stop_timer(finishTimer);
+						al_play_sample_instance(backgroundSong);
 						disable_input = false;
 						respawing = false;
 					}
@@ -1023,13 +1025,15 @@ void app::MainApp::Initialise(void) {
 
 	jumpEffect = al_load_sample(".\\Engine\\Media\\marioJumpSoundEffect.wav");
 	assert(jumpEffect);
+	deathEffect = al_load_sample(".\\Engine\\Media\\marioDeathSoundEffect.wav");
+	assert(deathEffect);
 	bgSong = al_load_sample(".\\Engine\\Media\\SuperMarioBrosBackgroundMusic.ogg");
 	assert(bgSong);
 	backgroundSong = al_create_sample_instance(bgSong);
 	assert(backgroundSong);
-	al_reserve_samples(2);
+	al_reserve_samples(3);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
-	al_set_sample_instance_gain(backgroundSong, .5f);
+	al_set_sample_instance_gain(backgroundSong, .25f);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
 
@@ -1404,6 +1408,7 @@ void app::MainApp::Clear(void) {
 	al_destroy_bitmap(action_layer->GetBitmap());
 	al_destroy_bitmap(underground_layer->GetBitmap());
 	al_destroy_sample(jumpEffect);
+	al_destroy_sample(deathEffect);
 	al_destroy_sample(bgSong);
 	al_destroy_sample_instance(backgroundSong);
 	//TODO destroy grid, tiles, background
