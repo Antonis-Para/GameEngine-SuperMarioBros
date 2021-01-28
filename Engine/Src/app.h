@@ -95,6 +95,7 @@ namespace app {
 
 			int getPoints(void);
 			void addPoints(int);
+			void addPointsNoShow(int);
 	};
 
 

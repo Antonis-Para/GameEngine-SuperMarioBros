@@ -416,7 +416,7 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 						mario->Move(7, 0);
 						finish_sequence->SetOnAction([&game](Animator* animator, const Animation& anim) {
 							Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-							game.addPoints(10);
+							game.addPointsNoShow(10);
 							if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
 								animator->Stop();
 							}
@@ -1306,7 +1306,7 @@ void app::MainApp::Load(void) {
 					mario->Move(7, 0);
 					finish_sequence->SetOnAction([this](Animator* animator, const Animation& anim) {
 						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
-						game.addPoints(10);
+						game.addPointsNoShow(10);
 						if (mario->GetGravityHandler().isOnSolidGround(mario->GetBox())) {
 							animator->Stop();
 						}
@@ -1543,5 +1543,9 @@ int app::Game::getPoints(void) {
 void app::Game::addPoints(int extra_points) {
 	struct pointShow* tmp = new pointShow({ extra_points, mario->GetBox().x, mario->GetBox().y, mario->GetBox().y - 50 });
 	pointsShowList.push_back(tmp);
+	points += extra_points;
+}
+
+void app::Game::addPointsNoShow(int extra_points) {
 	points += extra_points;
 }
