@@ -702,12 +702,14 @@ string loadAllCharacters(const ALLEGRO_CONFIG* config) {
 		 + "Mario_small.stand_left:" + string(al_get_config_value(config, "Mario_small", "stand_left")) + '$'
 		 + "Mario_small.jump_right:" + string(al_get_config_value(config, "Mario_small", "jump_right")) + '$'
 		 + "Mario_small.jump_left:" + string(al_get_config_value(config, "Mario_small", "jump_left")) + '$'
+		 + "Mario_small.winning_sequence:" + string(al_get_config_value(config, "Mario_small", "winning_sequence")) + '$'
 		 + "Mario_big.walk_right:" + string(al_get_config_value(config, "Mario_big", "walk_right")) + '$'
 		 + "Mario_big.walk_left:" + string(al_get_config_value(config, "Mario_big", "walk_left")) + '$'
 		 + "Mario_big.stand_right:" + string(al_get_config_value(config, "Mario_big", "stand_right")) + '$'
 		 + "Mario_big.stand_left:" + string(al_get_config_value(config, "Mario_big", "stand_left")) + '$'
 		 + "Mario_big.jump_right:" + string(al_get_config_value(config, "Mario_big", "jump_right")) + '$'
 		 + "Mario_big.jump_left:" + string(al_get_config_value(config, "Mario_big", "jump_left")) + '$'
+		 + "Mario_big.winning_sequence:" + string(al_get_config_value(config, "Mario_big", "winning_sequence")) + '$'
 		;
 }
 
@@ -900,10 +902,10 @@ void app::MainApp::Load(void) {
 					mario->SetStateId(WALKING_STATE);
 					mario->GetGravityHandler().setGravityAddicted(false);
 					mario->GetGravityHandler().SetFalling(false);
-					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".stand_right"));
+					mario->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm(mario->Get_Str_StateId() + ".winning_sequence"));
 
 					MovingAnimator* finish_sequence = new MovingAnimator();
-					mario->Move(2, 0);
+					mario->Move(7, 0);
 					finish_sequence->SetOnAction([](Animator* animator, const Animation& anim) {
 						Sprite_MoveAction(mario, (const MovingAnimation&)anim);
 
