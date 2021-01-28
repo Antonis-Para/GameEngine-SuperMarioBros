@@ -481,8 +481,11 @@ Sprite* app::create_enemy_red_koopa_troopa(int x, int y) {
 			int s2_x1 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX1();
 			int s2_x2 = ((const BoundingBox*)(s2->GetBoundingArea()))->getX2();
 
+			cout << "IN\n";
+			if (s2->GetFormStateId() == SMASHED)
+				cout << "IN\n";
 			if (s1_x2 >= s2_x1 && s1_x1 < s2_x2 && s1_y2 <= 3 + s2_y1) { //mario hits  coopa/shell from top
-
+				
 				if (s2->GetFormStateId() == ENEMY) { // if alive and moving around
 					s2->SetFrame(0);
 					s2->SetCurrFilm(AnimationFilmHolder::GetInstance().GetFilm("enemies.red_koopa_troopa_shell"));

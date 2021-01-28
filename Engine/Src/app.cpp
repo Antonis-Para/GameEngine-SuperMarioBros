@@ -794,6 +794,8 @@ void InitialiseGame(Game& game) {
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
 				for (auto sprite : toBeDestroyedWithoutPoints) {
+					if (sprite->GetFormStateId() == SMASHED)
+						shells.erase(sprite);
 					if (sprite->GetAnimator()) {
 						sprite->GetAnimator()->Stop();
 						if (sprite->GetAnimator()->GetAnim())
