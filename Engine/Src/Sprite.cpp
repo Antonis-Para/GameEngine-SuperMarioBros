@@ -198,7 +198,6 @@ void Sprite::hit() {
 		gravity.Check(GetBox());
 	}
 	else { //mario is small and gets hit->KILL HIM!
-		cout << "MARIO JUST GOT KILLED\n";
 		isDead = true;
 		//return; <- TODO: uncomment when we make the mario getting killed
 	}

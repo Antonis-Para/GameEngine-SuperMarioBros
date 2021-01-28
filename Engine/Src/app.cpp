@@ -431,7 +431,6 @@ void respawn(Game& game) {
 
 	if (mario->GetBox().x + action_layer->GetViewWindow().x >= checkpoint_x) {
 		checkpoint = true;
-		cout << "checkpoint" << endl;
 	}
 
 	CollisionChecker::GetSingleton().clear();
@@ -442,7 +441,6 @@ void respawn(Game& game) {
 	recreateSprites(config, game, checkpoint);
 
 	mario->Move(1, 0);
-	shells.clear();
 }
 
 void InitialiseGame(Game& game) {
@@ -1228,14 +1226,15 @@ void mainMenu() {
 		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 250, ALLEGRO_ALIGN_CENTER, "Department of Computer Science");
 		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 280, ALLEGRO_ALIGN_CENTER, "CS-454. Development of Intelligent Interfaces and Games");
 		al_draw_text(tittle_font_smaller, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 310, ALLEGRO_ALIGN_CENTER, "Term Project, Fall Semester 2020");
-		al_draw_text(font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 420, ALLEGRO_ALIGN_CENTER, "Press ENTER to continue...");
+		al_draw_text(font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, 420, ALLEGRO_ALIGN_CENTER, "Press ENTER or SPACE to continue...");
 
 
 		al_flip_display();
 
 		if (!al_is_event_queue_empty(queue)) {
 			al_wait_for_event(queue, &event);
-			if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER
+				|| event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
 				delete menu_circular_background;
 				break;
 			}
