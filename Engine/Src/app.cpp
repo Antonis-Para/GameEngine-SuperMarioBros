@@ -13,6 +13,7 @@ class TileLayer* action_layer;
 TileLayer* underground_layer;
 class CircularBackground* circular_background;
 class CircularBackground* menu_circular_background;
+std::unordered_map<std::string, std::vector<std::string>> enemies_positions;
 
 Rect displayArea = Rect{ 0, 0, DISP_AREA_X, DISP_AREA_Y };
 int widthInTiles = 0, heightInTiles = 0;
@@ -23,6 +24,7 @@ ALLEGRO_TIMER* timer;
 ALLEGRO_TIMER* fallingTimer;
 ALLEGRO_TIMER* aiTimer;
 ALLEGRO_TIMER* blockTimer;
+ALLEGRO_TIMER* finishTimer;
 bool gridOn = true;
 bool disable_input = false;
 Bitmap characters = nullptr;
@@ -33,6 +35,7 @@ ALLEGRO_EVENT_QUEUE* queue;
 ALLEGRO_EVENT_QUEUE* fallingQueue;
 ALLEGRO_EVENT_QUEUE* aiQueue;
 ALLEGRO_EVENT_QUEUE* blockQueue;
+ALLEGRO_EVENT_QUEUE* finishQueue;
 bool scrollEnabled = false;
 int mouse_x = 0, mouse_y = 0, prev_mouse_x = 0, prev_mouse_y = 0;
 ALLEGRO_MOUSE_STATE mouse_state;
@@ -46,6 +49,8 @@ class FrameRangeAnimator* jump;
 bool not_moved = true;
 bool jumped = false;
 class FrameRangeAnimation* jump_anim = nullptr;
+bool isDead = false;
+bool once = true;
 
 std::unordered_set <Sprite*> shells;
 
@@ -164,12 +169,65 @@ void FrameRange_Action(Sprite* sprite, Animator* animator, FrameRangeAnimation& 
 	anim.ChangeSpeed(frameRangeAnimator->GetCurrFrame()); //changes Dx and Dy
 }
 
+static void createClosestEnemies(void) {
+	for (std::pair<std::string, std::vector<std::string> > enemie_position : enemies_positions) {
+		std::vector<std::string> copied_locations(enemie_position.second);
+		for (std::vector<std::string>::iterator it = enemie_position.second.begin(); it != enemie_position.second.end(); ++it) {
+			std::vector<std::string> coordinates = splitString(*it, " ");
+			int x = std::stoi(coordinates[0]) - action_layer->GetViewWindow().x, y = std::stoi(coordinates[1]);
+			if (x < action_layer->GetViewWindow().w) {
+				if (enemie_position.first == "goomba")
+					create_enemy_goomba(x, y);
+				else if (enemie_position.first == "green_koopa_troopa")
+					create_enemy_green_koopa_troopa(x, y);
+				else if (enemie_position.first == "red_koopa_troopa")
+					create_enemy_red_koopa_troopa(x, y);
+				else if (enemie_position.first == "piranha_plant")
+					create_enemy_piranha_plant(x, y);
+				copied_locations.erase(std::find(copied_locations.begin(), copied_locations.end(), *it));
+			}
+		}
+		enemies_positions[enemie_position.first] = copied_locations;
+	}
+}
+
+void respawn() {
+
+}
+
 void InitialiseGame(Game& game) {
 
 	InstallPauseResumeHandler(game);
 
 	game.SetDone(
-		[](void) {
+		[&game](void) {
+			if (isDead) {
+				game.loseLife();
+				respawn();
+				isDead = false;
+			}
+			if (game.isGameOver()) {
+				int secondsToClose = 30;
+
+				if (once) {
+					al_start_timer(finishTimer);
+					game.Pause(0);
+					mario->SetVisibility(false);
+					once = false;
+				}
+
+				al_draw_text(tittle_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over!");
+
+				al_flip_display();
+
+				if (!al_is_event_queue_empty(finishQueue)) {
+					al_wait_for_event(finishQueue, &event);
+					secondsToClose--;
+					if (secondsToClose == 0) {
+						return false;
+					}
+				}
+			}
 			return !closeWindowClicked;
 		}
 	);
@@ -370,6 +428,7 @@ void InitialiseGame(Game& game) {
 		[&game](void) {
 			vector<Sprite*> toBeDestroyed;
 			vector<Sprite*> toBeDestroyedByBlock;
+			vector<Sprite*> toBeDestroyedWithoutPoints;
 
 			if (!al_is_event_queue_empty(aiQueue)) {
 				al_wait_for_event(aiQueue, &event);
@@ -379,10 +438,13 @@ void InitialiseGame(Game& game) {
 						if (enemie_type == "goomba" && enemie->GetFormStateId() == SMASHED) {
 							//if smashed do nothing (dont move it)
 						}
-						else if (enemie->GetFormStateId() == DELETE
-							|| (enemie_type != "red_koopa_troopa" && enemie->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h))) {
+						else if (enemie->GetFormStateId() == DELETE) {
 							enemie->SetVisibility(false);
 							toBeDestroyed.push_back(enemie);
+						}
+						else if (enemie->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+							enemie->SetVisibility(false);
+							toBeDestroyedWithoutPoints.push_back(enemie);
 						}
 						else if (enemie->GetFormStateId() == DELETE_BY_BLOCK) {
 							enemie->SetVisibility(false);
@@ -411,9 +473,13 @@ void InitialiseGame(Game& game) {
 					}
 
 				for (auto powerup : SpriteManager::GetSingleton().GetTypeList("powerup")) {
-					if (powerup->GetFormStateId() == DELETE || powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+					if (powerup->GetFormStateId() == DELETE) {
 						powerup->SetVisibility(false);
 						toBeDestroyed.push_back(powerup);
+					}
+					else if (powerup->GetBox().y > (action_layer->GetViewWindow().y + action_layer->GetViewWindow().h)) {
+						powerup->SetVisibility(false);
+						toBeDestroyedWithoutPoints.push_back(powerup);
 					}
 					else
 						powerup->Move(powerup->lastMovedRight ? POWERUPS_MOVE_SPEED : -POWERUPS_MOVE_SPEED, 0);
@@ -440,8 +506,19 @@ void InitialiseGame(Game& game) {
 					SpriteManager::GetSingleton().Remove(sprite);
 					CollisionChecker::GetSingleton().CancelAll(sprite);
 				}
+				for (auto sprite : toBeDestroyedWithoutPoints) {
+					if (sprite->GetAnimator()) {
+						sprite->GetAnimator()->Stop();
+						sprite->GetAnimator()->deleteCurrAnimation();
+						sprite->GetAnimator()->Destroy();
+						AnimatorManager::GetSingleton().Cancel(sprite->GetAnimator());
+					}
+					SpriteManager::GetSingleton().Remove(sprite);
+					CollisionChecker::GetSingleton().CancelAll(sprite);
+				}
 				toBeDestroyed.clear();
 				toBeDestroyedByBlock.clear();
+				toBeDestroyedWithoutPoints.clear();
 			}
 
 			if (!al_is_event_queue_empty(blockQueue)) {
@@ -471,6 +548,7 @@ void InitialiseGame(Game& game) {
 				}
 				toBeDestroyed.clear();
 			}
+			createClosestEnemies();
 		}
 	);
 
@@ -525,6 +603,10 @@ void app::MainApp::Initialise(void) {
 	blockQueue = al_create_event_queue();
 	blockTimer = al_create_timer(1.0/6);
 	al_register_event_source(blockQueue, al_get_timer_event_source(blockTimer));
+
+	finishQueue = al_create_event_queue();
+	finishTimer = al_create_timer(1.0);
+	al_register_event_source(finishQueue, al_get_timer_event_source(finishTimer));
 
 	font = al_load_font(".\\Engine\\Media\\game_font.ttf", 20, NULL);
 	paused_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 40, NULL);
@@ -714,37 +796,13 @@ void app::MainApp::Load(void) {
 
 	PrepareSpriteGravityHandler(action_layer->GetGrid(), mario);
 
+	std::vector<std::string> enemies_names = { "goomba", "green_koopa_troopa", "red_koopa_troopa", "piranha_plant" };
 	vector<string> locations;
-
-	//create a demo goomba
-	locations = splitString(al_get_config_value(config, "emenies_positions", "goomba"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_goomba(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-	//create a demo Koopa Troopa 
-	locations = splitString(al_get_config_value(config, "emenies_positions", "green_koopa_troopa"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_green_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-
-	/*--------------------create a demo Red Koopa Troopa --------------------------
-	* Exactly the same as the green koopa but the mover function is changed. Only this!*/
-
-	locations = splitString(al_get_config_value(config, "emenies_positions", "red_koopa_troopa"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_red_koopa_troopa(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
-	}
-
-	/*---------------------------Create demo piranha plant------------------------*/
-	locations = splitString(al_get_config_value(config, "emenies_positions", "piranha_plant"), ",");
-	for (auto location : locations) {
-		coordinates = splitString(location, " ");
-		create_enemy_piranha_plant(atoi(coordinates[0].c_str()), atoi(coordinates[1].c_str()));
+	for (std::string enemie_name : enemies_names) {
+		enemies_positions[enemie_name] = std::vector<std::string>();
+		locations = splitString(al_get_config_value(config, "emenies_positions", enemie_name.c_str()), ",");
+		for (auto location : locations)
+			enemies_positions[enemie_name].push_back(location);
 	}
 
 	//create all pipe sprites and add collisions
@@ -1017,7 +1075,7 @@ void app::Game::loseLife(void) {
 	lives--;
 }
 
-bool app::Game::isDead(void) {
+bool app::Game::isGameOver(void) {
 	return lives == 0;
 }
 

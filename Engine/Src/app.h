@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <unordered_map>
+#include <tuple>
 #include <vector>
 #include <math.h>
 #include <string>
@@ -80,7 +82,7 @@ namespace app {
 			int getLives(void);
 			void addLife(void);
 			void loseLife(void);
-			bool isDead(void);
+			bool isGameOver(void);
 
 			int getCoins(void);
 			void addCoin(void);
