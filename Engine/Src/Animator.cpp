@@ -156,6 +156,10 @@ void FlashAnimator::deleteCurrAnimation() {
 	anim = nullptr;
 }
 
+void FlashAnimator::ResetCurrRep() {
+	currRep = 0;
+}
+
 Animation* FlashAnimator::GetAnim(void) {
 	return anim;
 }
