@@ -796,7 +796,8 @@ void InitialiseGame(Game& game) {
 				for (auto sprite : toBeDestroyedWithoutPoints) {
 					if (sprite->GetAnimator()) {
 						sprite->GetAnimator()->Stop();
-						sprite->GetAnimator()->deleteCurrAnimation();
+						if (sprite->GetAnimator()->GetAnim())
+							sprite->GetAnimator()->deleteCurrAnimation();
 						sprite->GetAnimator()->Destroy();
 						AnimatorManager::GetSingleton().Cancel(sprite->GetAnimator());
 					}
