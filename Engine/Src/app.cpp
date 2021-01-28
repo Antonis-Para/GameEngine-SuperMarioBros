@@ -999,6 +999,7 @@ void app::MainApp::Initialise(void) {
 	assert(backgroundSong);
 	al_reserve_samples(2);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
+	al_set_sample_instance_gain(backgroundSong, .5f);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
 
