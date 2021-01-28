@@ -66,6 +66,7 @@ ALLEGRO_FONT* paused_font;
 ALLEGRO_FONT* tittle_font;
 ALLEGRO_FONT* tittle_font_smaller;
 
+static ALLEGRO_SAMPLE* jumpEffect;
 static ALLEGRO_SAMPLE* bgSong;
 static ALLEGRO_SAMPLE_INSTANCE* backgroundSong;
 /*--------------------CLASSES---------------------------*/
@@ -607,6 +608,7 @@ void InitialiseGame(Game& game) {
 						return;
 					not_moved = true;
 					if (keys[ALLEGRO_KEY_W] || keys[ALLEGRO_KEY_UP]) {
+						al_play_sample(jumpEffect, .75f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, NULL);
 						if (jump_anim == nullptr && !mario->GetGravityHandler().isFalling()) {
 							jump_anim = new FrameRangeAnimation("jump", 0, 17, 1, 0, -16, 15); //start, end, reps, dx, dy, delay
 
@@ -927,11 +929,13 @@ void app::MainApp::Initialise(void) {
 	tittle_font = al_load_font(".\\Engine\\Media\\game_font.ttf", 30, NULL);
 	tittle_font_smaller = al_load_font(".\\Engine\\Media\\game_font.ttf", 25, NULL);
 
+	jumpEffect = al_load_sample(".\\Engine\\Media\\marioJumpSoundEffect.wav");
+	assert(jumpEffect);
 	bgSong = al_load_sample(".\\Engine\\Media\\SuperMarioBrosBackgroundMusic.ogg");
 	assert(bgSong);
 	backgroundSong = al_create_sample_instance(bgSong);
 	assert(backgroundSong);
-	al_reserve_samples(1);
+	al_reserve_samples(2);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
@@ -1303,6 +1307,7 @@ void app::MainApp::Clear(void) {
 	al_uninstall_mouse();
 	al_destroy_bitmap(action_layer->GetBitmap());
 	al_destroy_bitmap(underground_layer->GetBitmap());
+	al_destroy_sample(jumpEffect);
 	al_destroy_sample(bgSong);
 	al_destroy_sample_instance(backgroundSong);
 	//TODO destroy grid, tiles, background
