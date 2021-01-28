@@ -13,6 +13,12 @@
 
 ---
 
+## NOTE
+Turnin didn't allow us to send binary files, like pictures and audio files. 
+As a result the compiled project will not have all the features the original was supposed to have.
+
+---
+
 ## About Implementation
 The implementation of the work was done in the environment of Microsoft Visual Studio 2019.  
 For the graphics the Allegro5 library was used, which we used through the NuGet Package Manager  
