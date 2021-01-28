@@ -168,5 +168,5 @@ public:
 	static auto GetSingleton(void)->AnimatorManager&;
 	static auto GetSingletonConst(void) -> const AnimatorManager&;
 	void TimeShift(unsigned dt);
-	void AnimatorManager::CancelAndRemoveAll();
+	void CancelAndRemoveAll();
 };
