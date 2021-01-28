@@ -50,6 +50,14 @@ void GridLayer::UnsolidTile(int col, int row) {
 	}
 }
 
+void GridLayer::SolidTile(int col, int row) {
+	GridIndex* grid_start = &(grid[row][col]);
+	for (auto k = 0; k < GRID_ELEMENT_HEIGHT; ++k) {
+		memset(grid_start, GRID_SOLID_TILE, GRID_ELEMENT_WIDTH);
+		grid_start += GRID_MAX_WIDTH;
+	}
+}
+
 GridMap* GridLayer::GetBuffer(void) { return &grid; }
 
 const GridMap* GridLayer::GetBuffer(void) const { return &grid; }
