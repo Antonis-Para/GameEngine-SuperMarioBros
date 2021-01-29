@@ -1036,7 +1036,7 @@ void app::MainApp::Initialise(void) {
 	assert(backgroundSong);
 	al_reserve_samples(3);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
-	al_set_sample_instance_gain(backgroundSong, .15f);
+	al_set_sample_instance_gain(backgroundSong, .10f);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
 
@@ -1289,9 +1289,10 @@ void app::MainApp::Load(void) {
 				Sprite* pole = nullptr;
 				if (action_layer->GetTile(j, i) == 496)
 					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.pole"), "pole");
-				else
+				else {
 					end_x = MUL_TILE_WIDTH(i);
 					pole = new Sprite(MUL_TILE_WIDTH(i), MUL_TILE_HEIGHT(j), AnimationFilmHolder::GetInstance().GetFilm("blocks.green_ball"), "pole");
+				}
 				SpriteManager::GetSingleton().Add(pole);
 				pole->SetHasDirectMotion(true);
 				pole->GetGravityHandler().setGravityAddicted(false);
