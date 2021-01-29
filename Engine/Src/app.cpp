@@ -402,6 +402,7 @@ void recreateSprites(ALLEGRO_CONFIG* config, Game& game, bool checkpoint) {
 					pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
 					CollisionChecker::GetSingleton().Register(mario, pole, [&game](Sprite* s1, Sprite* s2) {
 						disable_input = true;
+						mario->SetVisibility(true);
 						CollisionChecker::GetSingleton().CancelAll(mario);
 						if (mario->won) return;
 						mario->won = true;
@@ -1035,7 +1036,7 @@ void app::MainApp::Initialise(void) {
 	assert(backgroundSong);
 	al_reserve_samples(3);
 	al_set_sample_instance_playmode(backgroundSong, ALLEGRO_PLAYMODE_LOOP);
-	al_set_sample_instance_gain(backgroundSong, .25f);
+	al_set_sample_instance_gain(backgroundSong, .15f);
 	al_attach_sample_instance_to_mixer(backgroundSong, al_get_default_mixer());
 	al_play_sample_instance(backgroundSong);
 
@@ -1297,6 +1298,7 @@ void app::MainApp::Load(void) {
 				pole->SetBoundingArea(new BoundingBox(pole->GetBox().x, pole->GetBox().y, pole->GetBox().x + pole->GetBox().w, pole->GetBox().y + pole->GetBox().h));
 				CollisionChecker::GetSingleton().Register(mario, pole, [this](Sprite *s1, Sprite *s2) {
 					disable_input = true;
+					mario->SetVisibility(true);
 					CollisionChecker::GetSingleton().CancelAll(mario);
 					if (mario->won) return;
 					mario->won = true;
@@ -1396,6 +1398,7 @@ void app::App::Run(void) {
 	mainMenu();
 	al_flush_event_queue(fallingQueue);
 	al_flush_event_queue(aiQueue);
+	al_flush_event_queue(showQueue);
 	game.MainLoop();
 }
 
