@@ -552,9 +552,10 @@ void InitialiseGame(Game& game) {
 			if (game.isGameOver()) {
 				game.Render();
 
-				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
-				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
-				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) - 40, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) - 50, ALLEGRO_ALIGN_CENTER, "Game Over! :'(");
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, ("Your score: " + to_string(game.getPoints())).c_str());
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 50, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
 
 				al_flip_display();
 
@@ -578,9 +579,10 @@ void InitialiseGame(Game& game) {
 
 				game.Render();
 
-				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, "You won the game!");
-				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, action_layer->GetViewWindow().h / 2, ALLEGRO_ALIGN_CENTER, "You won the game!");
-				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 60, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
+				al_draw_text(tittle_font, al_map_rgb(0, 0, 0), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) - 40, ALLEGRO_ALIGN_CENTER, "You won the game!");
+				al_draw_text(paused_font, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) - 50, ALLEGRO_ALIGN_CENTER, "You won the game!");
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 10, ALLEGRO_ALIGN_CENTER, ("Your score: " + to_string(game.getPoints())).c_str());
+				al_draw_text(tittle_font_smaller, al_map_rgb(255, 255, 255), action_layer->GetViewWindow().w / 2, (action_layer->GetViewWindow().h / 2) + 50, ALLEGRO_ALIGN_CENTER, ("The window will close in " + to_string(secondsToClose) + " seconds").c_str());
 
 				al_flip_display();
 
