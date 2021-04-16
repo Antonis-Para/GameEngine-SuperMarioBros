@@ -1,4 +1,4 @@
-# CS-454. Development of Intelligent Interfaces and Games
+# Development of Intelligent Interfaces and Games
 
 ---
 
